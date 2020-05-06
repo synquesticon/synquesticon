@@ -1,0 +1,69 @@
+.synquestiComponentContainer{
+  width: 100%;
+  height: calc(100% - 5px);
+  padding-top: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.synquestiFormRoot{
+  position: relative;
+  height: auto;
+  width: calc(100% - 5px);
+}
+
+.synquestiTaskOptions{
+  display: flex;
+
+  position: relative;
+  height: auto;
+  min-height: 0;
+
+  width: calc(100% - 5px);
+
+  margin-right: 10px;
+  margin-bottom: 10px;
+  margin-top: 10px;
+
+  flex-shrink: 0;
+  flex-grow: 0;
+
+  overflow-x: auto;
+
+  justify-content: flex-start;
+}
+
+.synquestiTaskOptions::before, .synquestiTaskOptions::after {
+  content: '';  /* Insert pseudo-element */
+  margin: auto; /* Make it push flex items to the center */
+}
+
+.editSynquestitaskComponentButtons{
+  width: 100%;
+  height: auto;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.synquestitaskListContainer{
+  display: flex;
+  flex-grow: 1;
+  flex-shrink: 1;
+  min-height: 0;
+}
+
+.synquestitaskListViewer{
+  position: relative;
+  height: calc(100%);
+  width: calc(100% - 6px);
+
+  border-style: solid;
+  border-width: thin;
+  border-color: grey;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+}

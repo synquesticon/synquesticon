@@ -1,0 +1,53 @@
+.messageBoard {
+  position: absolute;
+
+  display: flex;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+
+  width: calc(100% - 30px);
+  height: calc(100% - 10px);
+
+  padding-left: 10px;
+  padding-right: 20px;
+  padding-top: 10px;
+
+  font-family: Arial;
+
+  cursor: default;
+}
+
+.messageBoardtitle {
+  font-weight: bold;
+  padding-left: 10px;
+}
+
+.messages {
+  padding-left: 15px;
+  padding-top: 6px;
+  overflow-y: auto;
+}
+
+.messages::-webkit-scrollbar{
+  display: inline-block;
+  width: 6px;
+}
+
+/* Track */
+.messages::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+.messages::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+/* Handle on hover */
+.messages::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

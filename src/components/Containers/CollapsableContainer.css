@@ -1,0 +1,56 @@
+.collpasedContainer{
+  position: relative;
+  width: 100%;
+  height: auto;
+}
+
+/**** Header ******/
+.containerHeader{
+  position: relative;
+  width: 100%;
+  display: inline-flex;
+  flex-direction: row;
+
+  border-bottom-width: thin;
+  border-bottom-style: solid;
+  border-color: grey;
+}
+
+.leftHeaderContent{
+  position: relative;
+  display: flex;
+  flex-grow: 1;
+}
+.collapseBtnContainer{
+  position: relative;
+  height: 100%;
+}
+
+.rotateIcon{
+  transform: rotate(90deg);
+}
+.titleContainer{
+  position: relative;
+  height: 100%;
+  display:flex;
+  align-items: center; /* Vertical center alignment */
+}
+
+.customHeaderComponents{
+  position: relative;
+  display: flex;
+  flex-grow: 1;
+  height: 100%;
+}
+
+.contentOpen{
+  border-bottom-width: thin;
+  border-bottom-style: solid;
+  border-color: grey;
+}
+
+/**** Content ******/
+.collapsableContent{
+  width: 100%;
+  height: auto;
+}

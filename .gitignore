@@ -1,0 +1,11 @@
+backend/node_modules/*
+mqttAEDES/node_modules/*
+node_modules/*
+build/*
+public/Images/*
+docs/*
+VisualStimuli/*
+certificate/*
+backend/exported_data/*
+backend/raw_gaze_data/*
+documentations/~$Player.docx

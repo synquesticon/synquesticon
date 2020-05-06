@@ -1,0 +1,33 @@
+.multiItemContainer{
+  height: 100%;
+  max-height: 100%;
+  width: 100%;
+  overflow-y: auto;
+}
+
+.multiItemContent{
+  position: relative;
+  width: 100%;
+  height: auto;
+
+  margin: auto;
+
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  align-items: center;
+
+  overflow-y: auto;
+}
+
+.multiItemButtonContainer{
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+}
+
+.itemContainer {
+  position: relative;
+  height: auto;
+  padding-bottom: 5%;
+}

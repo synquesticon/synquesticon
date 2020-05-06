@@ -1,0 +1,17 @@
+.headerContent{
+  display: flex;
+  flex-direction: row;
+  flex: 0 0 auto;
+}
+
+.AppName {
+  display: flex;
+  flex-shrink:1;
+  flex-grow:1;
+
+  position: relative;
+  align-self: center;
+  justify-content: center;
+
+  cursor: default;
+}

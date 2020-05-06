@@ -1,0 +1,58 @@
+.setComponentContainer{
+  width: 100%;
+  height: calc(100% - 5px);
+  padding-top: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.setFormRoot{
+  position: relative;
+  height: auto;
+  width: calc(100% - 5px);
+}
+.setTaskListContainer{
+  display: flex;
+  flex-grow: 1;
+  flex-shrink: 1;
+  min-height: 0;
+}
+
+.setTaskListViewer{
+  position: relative;
+  height: calc(100% - 10px);
+  width: calc(100% - 6px);
+  top: 10px;
+
+  border-style: solid;
+  border-width: thin;
+  border-color: grey;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.setTaskListViewer::-webkit-scrollbar{
+  display: inline-block;
+  width: 6px;
+}
+/* Track */
+.setTaskListViewer::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+/* Handle */
+.setTaskListViewer::-webkit-scrollbar-thumb {
+  background: #888;
+}
+/* Handle on hover */
+.setTaskListViewer::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+.editSetComponentButtons{
+  width: 100%;
+  height: auto;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}

@@ -1,0 +1,46 @@
+.imagePreviewContainer{
+  position: relative;
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  height: 100%;
+  width: 100%;
+}
+
+.imageCanvas {
+  position: relative;
+  display: block;
+  align-self: center;
+  justify-content: center;
+
+  max-width: 100%;
+  max-height: 400px;
+
+  object-fit: contain;
+
+  margin: auto;
+}
+
+.AOICanvas {
+  position: absolute;
+  display: flex;
+  opacity: 0.5;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+.clickableCanvas {
+  position: absolute;
+  display: flex;
+  top: 0;
+  left: 0;
+  z-index: 2;
+}
+
+.fullScreenImage {
+  height: 100vh;
+  width: 100%;
+}

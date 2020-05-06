@@ -1,0 +1,109 @@
+.ObserverViewerContent{
+  position: relative;
+
+  display: flex;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+
+
+  height: 100%;
+  width: 100%;
+}
+
+.ObserverHeader{
+  position: relative;
+
+  display: flex;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+
+  height: 90px;
+  width: 100%;
+}
+
+.ObserverPlayPauseContainer{
+  display: flex;
+  height: 100%;
+  width: 160px;
+  justify-content: center;
+  align-items: center;
+}
+
+.ObserverTabsWrapper{
+  position: relative;
+  width: calc(100% - 160px);
+  height: 100%;
+  overflow-x: auto;
+}
+
+.ObserverTabContainer{
+  position: relative;
+
+  display: flex;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+
+  height: 100%;
+  width: auto;
+}
+
+.ShowScrollBar::-webkit-scrollbar{
+  display: inline-block;
+}
+
+.ObserverTabContainer::-webkit-scrollbar {
+  height: 6px;
+}
+
+/* Track */
+.ObserverTabContainer::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+.ObserverTabContainer::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+/* Handle on hover */
+.ObserverTabContainer::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.ObserverMessageLog{
+  position: relative;
+
+  display: flex;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+
+  flex-grow: 1;
+
+  width: 100%;
+}
+
+.ViewerGaze{
+  position: relative;
+  display: flex;
+
+  /* Only use if single participant displayed */
+  justify-content: center;
+  align-items: center;
+
+  height: 200px;
+
+  width: 100%;
+  overflow-x: auto;
+}
