@@ -34,7 +34,7 @@ const IMAGE_FOLDER = "Images";
 var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://localhost:27017/webEntryDb";
 
-MongoClient.connect(url, { useNewUrlParser: true }, function(err, db) {
+MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, function(err, db) {
   if (err) throw err;
   console.log("Database created!");
   db.close();
@@ -46,7 +46,8 @@ const dbRoute = url;
 // connects our back end code with the database
 mongoose.connect(
   dbRoute,
-  { useNewUrlParser: true }
+  { useNewUrlParser: true,
+  useUnifiedTopology: true }
 );
 
 let db = mongoose.connection;
