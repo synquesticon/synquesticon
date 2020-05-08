@@ -1,3 +1,5 @@
+import * as dbObjects from './db_objects';
+
 export function getCurrentTime() {
   var dt = new Date();
   return dt.getTime();
@@ -61,7 +63,8 @@ export function getAllImagePaths(taskList){
 
 function getImagePath(dataList, imageFiles){
   dataList.forEach(function(data){
-    if(data.taskType==="TaskSet"){
+
+    if(data.taskType===dbObjects.ObjectTypes.SET){
       getImagePath(data.data, imageFiles);
     }
     else if(data.taskType==="Image"){

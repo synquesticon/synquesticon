@@ -94,10 +94,11 @@ class ImageViewComponent extends Component {
       var a = aois[i];
 
       if(a.imageRef.current === null){
-        return;
+        console.log("null imageref");
+        return ["noAOI"];
       }
 
-      var imageDivRect = a.imageRef.current.getBoundingClientRect();
+      var imageDivRect = this.imageRef.current.getBoundingClientRect();
       var polygon = [];
       if (a.boundingbox.length > 0) {
         for(let boundingbox of a.boundingbox){

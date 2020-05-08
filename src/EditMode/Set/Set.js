@@ -98,10 +98,10 @@ class EditSet extends Component {
   updateSetChildList(taskToAdd){
     this.shouldCloseAsset = false;
 
-    if (taskToAdd.objType === "TaskSet"){
+    if (taskToAdd.objType === dbObjects.ObjectTypes.SET){
       db_helper.getTasksOrTaskSetsWithIDs(taskToAdd._id, this.handleUpdateSetChildTasks);
     }
-    else if(taskToAdd.objType === "Synquestitask"){
+    else if(taskToAdd.objType === dbObjects.ObjectTypes.TASK){
       db_helper.getTaskWithID(taskToAdd._id, this.handleUpdateSetChildTasks);
     }
   }
@@ -182,7 +182,7 @@ class EditSet extends Component {
   //Returns true if adding the task will result in a circular reference
   willCauseCircularReference(task){
     //We only need to check if the task we are adding is a TaskSet
-    if(task.objType === "TaskSet"){
+    if(task.objType === dbObjects.ObjectTypes.SET){
       //Try to get the data contained in the task set we are trying to add as we need this information to check for a circular reference
       var query = {id: task._id, objType: task.objType};
       var queryList = [];
@@ -202,12 +202,12 @@ class EditSet extends Component {
           }
 
           //No circular reference detected
-          var result_message = task.objType === "TaskSet" ? "Set successfully added" : "Task successfully added";
+          var result_message = task.objType === dbObjects.ObjectTypes.SET ? "Set successfully added" : "Task successfully added";
           this.handleAddTaskAllowed(true, task, result_message);
         }
         //Otherwise we do not add as we don't know if it will be ok
         else{
-          this.handleAddTaskAllowed(false, task, "Unable to query the database, did not add " + task.objType === "TaskSet" ? "set" : "task");
+          this.handleAddTaskAllowed(false, task, "Unable to query the database, did not add " + task.objType === dbObjects.ObjectTypes.SET ? "set" : "task");
         }
       });
     }
@@ -222,7 +222,7 @@ class EditSet extends Component {
 
     //Iterate over the sets children
     for(var i = 0; i<setObject.data.length; i++){
-      if(setObject.data[i].objType === "TaskSet"){
+      if(setObject.data[i].objType === dbObjects.ObjectTypes.SET){
         this.getChildSetIDs(setObject.data[i], childSets)
       }
     }

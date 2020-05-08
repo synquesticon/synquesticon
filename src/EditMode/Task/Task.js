@@ -70,7 +70,7 @@ class EditTask extends Component {
         type: 'SET_SHOULD_EDIT',
         shouldEdit: true,
         objectToEdit:{...this.synquestitask,...{_id:synquestitaskID}},
-        typeToEdit:'synquestitask'
+        typeToEdit:dbObjects.ObjectTypes.TASK
       };
       store.dispatch(editSynquestitaskAction);
     }
@@ -245,7 +245,7 @@ class EditTask extends Component {
       </div>;
 
     var taskTypes = <TaskTypeList dragEnabled={true} taskList={ Object.values(dbObjects.TaskTypes) }
-      itemType="Synquestitask" droppableId="synquestitasks"/>;
+      itemType={dbObjects.ObjectTypes.TASK} droppableId="synquestitasks"/>;
 
     var deleteTaskBtn = null;
     if(this.props.isEditing){

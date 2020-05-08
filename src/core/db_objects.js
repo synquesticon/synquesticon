@@ -34,7 +34,7 @@ var childListID = 0;
      this.refSets = []; //list of sets that reference this Synquestitask
 
      this.childObj = []; //A list of child objects
-     this.objType = "Synquestitask";
+     this.objType = ObjectTypes.TASK; //"synquestitask"
    }
  }
 
@@ -110,7 +110,7 @@ export class TaskSetObject {
     this.displayOnePage = false; //If true display all the tasks on one page
     this.logOneLine = false; //If true log all the tasks in one line
     this.counterbalancingOrder = [];
-    this.objType = "TaskSet";
+    this.objType = ObjectTypes.SET;//ObjectTypes.SET;
   }
 }
 

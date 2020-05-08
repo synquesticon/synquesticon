@@ -23,6 +23,7 @@ const TaskComponentList = props => {
     return <Typography variant='h5' color='textPrimary' style={{opacity:0.5, padding:5, marginLeft:5}}>{props.displayIfEmpty?props.displayIfEmpty:''}</Typography>;
   }
   const collapsableContent = props.taskComponents.map((comp, index) => {
+
     const dragSource =
     <div>
       <div className="editListItemDelBtnContainer">

@@ -7,6 +7,7 @@ import { withTheme } from '@material-ui/styles';
 import { Typography } from '@material-ui/core';
 
 import * as listUtils from '../../core/db_objects_utility_functions';
+import * as dbOjects from '../../core/db_objects';
 
 import CollapsableContainer from '../../components/Containers/CollapsableContainer';
 
@@ -26,7 +27,9 @@ const EditSetListItem = (props) => {
               </div>
             </div>;
 
-  if (props.item.objType === "Task" || props.item.objType === "Synquestitask"){
+  console.log(props.item);
+
+  if (props.item.objType === "Task" || props.item.objType === dbOjects.ObjectTypes.TASK){
     if (props.componentDepth === 0){ //If it is a top level parent it should be dragable
       return(
         <div className={"editListItem "} >
@@ -49,7 +52,7 @@ const EditSetListItem = (props) => {
             {task}
           </div>);
     }
-  } else if (props.item.objType === "TaskSet"){ //Is a node with children
+  } else if (props.item.objType === dbOjects.ObjectTypes.SET){ //Is a node with children
     const newDepth = props.componentDepth + 1;
     let collapsableContent = props.item.data.map((data, index) =>
       {

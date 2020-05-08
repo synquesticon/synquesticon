@@ -193,10 +193,10 @@ class EditMode extends Component {
 
     let storeState = store.getState();
     if(storeState.shouldEdit){
-      if(storeState.typeToEdit === 'set'){
+      if(storeState.typeToEdit === db_objects.ObjectTypes.SET){
         this.selectTaskSet(storeState.objectToEdit);
       }
-      else if(storeState.typeToEdit === 'synquestitask'){
+      else if(storeState.typeToEdit === db_objects.ObjectTypes.TASK){
         this.selectSynquestitask(storeState.objectToEdit);
       }
 
@@ -255,10 +255,10 @@ class EditMode extends Component {
       } else { //Otherwise we add to the list at the desired location
           var itemType;
           if(source.droppableId === "Sets"){
-            itemType = "TaskSet";
+            itemType = db_objects.ObjectTypes.SET;
           }
           else if(source.droppableId === "Tasks"){
-            itemType = "Synquestitask";
+            itemType = db_objects.ObjectTypes.TASK;
           }
           else{
             console.log("Unknown type dragged");

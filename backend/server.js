@@ -162,7 +162,7 @@ router.post("/getAllTagValues", async (req, res) => {
   const { queryCollection } = req.body;
   var collection = null;
 
-  if (queryCollection === 'Synquestitasks'){
+  if (queryCollection === 'tasks'){
     collection = Synquestitasks;
   }
   else {
@@ -182,7 +182,7 @@ router.post("/getAllTasksContaining", async (req, res) => {
   const { queryCollection, queryString, queryCombination } = req.body;
 
   var collection = null;
-  if(queryCollection === 'Synquestitasks'){
+  if(queryCollection === 'tasks'){
     collection = Synquestitasks;
   }
   else{
@@ -388,14 +388,14 @@ router.post("/getCompleteTaskSetObject", async (req, res) => {
   const id = JSON.parse(objId);
 
   var recursion = async function(target) {
-    if (target.objType === "Synquestitask") {
+    if (target.objType === "Tasks") {
       var syntaskFromDb = await Synquestitasks.findOne({_id: target.id}, async (err, task) => {
         return task;
       });
 
       return taskFromDb;
     }
-    else if (target.objType === "TaskSet") {
+    else if (target.objType === "Sets") {
       var setData = await TaskSets.findOne({_id: target.id}, async (err, obj) => {
         return obj;
       });
@@ -414,7 +414,7 @@ router.post("/getCompleteTaskSetObject", async (req, res) => {
     }
   }
 
-  var target = {objType: "TaskSet", id: id};
+  var target = {objType: "Sets", id: id};
   const result = await recursion(target);
   return res.json({success: true, data: result});
 });
@@ -441,7 +441,7 @@ router.post("/getTasksOrTaskSetsWithIDs", async (req, res) => {
       }
 
       var recursion = async function(target) {
-        if (target.objType === "Synquestitask") {
+        if (target.objType === "Tasks") {
           var syntaskFromDb = await Synquestitasks.findOne({_id: target.id}, async (err, task) => {
             count = count + 1;
             return task;
@@ -449,7 +449,7 @@ router.post("/getTasksOrTaskSetsWithIDs", async (req, res) => {
 
           return syntaskFromDb;
         }
-        else if (target.objType === "TaskSet") {
+        else if (target.objType === "Sets") {
           var setData = await TaskSets.findOne({_id: target.id}, async (err, obj) => {
             return obj;
           });

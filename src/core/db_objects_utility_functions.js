@@ -1,3 +1,5 @@
+import * as dbObjects from './db_objects'
+
 export function arrayMove(arr, fromIndex, toIndex) {
     var element = arr[fromIndex];
     arr.splice(fromIndex, 1);
@@ -13,27 +15,7 @@ export function arrayMove(arr, fromIndex, toIndex) {
 export function getTaskContent(task){
   var content = null;
 
-  if(task.objType === "Task"){
-    //The set list has a different data structure
-    if(task.data){
-      task = task.data;
-    }
-
-    if(task.taskType === "Multiple Choice" || task.taskType === "Text Entry"
-      || task.taskType === "Single Choice"){
-        content = task.question;
-    }
-    else if(task.taskType === "Instruction"){
-      content = task.instruction;
-    }
-    else if(task.taskType === "Image"){
-      content = task.question;
-    }
-    else if(task.taskType === "Comparison"){
-      content = task.question;
-    }
-  }
-  else if(task.objType === "TaskSet"){
+  if(task.objType === dbObjects.ObjectTypes.SET){
     content = task.name;
   }
   else{

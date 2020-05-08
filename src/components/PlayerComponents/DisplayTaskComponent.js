@@ -139,6 +139,7 @@ class DisplayTaskHelper extends React.Component { //for the sake of recursion
     this.props.saveGazeData(dbObjectsUtilityFunctions.getTaskContent(this.currentTask));
 
     //===========save logging data===========
+    if(this.currentLineOfData){
     for (const [key, line] of this.currentLineOfData.entries()) {
       if(!this.savedObjects.includes(key)){ //Only save to the database once
         if (line.isGlobalVariable !== undefined) {
@@ -160,6 +161,7 @@ class DisplayTaskHelper extends React.Component { //for the sake of recursion
 
         this.savedObjects.push(key);
       }
+    }
     }
 
     this.progressCount += 1;
@@ -269,6 +271,7 @@ class DisplayTaskHelper extends React.Component { //for the sake of recursion
       trackingTaskSetNames.push(this.currentTask.name);
 
       var parentSet = this.props.tasksFamilyTree[this.props.tasksFamilyTree.length - 1];
+
       if (this.currentTask.objType === dbObjects.ObjectTypes.SET) {
         //shuffle set if set was marked as "Random"
         var runThisTaskSet = this.currentTask.data;
@@ -382,7 +385,6 @@ class DisplayTaskComponent extends Component {
     }
 
     db_helper.getTasksOrTaskSetsWithIDs(mainTaskSetId, (dbQueryResult, count, mainTaskSetName) => {
-
       //Force preload all images
       if(dbQueryResult.data){
         playerUtils.getAllImagePaths(dbQueryResult.data).forEach((picture) => {
@@ -612,7 +614,7 @@ class DisplayTaskComponent extends Component {
       try {
         if (store.getState().experimentInfo.taskSet.displayOnePage) {
           taskSet = {
-            objType: "TaskSet",
+            objType: dbObjects.ObjectTypes.SET,
             displayOnePage: true,
             data: [store.getState().experimentInfo.taskSet]
           };
