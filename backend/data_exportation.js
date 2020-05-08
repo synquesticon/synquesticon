@@ -244,6 +244,7 @@ exports.save_to_csv = async function(p, seperator) {
         participantResponse = line.responses.join(';');
       }
 
+      //Save the task data to csv format
       csv_string +=  (escapeCSV(globalVariables) + seperator +
                      escapeCSV(line.taskContent) + seperator +
                      escapeCSV(participantResponse) + seperator +
@@ -258,8 +259,30 @@ exports.save_to_csv = async function(p, seperator) {
                      escapeCSV(line.tasksFamilyTree.join('_')) + seperator +
                      getFormattedTime(line.startTimestamp) + seperator + //Remove linebreaks and extra whitespace
                      getFormattedTime(line.firstResponseTimestamp)).replace(/(\r\n|\n|\r)/gm," ").replace(/\s+/g," ") + seperator +
-                     handleClickedPoints(line.clickedPoints) + seperator +
                      p._id + os.EOL;
+
+      //Save clicked points if there are any
+      if(line.clickedPoints){
+        //handleClickedPoints(line.clickedPoints) + seperator +
+        for(let clickedPoint of line.clickedPoints){
+          console.log(clickedPoint);
+          csv_string += (escapeCSV(globalVariables) + seperator + //global_vars 
+           escapeCSV(clickedPoint.aoi) + seperator + //content (Name of AOI or image if not inside)
+           escapeCSV(clickedPoint.x+","+clickedPoint.y) + seperator + //answer (Use for x, y coordinates)
+           "NULL" + seperator + //answered_correctly
+           "NULL" + seperator + //correct_answer
+           "NULL" + seperator + //accepted_margin
+           handleMissingData(clickedPoint.timeClicked-line.startTimestamp) + seperator + //time_to_first_response (calculate: clickedPoint.timeClicked-line.startTimestamp)
+           handleMissingData(line.timeToCompletion) + seperator + //time_to_completion
+           escapeCSV(commentText) + seperator + //comments
+           escapeCSV(line.tags.join('_')) + seperator + //tags
+           "User click" + seperator + //type
+           escapeCSV(line.tasksFamilyTree.join('_')) + seperator + //set_names
+           getFormattedTime(line.startTimestamp) + seperator + //timestamp_start //Remove linebreaks and extra whitespace
+           getFormattedTime(line.firstResponseTimestamp)).replace(/(\r\n|\n|\r)/gm," ").replace(/\s+/g," ") + seperator + //timestamp_first_response
+           p._id + os.EOL; //database_id
+        }
+      }
     });
 
     return [file_name, csv_string]

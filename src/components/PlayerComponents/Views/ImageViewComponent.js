@@ -55,7 +55,7 @@ class ImageViewComponent extends Component {
     var imageAOIAction = {
       type: 'ADD_AOIS',
       aois: {
-        name: this.props.parentSet + '_' + this.props.task.displayText,
+        name: "None",//this.props.parentSet + '_' + this.props.task.displayText,
         boundingbox: [],
         imageRef: this.imageRef
       }
@@ -87,9 +87,7 @@ class ImageViewComponent extends Component {
   }
 
   checkHitAOI(click) {
-    // TODO:
     var aois = store.getState().aois;
-
     for (var i = 0; i < aois.length; i++) {
       var a = aois[i];
 
@@ -124,7 +122,8 @@ class ImageViewComponent extends Component {
     var click = {
       aoi: this.checkHitAOI(e),
       x: mouseClick.x,
-      y: mouseClick.y
+      y: mouseClick.y,
+      timeClicked: playerUtils.getCurrentTime()
     };
     this.clicks.push(click);
     var answerObj = {

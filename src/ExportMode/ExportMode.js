@@ -34,7 +34,7 @@ function HEADER(seperator) {
                "set_names" + seperator +
                "timestamp_start" + seperator +
                "timestamp_first_response" + seperator +
-               "clicked_points" + seperator +
+               //"clicked_points" + seperator +
                "database_id\n"; //Note the \n in case more fields are added later
    return header;
  }

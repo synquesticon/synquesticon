@@ -106,6 +106,7 @@ const ParticipantSchema = new Schema(
         aoi: String, //name of the hit AOI
         x: Number,
         y: Number,
+        timeClicked: Number,
         _id: false
       }],
       aoiCheckedList: [{
