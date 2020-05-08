@@ -265,8 +265,7 @@ exports.save_to_csv = async function(p, seperator) {
       if(line.clickedPoints){
         //handleClickedPoints(line.clickedPoints) + seperator +
         for(let clickedPoint of line.clickedPoints){
-          console.log(clickedPoint);
-          csv_string += (escapeCSV(globalVariables) + seperator + //global_vars 
+          csv_string += (escapeCSV(globalVariables) + seperator + //global_vars
            escapeCSV(clickedPoint.aoi) + seperator + //content (Name of AOI or image if not inside)
            escapeCSV(clickedPoint.x+","+clickedPoint.y) + seperator + //answer (Use for x, y coordinates)
            "NULL" + seperator + //answered_correctly

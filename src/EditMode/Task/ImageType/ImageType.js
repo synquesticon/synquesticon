@@ -36,7 +36,10 @@ const ImageTaskType = props => {
     setShowAOIs(checked);
   }
 
+  //const handleChange = event => setGreeting(event.target.value);
+
   const onImageFileSelected = selectedFile => {
+    console.log(selectedFile);
     props.task.image = selectedFile.name;
     image = selectedFile;
     props.task.aois = [];

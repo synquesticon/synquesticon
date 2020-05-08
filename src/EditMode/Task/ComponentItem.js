@@ -29,6 +29,7 @@ const TaskComponentItem = props => {
       uploadImages();
     }
   }
+
   //Upload the sleected image to the database
   const uploadImages = () => {
     if (imageToUpload) {
@@ -39,7 +40,7 @@ const TaskComponentItem = props => {
               'content-type': 'multipart/form-data'
           }
       };
-      db_helper.uploadImage(imageToUpload, formData, config, null);
+      console.log(db_helper.uploadImage(imageToUpload, formData, config, null));
     }
   }
 
