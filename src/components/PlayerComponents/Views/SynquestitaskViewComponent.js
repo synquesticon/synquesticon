@@ -70,7 +70,6 @@ class SynquestitaskViewComponent extends Component {
 
   getDisplayedContent(taskList, _id, mapIndex){
     return taskList.map((item, i) => {
-
       if((store.getState().multipleScreens && (item.screenIDS.includes(store.getState().screenID)
       || item.screenIDS.length===0)) || !store.getState().multipleScreens){
         mapIndex = i;
@@ -78,7 +77,7 @@ class SynquestitaskViewComponent extends Component {
         if(this.props.newTask /*&& item.objType !== "Instruction"*/) {
           newLine = this.logTheStartOfTask(item, _id, mapIndex);
         }
-        var key = this.props.childKey+"Synquestitask"+i;
+        var key = this.props.renderKey+"Synquestitask"+i;
 
         if(item.objType === dbObjects.TaskTypes.INSTRUCTION.type){
             return <InstructionViewComponent className="itemContainer" key={key} task={item} mapID={mapIndex} parentSet={this.props.task.name}/>;

@@ -149,19 +149,6 @@ function handleAcceptedMargin(line){
   return "NULL";
 }
 
-function handleClickedPoints(points) {
-  var text = "";
-  points.map((item, index) => {
-    var aoi = item.aoi ? item.aoi : "NULL";
-    text += aoi + "_" + item.x + "_" + item.y + ";";
-  });
-
-  if (text != "") {
-    text = text.substring(0, text.length - 1);
-  }
-  return text;
-}
-
 exports.save_to_csv = async function(p, seperator) {
     var globalVariables = "";
     var file_name = "";
@@ -174,7 +161,6 @@ exports.save_to_csv = async function(p, seperator) {
     p.globalVariables.sort((a, b) => a.label.localeCompare(b.label));
 
     for (let i = 0; i < p.globalVariables.length; i++) {
-      /*header += p.globalVariables[i].label + ",";*/
       if (!p.globalVariables[i].label.toLowerCase().includes("record data")) {
         globalVariables += p.globalVariables[i].label + '_' + p.globalVariables[i].value + ":"; /* Was "," but that does not make sense*/
         file_name += p.globalVariables[i].label + '-' + p.globalVariables[i].value + '_';
@@ -263,12 +249,11 @@ exports.save_to_csv = async function(p, seperator) {
 
       //Save clicked points if there are any
       if(line.clickedPoints){
-        //handleClickedPoints(line.clickedPoints) + seperator +
         for(let clickedPoint of line.clickedPoints){
           csv_string += (escapeCSV(globalVariables) + seperator + //global_vars
-           escapeCSV(clickedPoint.aoi) + seperator + //content (Name of AOI or image if not inside)
-           escapeCSV(clickedPoint.x+","+clickedPoint.y) + seperator + //answer (Use for x, y coordinates)
-           "NULL" + seperator + //answered_correctly
+           escapeCSV(line.taskContent) + seperator + //content
+           escapeCSV(clickedPoint.aoi.join("_")) + seperator + //answer
+           escapeCSV(clickedPoint.x+","+clickedPoint.y) + seperator + //answered_correctly
            "NULL" + seperator + //correct_answer
            "NULL" + seperator + //accepted_margin
            handleMissingData(clickedPoint.timeClicked-line.startTimestamp) + seperator + //time_to_first_response (calculate: clickedPoint.timeClicked-line.startTimestamp)
@@ -278,7 +263,7 @@ exports.save_to_csv = async function(p, seperator) {
            "User click" + seperator + //type
            escapeCSV(line.tasksFamilyTree.join('_')) + seperator + //set_names
            getFormattedTime(line.startTimestamp) + seperator + //timestamp_start //Remove linebreaks and extra whitespace
-           getFormattedTime(line.firstResponseTimestamp)).replace(/(\r\n|\n|\r)/gm," ").replace(/\s+/g," ") + seperator + //timestamp_first_response
+           getFormattedTime(clickedPoint.timeClicked)).replace(/(\r\n|\n|\r)/gm," ").replace(/\s+/g," ") + seperator + //timestamp_first_response
            p._id + os.EOL; //database_id
         }
       }

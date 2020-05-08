@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Typography } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
@@ -12,11 +12,13 @@ const second_line_keyboard = [4, 5, 6]
 const third_line_keyboard = [7, 8, 9]
 const fourth_line_keyboard = [0, '.', "<"]
 
-let textEntry = "";
-let decimalWasPressed = false;
-const textRef = React.createRef();
+//var textRef = React.createRef();
 
 const NumpadComponent = props => {
+  const [numpadEntry, setNumpadEntry] = useState("");
+  const [decimalWasPressed, setdecimalWasPressed] = useState(false);
+  const [textRef] = useState(React.createRef());
+
   useEffect ( () => {
     const textAOIAction = {
       type: 'ADD_AOIS',
@@ -31,19 +33,19 @@ const NumpadComponent = props => {
 
   const onMyKeyboardPressed = key => {
     if (key === "<") {
-      var lastChar = textEntry[textEntry.length -1];
+      var lastChar = numpadEntry[numpadEntry.length -1];
       if (lastChar === '.') {
-        decimalWasPressed = false;
+        setdecimalWasPressed(false);
       }
-      textEntry = textEntry.substring(0, textEntry.length-1);
+      setNumpadEntry(numpadEntry.substring(0, numpadEntry.length-1));
     }
     else if (key === '.') {
       if (!decimalWasPressed) {
-        textEntry += key;
-        decimalWasPressed = true;
+        setNumpadEntry(numpadEntry+key)
+        setdecimalWasPressed(true);
       }
     } else {
-      textEntry = textEntry + key;
+      setNumpadEntry(numpadEntry + "" + key);
     }
     onAnswer();
   }
@@ -55,7 +57,7 @@ const NumpadComponent = props => {
 
     //If the response has two values then we treat the second as how much the answer can differ and still be valid
     if(props.task.correctResponses.length > 1){
-      let answer = parseFloat(textEntry);
+      let answer = parseFloat(numpadEntry);
       let correctAnswer = parseFloat(props.task.correctResponses[0]);
       let threshold = parseFloat(props.task.correctResponses[1]);
       if(answer >= correctAnswer-threshold && answer <= correctAnswer+threshold){
@@ -63,7 +65,7 @@ const NumpadComponent = props => {
       }
     } //Otherwise we just check if it matches the correct response
     else if(props.task.correctResponses.length === 1){
-      if(parseFloat(props.task.correctResponses[0]) === parseFloat(textEntry)) {
+      if(parseFloat(props.task.correctResponses[0]) === parseFloat(numpadEntry)) {
         return "correct";
       }
     }
@@ -72,7 +74,7 @@ const NumpadComponent = props => {
 
   function onAnswer() {
     const answerObj = {
-      responses: [parseFloat(textEntry)],
+      responses: [parseFloat(numpadEntry)],
       correctlyAnswered: checkAnswer(),
       taskID: props.task._id,
       mapID: props.mapID,
@@ -100,7 +102,7 @@ const NumpadComponent = props => {
         <Typography ref={textRef} variant="h3" align="center" style={{whiteSpace:"pre-line"}} color="textPrimary">{props.displayText}</Typography>
       </div>
       <div className="inputField">
-        <Typography color="textPrimary">{textEntry}</Typography>
+        <Typography color="textPrimary">{numpadEntry}</Typography>
       </div>
       {getKeyboardLine(first_line_keyboard, "firstLine")}
       {getKeyboardLine(second_line_keyboard, "firstLine")}

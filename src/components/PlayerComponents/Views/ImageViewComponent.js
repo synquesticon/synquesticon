@@ -52,15 +52,15 @@ class ImageViewComponent extends Component {
 
       store.dispatch(action);
     }
-    var imageAOIAction = {
+    /*var imageAOIAction = {
       type: 'ADD_AOIS',
       aois: {
-        name: "None",//this.props.parentSet + '_' + this.props.task.displayText,
+        name: "noAOI",//this.props.parentSet + '_' + this.props.task.displayText,
         boundingbox: [],
         imageRef: this.imageRef
       }
     }
-    store.dispatch(imageAOIAction);
+    store.dispatch(imageAOIAction);*/
   }
 
   componentWillUnmount(){
@@ -88,6 +88,8 @@ class ImageViewComponent extends Component {
 
   checkHitAOI(click) {
     var aois = store.getState().aois;
+    let pointInsideAOIs = [];
+
     for (var i = 0; i < aois.length; i++) {
       var a = aois[i];
 
@@ -110,11 +112,16 @@ class ImageViewComponent extends Component {
       }
 
       if (playerUtils.pointIsInPoly([click.clientX, click.clientY], polygon)){
-        return a.name;
+        pointInsideAOIs.push(a.name);
       }
     }
 
-    return null;
+    if(pointInsideAOIs.length > 0){
+      return pointInsideAOIs;
+    }
+    else{
+      return ["noAOI"];
+    }
   }
 
   onImageClicked(e) {
@@ -177,7 +184,7 @@ class ImageViewComponent extends Component {
       }
 
       return (
-        <svg id={this.props.key + "AOICanvas"} style={{left:left,pointerEvents:'none'}} className="AOICanvas"
+        <svg id={this.props.childKey + "AOICanvas"} style={{left:left,pointerEvents:'none'}} className="AOICanvas"
           width={this.state.imageWidth} height={this.state.imageHeight} viewBox="0 0 100 100" preserveAspectRatio="none">
           {this.props.task.aois.map((aoi, index) => {
             return <AOIComponent aoi={aoi} key={index}/>

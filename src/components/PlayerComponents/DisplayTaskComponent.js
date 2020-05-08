@@ -39,11 +39,6 @@ class DisplayTaskHelper extends React.Component { //for the sake of recursion
       currentTaskIndex: 0,
       hasBeenAnswered: false
     };
-    this.progressCount = 0;
-    this.numCorrectAnswers = 0;
-    this.currentTask = null;
-    this.currentLineOfData = null;
-    this.hasBeenInitiated = false;
 
     this.handleMultipleScreenEvent = this.onMultipleScreenEvent.bind(this);
   }
@@ -57,8 +52,22 @@ class DisplayTaskHelper extends React.Component { //for the sake of recursion
   */
 
   componentWillMount() {
-    this.progressCount = this.props.progressCount;
+    this.progressCount = 0;
+    this.numCorrectAnswers = 0;
+    this.currentTask = null;
+    this.currentLineOfData = null;
+    this.hasBeenInitiated = false;
+    this.hasFinished = false;
+
+    this.progressCount = 0;//this.props.progressCount;
     eventStore.addMultipleScreenListener(this.handleMultipleScreenEvent);
+
+    this.savedObjects = [];
+
+    this.setState({
+      currentTaskIndex: 0,
+      hasBeenAnswered: false
+    });
   }
 
   componentWillUnmount(){
@@ -130,10 +139,32 @@ class DisplayTaskHelper extends React.Component { //for the sake of recursion
     this.props.saveGazeData(dbObjectsUtilityFunctions.getTaskContent(this.currentTask));
 
     //===========save logging data===========
+    for (const [key, line] of this.currentLineOfData.entries()) {
+      if(!this.savedObjects.includes(key)){ //Only save to the database once
+        if (line.isGlobalVariable !== undefined) {
+          this.saveGlobalVariable(store.getState().experimentInfo.participantId,
+                                  line.label, line.responses);
+        }
+        else {
+          line.timeToCompletion = playerUtils.getCurrentTime() - line.startTimestamp;
+          if (store.getState().experimentInfo.shouldSave) {
+            db_helper.addNewLineToParticipantDB(store.getState().experimentInfo.participantId, JSON.stringify(line));
+          }
+        }
+
+
+        let stringifiedMessage = playerUtils.stringifyMessage(store, {_id:line.taskId}, line,
+                                                  (line.firstResponseTimestamp !== -1) ? "ANSWERED" : "SKIPPED",
+                                                  this.progressCount, -1);
+        mqtt.broadcastEvents(stringifiedMessage);
+
+        this.savedObjects.push(key);
+      }
+    }
 
     this.progressCount += 1;
 
-    this.currentLineOfData.forEach((line, index) => {
+    /*this.currentLineOfData.forEach((line, index) => {
       if (line.isGlobalVariable !== undefined) {
         this.saveGlobalVariable(store.getState().experimentInfo.participantId,
                                 line.label, line.responses);
@@ -141,16 +172,17 @@ class DisplayTaskHelper extends React.Component { //for the sake of recursion
       else {
         line.timeToCompletion = playerUtils.getCurrentTime() - line.startTimestamp;
         if (store.getState().experimentInfo.shouldSave) {
+          console.log(line);
           db_helper.addNewLineToParticipantDB(store.getState().experimentInfo.participantId, JSON.stringify(line));
         }
       }
 
+      this.progressCount += 1;
       let stringifiedMessage = playerUtils.stringifyMessage(store, {_id:line.taskId}, line,
                                                 (line.firstResponseTimestamp !== -1) ? "ANSWERED" : "SKIPPED",
                                                 this.progressCount, -1);
-
       mqtt.broadcastEvents(stringifiedMessage);
-    });
+    });*/
 
     //===========check requirement of number of correct answers===========
     if ((this.state.currentTaskIndex + 1) >= this.props.taskSet.data.length && this.numCorrectAnswers < this.props.repeatSetThreshold){
@@ -201,6 +233,7 @@ class DisplayTaskHelper extends React.Component { //for the sake of recursion
   onAnswer(answer) {
     if(!(store.getState().experimentInfo.participantId === "TESTING")) {
       this.currentLineOfData = answer.linesOfData;
+
       if (answer.correctlyAnswered === "correct") {
         this.currentTask.numCorrectAnswers += 1;
       }
@@ -247,7 +280,7 @@ class DisplayTaskHelper extends React.Component { //for the sake of recursion
         updatedTaskSet.data = runThisTaskSet;
 
         //recursion
-        let id = this.currentTask._id + "_" + this.progressCount;
+        //let id = this.currentTask._id + "_" + this.progressCount;
         return <DisplayTaskHelper key={id}
                                   tasksFamilyTree={trackingTaskSetNames}
                                   taskSet={updatedTaskSet}
@@ -260,9 +293,9 @@ class DisplayTaskHelper extends React.Component { //for the sake of recursion
         var nextButtonText = this.state.hasBeenAnswered ? "Next" : "Skip";
 
         return (
-          <div className="page" key={this.currentTaskIndex}>
+          <div className="page" key={id+this.currentTaskIndex}>
             <div className="mainDisplay">
-              <SynquestitaskViewComponent childKey={id}
+              <SynquestitaskViewComponent key={id}
                                           tasksFamilyTree={trackingTaskSetNames}
                                           task={this.currentTask}
                                           answerCallback={this.onAnswer.bind(this)}
@@ -279,6 +312,7 @@ class DisplayTaskHelper extends React.Component { //for the sake of recursion
                                             this.hasBeenInitiated = true;
                                           }}
                                           renderKey={id}/>
+
             </div>
             <div className="nextButton">
               <Button className="nextButton" variant="contained" onClick={this.onClickNext.bind(this)}>
@@ -290,7 +324,10 @@ class DisplayTaskHelper extends React.Component { //for the sake of recursion
       }
     }
     else {
-      this.props.onFinished();
+      if(!this.hasFinished){
+        this.props.onFinished();
+        this.hasFinished = true;
+      }
       return (null);
     }
   }
@@ -314,12 +351,20 @@ class DisplayTaskComponent extends Component {
     };
     this.handleNewCommandEvent = this.onNewCommandEvent.bind(this);
 
-    this.gazeDataArray = [];
-    this.frameDiv = React.createRef();
-    this.cursorRadius = 20;
+    //this.gazeDataArray = [];
+    //this.frameDiv = React.createRef();
+    //this.cursorRadius = 20;
   }
 
   componentWillMount() {
+    this.setState({
+      isPaused : false
+    });
+
+    this.gazeDataArray = [];
+    this.frameDiv = React.createRef();
+    this.cursorRadius = 20;
+
     var layoutAction = {
       type: 'SET_SHOW_HEADER',
       showHeader: false,
@@ -368,28 +413,11 @@ class DisplayTaskComponent extends Component {
         });
       }
       else{
-      let action = {
-        type: 'SET_EXPERIMENT_INFO',
-        experimentInfo: {
-          participantLabel: playerUtils.getDeviceName(),
-          participantId: store.getState().experimentInfo.participantId,
-          shouldSave: true,
-          startTimestamp: playerUtils.getFormattedCurrentTime(),
-          mainTaskSetId: mainTaskSetName,
-          taskSet: dbQueryResult,
-          taskSetCount: count,
-          selectedTracker: tracker,
-        }
-      }
-
-      store.dispatch(action);
-      this.forceUpdate();
-    }
-        /*var action = {
+        let action = {
           type: 'SET_EXPERIMENT_INFO',
           experimentInfo: {
             participantLabel: playerUtils.getDeviceName(),
-            participantId: store.getState().experimentInfo.participantId?store.getState().experimentInfo.participantId:undefined,
+            participantId: store.getState().experimentInfo.participantId,
             shouldSave: true,
             startTimestamp: playerUtils.getFormattedCurrentTime(),
             mainTaskSetId: mainTaskSetName,
@@ -397,22 +425,11 @@ class DisplayTaskComponent extends Component {
             taskSetCount: count,
             selectedTracker: tracker,
           }
-        }
+        };
 
         store.dispatch(action);
         this.forceUpdate();
-
-        if (store.getState().experimentInfo.participantId === undefined) {
-          db_helper.addParticipantToDb(new dbObjects.ParticipantObject(store.getState().experimentInfo.taskSet._id), (returnedIdFromDB)=> {
-            var idAction = {
-              type: 'SET_PARTICIPANT_ID',
-              participantId: returnedIdFromDB
-            };
-            store.dispatch(idAction);
-            this.forceUpdate();
-          });
-        }
-      });*/
+      }
     });
     eventStore.addNewCommandListener(this.handleNewCommandEvent);
   }
@@ -421,7 +438,7 @@ class DisplayTaskComponent extends Component {
     if (store.getState().experimentInfo && store.getState().experimentInfo.participantId !== "TESTING" && (store.getState().experimentInfo.selectedTracker !== "")) {
 
       this.gazeDataArray = [];
-      this.timer = setInterval(this.updateCursorLocation.bind(this), 4.5); //Update the gaze cursor location every 2ms
+      this.timer = setInterval(this.updateCursorLocation.bind(this), 4); //Update the gaze cursor location every 4ms
 
       //Force preload all images
       /*if(store.getState().experimentInfo.taskSet){
@@ -435,7 +452,8 @@ class DisplayTaskComponent extends Component {
   }
 
   componentWillUnmount() {
-    if (store.getState().experimentInfo.participantId !== "TESTING" && (store.getState().experimentInfo.selectedTracker !== "")) {
+    if (store.getState().experimentInfo.participantId !== "TESTING"
+      && (store.getState().experimentInfo.selectedTracker !== "")) {
 
       clearInterval(this.timer);
     }
@@ -517,14 +535,6 @@ class DisplayTaskComponent extends Component {
     }
   }
 
-  /*
-██     ██  █████  ███    ███ ██████      ███████ ██    ██ ███████ ███    ██ ████████
-██     ██ ██   ██ ████  ████ ██   ██     ██      ██    ██ ██      ████   ██    ██
-██  █  ██ ███████ ██ ████ ██ ██████      █████   ██    ██ █████   ██ ██  ██    ██
-██ ███ ██ ██   ██ ██  ██  ██ ██          ██       ██  ██  ██      ██  ██ ██    ██
- ███ ███  ██   ██ ██      ██ ██          ███████   ████   ███████ ██   ████    ██
-*/
-
   broadcastEndEvent() {
     var dt = new Date();
     var timestamp = dt.toUTCString();
@@ -583,8 +593,15 @@ class DisplayTaskComponent extends Component {
     if (!(store.getState().experimentInfo.participantId === "TESTING")) {
       this.broadcastEndEvent();
     }
+
     this.props.history.goBack();
-    alert("finished!");
+
+    let snackbarAction = {
+      type: 'TOAST_SNACKBAR_MESSAGE',
+      snackbarOpen: true,
+      snackbarMessage: "Finished"
+    };
+    store.dispatch(snackbarAction);
   }
 
   render() {

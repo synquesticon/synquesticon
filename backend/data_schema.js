@@ -103,7 +103,7 @@ const ParticipantSchema = new Schema(
       */
       timeToCompletion: Number,
       clickedPoints: [{
-        aoi: String, //name of the hit AOI
+        aoi: [String], //names of the hit AOIs
         x: Number,
         y: Number,
         timeClicked: Number,
