@@ -120,6 +120,7 @@ const PlayMode = props => {
   }
 
   const onMultipleScreenEvent = payload => {
+    console.log(payload);
     //Was checking if multipe screen. With the new change we should just check for same device ID instead
     if(window.localStorage.getItem('deviceID')===payload.deviceID && payload.type === 'StartExperiment'){
     //if(store.getState().multipleScreens && payload.type === 'StartExperiment'){
