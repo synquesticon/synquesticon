@@ -44,6 +44,7 @@ export class SynquestitaskChildComponent{
     this.label = taskType.label ? taskType.label : getLabel(taskType);
     this.displayText = ""; //The text that will be displayed
     this.screenIDS = []; //A list of screen IDs
+    this.hideNext = false;
 
     //For user responses
     this.responses = []; //The possible responses to the task

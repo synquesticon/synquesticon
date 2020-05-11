@@ -20,6 +20,7 @@ const SynquestitaskSchema = new Schema({
     objType: String, // What type of object this is
     globalVariable: Boolean, //If true the response of the task should be stored as a global var in the participant DB object
     screenIDS: [String], //A list of screen IDs
+    hideNext: Boolean, //If the next button should be hidden
 
     //obj content
     displayText: String,

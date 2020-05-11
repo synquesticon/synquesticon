@@ -14,6 +14,7 @@ const TaskComponentItem = props => {
   const [singleChoice, setSingleChoice] = useState(props.task.singleChoice);
   const [resetResponses, setResetResponses] = useState(props.task.resetResponses);
   const [globalVariable, setGlobalVariable] = useState(props.task.globalVariable ? props.task.globalVariable : false);
+  const [hideNext, setHideNext] = useState(props.task.hideNext ? props.task.hideNext : false);
 
   //Image
   let shouldUpload = false;
@@ -49,6 +50,11 @@ const TaskComponentItem = props => {
     setGlobalVariable(checked);
   }
 
+  const onHideNextChanged = (e, checked) => {
+    props.task.hideNext = checked; //Update the value in the task so it will be saved
+    setHideNext(checked); //Update the visualization of the checkbox so if matches the new value
+  }
+
   //Get the components to render based on the object type
   const getComponent = () => {
     let component = null;
@@ -76,6 +82,15 @@ const TaskComponentItem = props => {
                    placeholder="1, 2"
                    onChange={(e)=> onResponsesChanged(e, e.target.value, "ScreenIDs")}
                  />
+                 <FormControlLabel label="Hide next"
+                   value="end"
+                   padding="dense"
+                   id={uniqueID+"hideNext"}
+                   checked={hideNext}
+                   control={<Checkbox color="secondary" />}
+                   onChange={onHideNextChanged}
+                   labelPlacement="end"
+                 />
               </div>;
         break;
       }
@@ -92,6 +107,15 @@ const TaskComponentItem = props => {
                          defaultValue={props.task.screenIDS.join(',')}
                          placeholder="1, 2"
                          onChange={(e)=> onResponsesChanged(e, e.target.value, "ScreenIDs")}
+                       />
+                       <FormControlLabel label="Hide next"
+                         value="end"
+                         padding="dense"
+                         id={uniqueID+"hideNext"}
+                         checked={hideNext}
+                         control={<Checkbox color="secondary" />}
+                         onChange={onHideNextChanged}
+                         labelPlacement="end"
                        />
                    </div>
         break;
@@ -163,6 +187,15 @@ const TaskComponentItem = props => {
             placeholder="1, 2"
             onChange={(e)=> onResponsesChanged(e, e.target.value, "ScreenIDs")}
           />
+          <FormControlLabel label="Hide next"
+            value="end"
+            padding="dense"
+            id={uniqueID+"hideNext"}
+            checked={hideNext}
+            control={<Checkbox color="secondary" />}
+            onChange={onHideNextChanged}
+            labelPlacement="end"
+          />
         </div>;
         break;
       }
@@ -206,6 +239,15 @@ const TaskComponentItem = props => {
              placeholder="1, 2"
              onChange={(e)=> onResponsesChanged(e, e.target.value, "ScreenIDs")}
            />
+           <FormControlLabel label="Hide next"
+             value="end"
+             padding="dense"
+             id={uniqueID+"hideNext"}
+             checked={hideNext}
+             control={<Checkbox color="secondary" />}
+             onChange={onHideNextChanged}
+             labelPlacement="end"
+           />
         </div>;
         break;
       }
@@ -247,6 +289,15 @@ const TaskComponentItem = props => {
              defaultValue={props.task.screenIDS.join(',')}
              placeholder="1, 2"
              onChange={(e)=> onResponsesChanged(e, e.target.value, "ScreenIDs")}
+           />
+           <FormControlLabel label="Hide next"
+             value="end"
+             padding="dense"
+             id={uniqueID+"hideNext"}
+             checked={hideNext}
+             control={<Checkbox color="secondary" />}
+             onChange={onHideNextChanged}
+             labelPlacement="end"
            />
         </div>;
         break;

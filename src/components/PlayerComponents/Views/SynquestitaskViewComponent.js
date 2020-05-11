@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Button from '@material-ui/core/Button';
 
 import InstructionViewComponent from './InstructionViewComponent';
 import TextEntryComponent from './TextEntryComponent';
@@ -73,9 +74,15 @@ class SynquestitaskViewComponent extends Component {
       return null;
     }
 
-    return taskList.map((item, i) => {
+    let hideNext = false;
+    let components = taskList.map((item, i) => {
       if((store.getState().multipleScreens && (item.screenIDS.includes(store.getState().screenID)
       || item.screenIDS.length===0)) || !store.getState().multipleScreens){
+
+        if(store.getState().multipleScreens && item.hideNext){
+          hideNext = true;
+        }
+
         mapIndex = i;
         var newLine = null;
         if(this.props.newTask /*&& item.objType !== "Instruction"*/) {
@@ -107,17 +114,29 @@ class SynquestitaskViewComponent extends Component {
       }
       return null;
     });
+    return {components:components, hideNext:hideNext};
   }
 
   render() {
     var runThisTaskSet = this.props.task.childObj;
 
-    var content = this.getDisplayedContent(runThisTaskSet, this.props.task._id ,0);
+    var contentObject = this.getDisplayedContent(runThisTaskSet, this.props.task._id ,0);
     this.props.initCallback(this.taskResponses);
+
+    let nextButton = null;
+    if(!contentObject.hideNext){
+      let nextButtonText = this.props.isAnswered ? "Next" : "Skip";
+      nextButton = <div style={{position:'fixed', bottom:20, right:20, zIndex:99}}>
+                      <Button className="nextButton" variant="contained" onClick={this.props.nextCallback}>
+                        {nextButtonText}
+                      </Button>
+                    </div>;
+    }
 
     return (
         <div key={this.props.renderKey} className="multiItemContent">
-          {content}
+          {contentObject.components}
+          {nextButton}
         </div>
       );
   }

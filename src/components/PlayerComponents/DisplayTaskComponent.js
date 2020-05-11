@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import Button from '@material-ui/core/Button';
+//import Button from '@material-ui/core/Button';
 import { Typography } from '@material-ui/core';
 import { withTheme } from '@material-ui/styles';
 
@@ -41,6 +41,7 @@ class DisplayTaskHelper extends React.Component { //for the sake of recursion
     };
 
     this.handleMultipleScreenEvent = this.onMultipleScreenEvent.bind(this);
+    this.handleOnNextClicked = this.onClickNext.bind(this);
   }
 
   /*
@@ -293,7 +294,17 @@ class DisplayTaskHelper extends React.Component { //for the sake of recursion
                                   repeatSetThreshold={updatedTaskSet.repeatSetThreshold}/>
       }
       else { //not a set
-        var nextButtonText = this.state.hasBeenAnswered ? "Next" : "Skip";
+        /*let nextButton = null; //I think we should move this to the synquestiviewcomponent
+        if(!this.currentTask.hideNext){
+          let nextButtonText = this.state.hasBeenAnswered ? "Next" : "Skip";
+          nextButton = <div className="nextButton">
+                          <Button className="nextButton" variant="contained" onClick={this.onClickNext.bind(this)}>
+                            {nextButtonText}
+                          </Button>
+                        </div>;
+        }*/
+
+        //{nextButton}
 
         return (
           <div className="page" key={id+this.currentTaskIndex}>
@@ -302,6 +313,8 @@ class DisplayTaskHelper extends React.Component { //for the sake of recursion
                                           tasksFamilyTree={trackingTaskSetNames}
                                           task={this.currentTask}
                                           answerCallback={this.onAnswer.bind(this)}
+                                          nextCallback={this.handleOnNextClicked}
+                                          isAnswered={this.state.hasBeenAnswered}
                                           answerItem={this.state.answerItem}
                                           newTask={!this.state.hasBeenAnswered}
                                           hasBeenInitiated={this.hasBeenInitiated}
@@ -317,11 +330,7 @@ class DisplayTaskHelper extends React.Component { //for the sake of recursion
                                           renderKey={id}/>
 
             </div>
-            <div className="nextButton">
-              <Button className="nextButton" variant="contained" onClick={this.onClickNext.bind(this)}>
-                {nextButtonText}
-              </Button>
-            </div>
+
           </div>
           );
       }
