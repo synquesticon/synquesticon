@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 
-//import Button from '@material-ui/core/Button';
 import { Typography } from '@material-ui/core';
 import { withTheme } from '@material-ui/styles';
 
@@ -167,26 +166,6 @@ class DisplayTaskHelper extends React.Component { //for the sake of recursion
 
     this.progressCount += 1;
 
-    /*this.currentLineOfData.forEach((line, index) => {
-      if (line.isGlobalVariable !== undefined) {
-        this.saveGlobalVariable(store.getState().experimentInfo.participantId,
-                                line.label, line.responses);
-      }
-      else {
-        line.timeToCompletion = playerUtils.getCurrentTime() - line.startTimestamp;
-        if (store.getState().experimentInfo.shouldSave) {
-          console.log(line);
-          db_helper.addNewLineToParticipantDB(store.getState().experimentInfo.participantId, JSON.stringify(line));
-        }
-      }
-
-      this.progressCount += 1;
-      let stringifiedMessage = playerUtils.stringifyMessage(store, {_id:line.taskId}, line,
-                                                (line.firstResponseTimestamp !== -1) ? "ANSWERED" : "SKIPPED",
-                                                this.progressCount, -1);
-      mqtt.broadcastEvents(stringifiedMessage);
-    });*/
-
     //===========check requirement of number of correct answers===========
     if ((this.state.currentTaskIndex + 1) >= this.props.taskSet.data.length && this.numCorrectAnswers < this.props.repeatSetThreshold){
       if (!(store.getState().experimentInfo.participantId === "TESTING")) {
@@ -294,18 +273,6 @@ class DisplayTaskHelper extends React.Component { //for the sake of recursion
                                   repeatSetThreshold={updatedTaskSet.repeatSetThreshold}/>
       }
       else { //not a set
-        /*let nextButton = null; //I think we should move this to the synquestiviewcomponent
-        if(!this.currentTask.hideNext){
-          let nextButtonText = this.state.hasBeenAnswered ? "Next" : "Skip";
-          nextButton = <div className="nextButton">
-                          <Button className="nextButton" variant="contained" onClick={this.onClickNext.bind(this)}>
-                            {nextButtonText}
-                          </Button>
-                        </div>;
-        }*/
-
-        //{nextButton}
-
         return (
           <div className="page" key={id+this.currentTaskIndex}>
             <div className="mainDisplay">
@@ -330,7 +297,6 @@ class DisplayTaskHelper extends React.Component { //for the sake of recursion
                                           renderKey={id}/>
 
             </div>
-
           </div>
           );
       }
