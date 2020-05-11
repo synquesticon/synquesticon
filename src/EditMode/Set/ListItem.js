@@ -27,8 +27,6 @@ const EditSetListItem = (props) => {
               </div>
             </div>;
 
-  console.log(props.item);
-
   if (props.item.objType === "Task" || props.item.objType === dbOjects.ObjectTypes.TASK){
     if (props.componentDepth === 0){ //If it is a top level parent it should be dragable
       return(
