@@ -40,6 +40,22 @@ const PlayMode = props => {
     return url;
   }
 
+  const appendParticipantID = async (url) =>{
+    let result = await db_helper.addParticipantToDbSync(new db_objects.ParticipantObject(selectedTaskSet._id)).then(
+        function(v){ return {v:v, status: "fulfilled" }},
+        function(e){ return {e:e, status: "rejected" }}
+    );
+
+    if(result.status === "fulfilled"){
+      url += '&pid='+result.v.data._id;
+    }
+    else{
+      console.log("Unable to create participantID: ", result.e);
+    }
+
+    return url;
+  }
+
   const onEditButtonClick = taskSet => {
     const setEditSetAction = {
       type: 'SET_SHOULD_EDIT',
@@ -55,7 +71,7 @@ const PlayMode = props => {
     selectedTaskSet = taskSet;
 
     if(emitterTriggered===undefined && store.getState().multipleScreens){
-        db_helper.addParticipantToDb(new db_objects.ParticipantObject(taskSet._id), (dbID)=> {
+        db_helper.addParticipantToDb(new db_objects.ParticipantObject(taskSet._id), (dbID) => {
         const idAction = {
           type: 'SET_PARTICIPANT_ID',
           participantId: dbID
@@ -86,11 +102,12 @@ const PlayMode = props => {
     copyToClipboard();
   }
 
-  const copyToClipboard = () => {
+  const copyToClipboard = async () => {
     var url = window.location.href + 'study?id=';
     if (selectedTaskSet) {
        url += selectedTaskSet._id;
        url = appendEyeTrackerInfo(url);
+       url = await appendParticipantID(url);
     }
     navigator.clipboard.writeText(url);
 
@@ -103,7 +120,9 @@ const PlayMode = props => {
   }
 
   const onMultipleScreenEvent = payload => {
-    if(store.getState().multipleScreens && payload.type === 'StartExperiment'){
+    //Was checking if multipe screen. With the new change we should just check for same device ID instead
+    if(window.localStorage.getItem('deviceID')===payload.deviceID && payload.type === 'StartExperiment'){
+    //if(store.getState().multipleScreens && payload.type === 'StartExperiment'){
       let idAction = {
         type: 'SET_PARTICIPANT_ID',
         participantId: payload.participantID

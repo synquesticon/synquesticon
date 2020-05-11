@@ -128,7 +128,6 @@ class ExportMode extends Component {
       store.dispatch(snackbarAction);
     }
 
-    console.log("delimiter", this.state.delimiter);
     var exported_csv = "";
     var exported_gaze = "";
     var first_file = false;

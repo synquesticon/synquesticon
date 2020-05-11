@@ -526,6 +526,28 @@ class db_helper {
   };
 
   /**
+   * addParticipantToDb - Asynch add a new participant to the DB.
+   *
+   * @param  {ParticipantObject} obj       The participant object to add to the DB. Should use ParticipantObject defined in db_objects.js.
+   * @param  {function}          callback  This function will be called with the MongoDB id assigned to the created participant. The function should take one parameter.
+   */
+   async addParticipantToDbSync(obj){
+    let result = await axios.post("/api/addParticipant", {
+      message: JSON.stringify(obj)
+    });
+    return result;
+    /*.then((response) => {
+      if(response.status === 200) {
+        callback(response.data._id);
+      }
+      else {
+        alert("Something's wrong! Cannot log the current run into database.");
+        throw new Error("Cannot log data");
+      }
+    });*/
+  };
+
+  /**
    * addNewLineToParticipantDB - Adds a new logging line to the specified participant.
    * Takes the MongoDB of the participant, and the new line data to add. Note that the
    * data should be stringified before calling this function.

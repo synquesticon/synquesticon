@@ -21,7 +21,7 @@ import queryString from 'query-string';
 import './DisplayTaskComponent.css';
 import '../../core/utility.css';
 
-var checkShouldSave = true;
+//var checkShouldSave = true;
 
 /*
 ██████  ███████  ██████ ██    ██ ██████  ███████ ██  ██████  ███    ██      ██████  ██████  ███    ███ ██████   ██████  ███    ██ ███████ ███    ██ ████████
@@ -88,7 +88,8 @@ class DisplayTaskHelper extends React.Component { //for the sake of recursion
     }
   }
 
-  checkShouldRecordData(label, responses) {
+  //This is currently not used
+  /*checkShouldRecordData(label, responses) {
     if (checkShouldSave) {
       if (label.toLowerCase().includes("record data")) {
         for(var i = 0; i < responses.length; i++) {
@@ -104,15 +105,10 @@ class DisplayTaskHelper extends React.Component { //for the sake of recursion
       }
       checkShouldSave = false;
     }
-  }
+  }*/
 
-  /*
-███    ██ ███████ ██   ██ ████████
-████   ██ ██       ██ ██     ██
-██ ██  ██ █████     ███      ██
-██  ██ ██ ██       ██ ██     ██
-██   ████ ███████ ██   ██    ██
-*/
+
+
   saveGlobalVariable(participantId, label, value) {
     var globalVariableObj = {
       label: label,
@@ -138,30 +134,52 @@ class DisplayTaskHelper extends React.Component { //for the sake of recursion
     //===========save gazedata===========
     this.props.saveGazeData(dbObjectsUtilityFunctions.getTaskContent(this.currentTask));
 
+    //Get the current screenID
+    let screenID=store.getState().screenID;
+    let doNotBroadcastNext = false;
+
+
     //===========save logging data===========
     if(this.currentLineOfData){
-    for (const [key, line] of this.currentLineOfData.entries()) {
-      if(!this.savedObjects.includes(key)){ //Only save to the database once
-        if (line.isGlobalVariable !== undefined) {
-          this.saveGlobalVariable(store.getState().experimentInfo.participantId,
-                                  line.label, line.responses);
-        }
-        else {
-          line.timeToCompletion = playerUtils.getCurrentTime() - line.startTimestamp;
-          if (store.getState().experimentInfo.shouldSave) {
-            db_helper.addNewLineToParticipantDB(store.getState().experimentInfo.participantId, JSON.stringify(line));
+      for (const [key, line] of this.currentLineOfData.entries()) {
+        //Only save to the database once
+        if(!this.savedObjects.includes(key)){
+          this.savedObjects.push(key);
+
+          //If there is a global var we save it
+          if (line.isGlobalVariable !== undefined) {
+            this.saveGlobalVariable(store.getState().experimentInfo.participantId,
+                                    line.label, line.responses);
+          } //Check if the task has the setScreenID tag and if the line is of the MChoice type
+          else if(this.currentTask.tags.includes("setScreenID") && line.objType===dbObjects.TaskTypes.MCHOICE.type){
+            // If the answer has a response we set multiple screens to true and set the
+            // screenID for this screen to the response
+            if(line.responses && line.responses.length > 0){
+              doNotBroadcastNext = true;
+              //Update the local screenID
+              screenID=line.responses[0].toString();
+              let multipleScreensAction = {
+                type: 'SET_MULTISCREEN',
+                multipleScreens: true,
+                screenID: screenID
+              }
+              store.dispatch(multipleScreensAction);
+            }
           }
+          else { //Otherwise we log the answer to the participant database object
+            line.timeToCompletion = playerUtils.getCurrentTime() - line.startTimestamp;
+            if (store.getState().experimentInfo.shouldSave) {
+              db_helper.addNewLineToParticipantDB(store.getState().experimentInfo.participantId, JSON.stringify(line));
+            }
+          }
+
+          //Broadcast a status update to any observers listening
+          let stringifiedMessage = playerUtils.stringifyMessage(store, {_id:line.taskId}, line,
+                                                    (line.firstResponseTimestamp !== -1) ? "ANSWERED" : "SKIPPED",
+                                                    this.progressCount, -1);
+          mqtt.broadcastEvents(stringifiedMessage);
         }
-
-
-        let stringifiedMessage = playerUtils.stringifyMessage(store, {_id:line.taskId}, line,
-                                                  (line.firstResponseTimestamp !== -1) ? "ANSWERED" : "SKIPPED",
-                                                  this.progressCount, -1);
-        mqtt.broadcastEvents(stringifiedMessage);
-
-        this.savedObjects.push(key);
       }
-    }
     }
 
     this.progressCount += 1;
@@ -186,6 +204,7 @@ class DisplayTaskHelper extends React.Component { //for the sake of recursion
       }
     }
 
+    //Broadcast a status update to any observers listening
     let eventObject = {eventType: "PROGRESSCOUNT",
                        participantId: store.getState().experimentInfo.participantId,
                        progressCount: this.progressCount};
@@ -193,11 +212,11 @@ class DisplayTaskHelper extends React.Component { //for the sake of recursion
     mqtt.broadcastEvents(JSON.stringify(eventObject));
 
     //To prevent the receiving components from broadcasting a new click event
-    if(!fromEmitter){
+    if(!fromEmitter && !doNotBroadcastNext){
       mqtt.broadcastMultipleScreen(JSON.stringify({
                              type: "nextTask",
                              deviceID: window.localStorage.getItem('deviceID'),
-                             screenID: store.getState().screenID
+                             screenID: screenID
                             }));
     }
 
@@ -352,11 +371,20 @@ class DisplayTaskComponent extends Component {
     store.dispatch(layoutAction);
 
     var parsed = queryString.parse(this.props.location.search);
+    let participantID = parsed.pid;
     var mainTaskSetId = parsed.id;
     var tracker = parsed.tracker;
 
     if (mainTaskSetId === undefined) {
       return;
+    }
+
+    if(participantID){
+      let participantAction = {
+        type: 'SET_PARTICIPANT_ID',
+        participantId: participantID
+      }
+      store.dispatch(participantAction);
     }
 
     db_helper.getTasksOrTaskSetsWithIDs(mainTaskSetId, (dbQueryResult, count, mainTaskSetName) => {
@@ -425,7 +453,7 @@ class DisplayTaskComponent extends Component {
         });
       }*/
     }
-    checkShouldSave = true;
+    //checkShouldSave = true;
   }
 
   componentWillUnmount() {
