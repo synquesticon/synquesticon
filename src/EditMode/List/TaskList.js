@@ -37,11 +37,17 @@ const TaskList = props => {
   const { theme } = props;
   let bgColor = theme.palette.type === "light" ? theme.palette.primary.dark : theme.palette.primary.main;
 
+  if(!props.taskList){
+    console.log("No tasks have been created yet");
+    return <div className="taskListComponentContainer"/>
+  }
+
   return(
     <Droppable droppableId={props.droppableId} isDropDisabled={true} >
       {(provided, snapshot) => (
       <div className="taskListComponentContainer" ref={provided.innerRef}>
         {
+
           props.taskList.map((item, index) => {
             var highlightBG = null;
             if(props.selectedTask && item && item._id === props.selectedTask._id){
