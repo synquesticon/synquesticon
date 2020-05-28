@@ -4,7 +4,7 @@ import * as listUtils from '../../core/db_objects_utility_functions';
 
 const PlayableSetList = (props) => {
 
-  if(!props.tasklist){
+  if(!props.taskList){
     console.log("No playable sets created yet");
     return <div style={{position:'relative', height:'100%', width:'100%', display:'flex', flexDirection:'column'}} />;
   }

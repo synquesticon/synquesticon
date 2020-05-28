@@ -27,11 +27,11 @@ const DeviceIDDialog = props => {
   let screenID = store.getState().screenID;
   const [roles, setRoles] = useState(DEFAULT_ROLES);
   const [multipleScreens, setMultipleScreens] = useState(store.getState().multipleScreens);
-  let selectedRole = props.myStorage.getItem('deviceRole') ? props.myStorage.getItem('deviceRole') : roles[0];  
+  let selectedRole = props.myStorage.getItem('deviceRole') ? props.myStorage.getItem('deviceRole') : roles[0];
 
   useEffect( () => {
     db_helper.getAllRolesFromDb((receivedRoles) => {
-      if (receivedRoles.length <= 0) {
+      if (receivedRoles && receivedRoles.length <= 0) {
         //init the roles
         DEFAULT_ROLES.map((item, index) => {
           db_helper.addRoleToDb({name: item});
@@ -67,7 +67,7 @@ const DeviceIDDialog = props => {
   }
 
   return(
-    <Dialog 
+    <Dialog
             open={props.openDeviceIDSettings}
             onClose={props.closeDeviceIDSettings}
             aria-labelledby="form-dialog-title"
