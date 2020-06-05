@@ -241,37 +241,28 @@ class ExportMode extends Component {
   }
 
   getParticipantName(p) {
-    console.log(p);
-    //if (!p.linesOfData || p.linesOfData.length <= 0 || p.globalVariables.length <= 0) {
+    //If there is not data we set the name to Anonymous (Perhaps it could be named "Empty" instead?)
     if (!p.linesOfData || p.linesOfData.length <= 0) {
       return "Anonymous";
     }
 
-    // var name = p.globalVariables[0].label + "_" + p.globalVariables[0].value;
-    // for (var i = 1; i < p.globalVariables.length; i++) {
-    //   name += ("-" + p.globalVariables[i].label + "_" + p.globalVariables[i].value);
-    // }
-
     var file_name = "";
 
-    if (p.globalVariables.length > 0) {
-      if(p.linesOfData && p.linesOfData.length > 0){
-        file_name = this.formatDateTime(p.linesOfData[0].startTimestamp) + '_';
-        file_name += p.linesOfData[0].tasksFamilyTree[0] + '_';
-      }
+    // If there are lines of data avalaible we set the name to be the time of the first recorded data
+    if(p.linesOfData && p.linesOfData.length > 0){
+      file_name = this.formatDateTime(p.linesOfData[0].startTimestamp) + '_';
+      file_name += p.linesOfData[0].tasksFamilyTree[0];
+    }
 
+    //If there are saved global variables we append them to the experiment name
+    if (p.globalVariables.length > 0) {
       p.globalVariables.sort((a, b) => a.label.localeCompare(b.label));
 
       for (let i = 0; i < p.globalVariables.length; i++) {
-        /*header += p.globalVariables[i].label + ",";*/
         if (!p.globalVariables[i].label.toLowerCase().includes("record data")) {
-          file_name += p.globalVariables[i].label + '-' + p.globalVariables[i].value + '_';
+          file_name += '_' + p.globalVariables[i].label + '-' + p.globalVariables[i].value;
         }
       }
-    }
-
-    if (file_name.length > 0) {
-      file_name = file_name.slice(0, -1);
     }
 
     return file_name;
