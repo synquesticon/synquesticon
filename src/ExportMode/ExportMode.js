@@ -241,7 +241,9 @@ class ExportMode extends Component {
   }
 
   getParticipantName(p) {
-    if (!p.linesOfData || p.linesOfData.length <= 0 || p.globalVariables.length <= 0) {
+    console.log(p);
+    //if (!p.linesOfData || p.linesOfData.length <= 0 || p.globalVariables.length <= 0) {
+    if (!p.linesOfData || p.linesOfData.length <= 0) {
       return "Anonymous";
     }
 
@@ -252,17 +254,19 @@ class ExportMode extends Component {
 
     var file_name = "";
 
-    if(p.linesOfData && p.linesOfData.length > 0){
-      file_name = this.formatDateTime(p.linesOfData[0].startTimestamp) + '_';
-      file_name += p.linesOfData[0].tasksFamilyTree[0] + '_';
-    }
+    if (p.globalVariables.length > 0) {
+      if(p.linesOfData && p.linesOfData.length > 0){
+        file_name = this.formatDateTime(p.linesOfData[0].startTimestamp) + '_';
+        file_name += p.linesOfData[0].tasksFamilyTree[0] + '_';
+      }
 
-    p.globalVariables.sort((a, b) => a.label.localeCompare(b.label));
+      p.globalVariables.sort((a, b) => a.label.localeCompare(b.label));
 
-    for (let i = 0; i < p.globalVariables.length; i++) {
-      /*header += p.globalVariables[i].label + ",";*/
-      if (!p.globalVariables[i].label.toLowerCase().includes("record data")) {
-        file_name += p.globalVariables[i].label + '-' + p.globalVariables[i].value + '_';
+      for (let i = 0; i < p.globalVariables.length; i++) {
+        /*header += p.globalVariables[i].label + ",";*/
+        if (!p.globalVariables[i].label.toLowerCase().includes("record data")) {
+          file_name += p.globalVariables[i].label + '-' + p.globalVariables[i].value + '_';
+        }
       }
     }
 
