@@ -568,7 +568,7 @@ router.post("/updateParticipant", (req, res) => {
 router.post("/addNewLineToParticipant", (req, res) => {
   const { participantId, newLineJSON} = req.body;
   var newLine = JSON.parse(newLineJSON);
-  console.log(newLine);
+
   Participants.updateOne({_id: participantId},
                          { $addToSet: {linesOfData: newLine}}).exec((err, participant) => {
     if (err) return res.json({ success: false, error: err });
