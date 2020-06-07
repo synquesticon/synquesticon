@@ -45,7 +45,7 @@ class TextEntryComponent extends Component {
     var answerObj = {
       responses: [this.textEntry],
       correctlyAnswered: this.checkAnswer(),
-      taskID: this.props.task._id,
+      //taskID: this.props.task._id,
       mapID: this.props.mapID,
     }
     this.props.answerCallback(answerObj);
@@ -53,7 +53,7 @@ class TextEntryComponent extends Component {
 
   render() {
     return (
-      <div className={this.props.className} style={{display:'flex', position:'relative', 
+      <div className={this.props.className} style={{display:'flex', position:'relative',
         flexDirection:'column', width:'100%', flexGrow:0,flexShrink:0}}>
         <Typography ref={this.textRef} variant="h3" align="center" style={{whiteSpace:"pre-line", width:'100%'}} color="textPrimary">
           {this.props.task.displayText}

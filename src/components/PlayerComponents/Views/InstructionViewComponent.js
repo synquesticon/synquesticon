@@ -9,7 +9,7 @@ const InstructionViewComponent = props => {
     const answerObj = {
       responses: [],
       correctlyAnswered: "notApplicable",
-      taskID: props.task._id,
+      //taskID: props.task._id,
       mapID: props.mapID,
     }
     props.answerCallback(answerObj);

@@ -6,8 +6,6 @@ const logger = require("morgan");
 const fs = require("fs");
 const multer = require("multer");
 const path = require("path");
-//var ObjectID = require('mongodb').ObjectID;
-
 
 const dataSchema = require("./data_schema");
 const Synquestitasks = dataSchema.Synquestitasks;
@@ -570,6 +568,7 @@ router.post("/updateParticipant", (req, res) => {
 router.post("/addNewLineToParticipant", (req, res) => {
   const { participantId, newLineJSON} = req.body;
   var newLine = JSON.parse(newLineJSON);
+  console.log(newLine);
   Participants.updateOne({_id: participantId},
                          { $addToSet: {linesOfData: newLine}}).exec((err, participant) => {
     if (err) return res.json({ success: false, error: err });

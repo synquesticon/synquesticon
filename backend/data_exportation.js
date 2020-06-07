@@ -150,10 +150,14 @@ function handleAcceptedMargin(line){
 }
 
 exports.save_to_csv = async function(p, seperator) {
+
+
+
     var globalVariables = "";
     var file_name = "";
 
     if(p.linesOfData && p.linesOfData.length > 0){
+      console.log(p.linesOfData)
       file_name = formatDateTime(p.linesOfData[0].startTimestamp) + '_';
       file_name += p.linesOfData[0].tasksFamilyTree[0] + '_';
     }

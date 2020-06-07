@@ -136,9 +136,10 @@ class ImageViewComponent extends Component {
     this.clicks.push(click);
     var answerObj = {
       clickedPoints: this.clicks,
-      taskID: this.props.task._id,
+      //taskID: this.props.task._id,
       mapID: this.props.mapID,
     };
+    //console.log(answerObj);
     this.props.answerCallback(answerObj);
     this.forceUpdate();
   }

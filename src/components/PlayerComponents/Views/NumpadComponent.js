@@ -76,7 +76,7 @@ const NumpadComponent = props => {
     const answerObj = {
       responses: [parseFloat(numpadEntry)],
       correctlyAnswered: checkAnswer(),
-      taskID: props.task._id,
+      //taskID: props.task._id,
       mapID: props.mapID,
     }
     props.answerCallback(answerObj);

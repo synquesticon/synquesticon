@@ -557,6 +557,7 @@ class db_helper {
    */
    addNewLineToParticipantDB(participantId, newLineJSON){
     if (participantId === undefined) {
+      console.log("Missing participant ID, unable to save data to the database");
       return;
     }
     axios.post("/api/addNewLineToParticipant", {

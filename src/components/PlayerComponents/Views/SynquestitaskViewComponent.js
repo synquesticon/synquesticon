@@ -40,8 +40,12 @@ class SynquestitaskViewComponent extends Component {
     lineOfData.responses = Array.isArray(answerObj.responses)?answerObj.responses:[];
     lineOfData.correctlyAnswered = answerObj.correctlyAnswered;
 
-    if (answerObj.taskID+answerObj.mapID) {
+    /*if (answerObj.taskID+answerObj.mapID) {
       this.taskResponses.set(answerObj.taskID+answerObj.mapID, lineOfData);
+    }*/
+
+    if (this.props.task._id+answerObj.mapID) {
+      this.taskResponses.set(this.props.task._id+answerObj.mapID, lineOfData);
     }
 
     this.props.answerCallback({linesOfData: this.taskResponses, correctlyAnswered: answerObj.correctlyAnswered});

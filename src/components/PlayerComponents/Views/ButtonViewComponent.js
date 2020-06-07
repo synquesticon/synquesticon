@@ -71,7 +71,7 @@ class ButtonViewComponent extends Component {
     if (this.props.task.resetResponses) { //buttons with this feature are authorized to log their own data
       var lineOfData = JSON.parse(JSON.stringify(this.delegate));
       lineOfData.timeToCompletion = playerUtils.getCurrentTime() - lineOfData.startTimestamp;
-      lineOfData.responses = [response];
+      lineOfData.responses = response; //Was wrapped in []
       lineOfData.correctlyAnswered = this.checkAnswer();
       lineOfData.componentType = this.props.task.objType;
 
@@ -85,13 +85,12 @@ class ButtonViewComponent extends Component {
     }
     else { //normal buttons behaviour
       var answerObj = {
-        responses: [this.pickedItems],
+        responses: this.pickedItems,  //Was wrapped in []
         correctlyAnswered: this.checkAnswer(),
-        taskID: this.props.task._id, //TODO This is undefined, might be legacy from earlier version where we did not have task components. Remove after confirming
+        //taskID: this.props.task._id, //TODO This is undefined, might be legacy from earlier version where we did not have task components. Remove after confirming
         mapID: this.props.mapID,
-        componentType: this.props.task.objType
+        //componentType: this.props.task.objType
       }
-
       this.props.answerCallback(answerObj);
     }
   }
