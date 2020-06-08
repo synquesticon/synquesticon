@@ -176,7 +176,7 @@ exports.save_to_csv = async function(p, seperator) {
     }
 
     if (file_name === "") {
-      file_name = "Anonymous";
+      file_name = "EMPTY";
     }
 
     // var gazeDataFile = RAW_GAZE_DATA_DIRECTORY + GAZE_DATA_PREFIX + p._id;
