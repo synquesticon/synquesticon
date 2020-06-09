@@ -241,9 +241,9 @@ class ExportMode extends Component {
   }
 
   getParticipantName(p) {
-    //If there is not data we set the name to Anonymous (Perhaps it could be named "Empty" instead?)
+    //If there is not data we set the name to "Empty"
     if (!p.linesOfData || p.linesOfData.length <= 0) {
-      return "Anonymous";
+      return "Empty";
     }
 
     var file_name = "";
