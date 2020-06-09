@@ -70,10 +70,12 @@ function _startMQTT(config, restart) {
     return;
   }
 
-  var wsURL = "ws://";
+  let wsURL = config.bUseWSS?"wss://":"ws://";
+
+  /*var wsURL = "ws://";
   if(config.ip.includes("/crossbarproxy")){ //TODO check if needed after pushing to the server. If so rename to /mqttProxy
     wsURL = "wss://";
-  }
+  }*/
   wsURL += config.ip + ":" + config.port;
 
   //Attempt to connect the client to the mqtt broker
