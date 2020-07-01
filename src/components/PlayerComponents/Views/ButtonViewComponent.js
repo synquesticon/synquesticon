@@ -11,6 +11,7 @@ import * as playerUtils from '../../../core/player_utility_functions';
 import store from '../../../core/store';
 
 import './ButtonViewComponent.css';
+import { pick } from 'lodash';
 
 class ButtonViewComponent extends Component {
   constructor(props) {
@@ -60,12 +61,28 @@ class ButtonViewComponent extends Component {
 
   onAnswer(response) {
     if (this.props.task.singleChoice) { //single choice
-      if (this.pickedItems.length <= 0) {
+      if (this.pickedItems.length === 1) {
+        if(this.pickedItems[0] === response){
+          console.log('Reclick, remove the answer');
+          this.pickedItems = [];
+          this.forceUpdate();
+        } else{
+          console.log('Please unclick first!!');
+        }
+      } else{
         this.pickedItems.push(response);
       }
-    }
+    }    
     else { //multiple choice
-      this.pickedItems.push(response);
+      if(this.pickedItems.includes(response)){
+        var temp = [...this.pickedItems].filter(answer => answer!=response);
+        this.pickedItems = temp;
+        this.forceUpdate();
+      } else{
+        this.pickedItems.push(response);
+      }
+      
+      
     }
 
     if (this.props.task.resetResponses) { //buttons with this feature are authorized to log their own data
@@ -106,11 +123,45 @@ class ButtonViewComponent extends Component {
         <div className="responsesButtons">
           {
             this.props.task.responses.map((item, index)=>{
-              if (this.pickedItems.includes(item)) {
+              var anchorNote = '//';
+              var regex = new RegExp('//');
+              var isAnchor = regex.test(String(item));
+              if(isAnchor){ //render as anchors
+                var newItem = String(item).substr(anchorNote.length);
                 return (
-                  <span className="inputButton" key={index}><Button  variant="contained" style={{color:theme.palette.text.secondary}} disabled={true} onClick={() => this.onAnswer(item)}>{item}</Button></span>)
+                  <span className="inputButton" key={index}>
+                  <Button  
+                  variant="contained" 
+                  onClick={() => this.onAnswer(item)}
+                  disabled={true}>
+                    {newItem}
+                  </Button>
+                </span>)               
+
+              } else{ //render as buttons
+                if (this.pickedItems.includes(item)) { // if this item has been chosen
+                  return (
+                    <span className="inputButton" key={index}>
+                    <Button  
+                    variant="contained" 
+                    onClick={() => this.onAnswer(item)}
+                    style={{backgroundColor: "red"}}>
+                      {item}                  
+                    </Button>
+                  </span>)
+                } else{
+  
+                }
+                return (
+                <span className="inputButton" key={index}>
+                  <Button  
+                  variant="contained" 
+                  onClick={() => this.onAnswer(item)}>
+                    {item}
+                  </Button>
+                </span>)
               }
-              return (<span className="inputButton" key={index}><Button  variant="contained" onClick={() => this.onAnswer(item)}>{item}</Button></span>);
+
             })
           }
         </div>
