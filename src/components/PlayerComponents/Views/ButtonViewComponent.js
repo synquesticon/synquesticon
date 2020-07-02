@@ -124,11 +124,10 @@ class ButtonViewComponent extends Component {
           {
             this.props.task.responses.map((item, index)=>{              
               if (item.includes("//")){ 
-                let anchorStyle = {display: 'inline-block', padding: '5px', whiteSpace: 'pre-wrap'}
                 item = item.replace(/\/\//g, "");  // Remove leading slashes
                 item = item.replace(/\\n/g, "\n"); // insert new-line characters
                 return(
-                  <Typography variant="h5" style={anchorStyle} ref={this.textRef} color="textPrimary" align="center">{item}</Typography>
+                  <Typography variant="h5" style={{display: 'inline-block', padding: '5px', whiteSpace: 'pre-wrap'}} ref={this.textRef} color="textPrimary" align="center">{item}</Typography>
                 )    
               } else if (item === "\\n") { //line break
                 return(<br></br>);                
