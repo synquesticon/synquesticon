@@ -124,18 +124,21 @@ class ButtonViewComponent extends Component {
         <div className="responsesButtons">
           {
             this.props.task.responses.map((item, index)=>{
-              var anchorPrefix = '//';
-              var regex = new RegExp(anchorPrefix);
-              var isAnchor = regex.test(String(item)); //if the item string includes prefix
+              let anchorPrefix = '//';
+              let regex = new RegExp(anchorPrefix);
+              let isAnchor = regex.test(String(item)); //if the item string includes prefix
               
               if(isAnchor){ 
-                var newItem = item;
+                let newItem = item;
+                let anchorStyle = {display: 'inline-block', padding: '5px'}
                 newItem = String(item).substr(anchorPrefix.length);
+                
                 return(
-                <span className="inputButton">{newItem}</span>
+                  <Typography variant="h4" style={anchorStyle} ref={this.textRef} color="textPrimary" align="center">{newItem}</Typography>
+                
                 )                
               } else{ //render as buttons
-                var buttonStyle = null //styling for the items in/out of pickedItems
+                let buttonStyle = null //styling for the items in/out of pickedItems
                 if (this.pickedItems.includes(item)) { // if this item has been chosen
                   buttonStyle = {backgroundColor: '#33ccff'};
                 }                
