@@ -122,20 +122,13 @@ class ButtonViewComponent extends Component {
         </div>
         <div className="responsesButtons" style={{whiteSpace:"pre-wrap"}}>
           {
-            this.props.task.responses.map((item, index)=>{
-console.log(item);
-              let anchorPrefix = '//';
-              let regex = new RegExp(anchorPrefix);
-              let isAnchor = regex.test(String(item)); //if the item string includes prefix
-              
-              if(isAnchor){ 
-                let newItem = item;
+            this.props.task.responses.map((item, index)=>{              
+              if (item.includes("//")){ 
                 let anchorStyle = {display: 'inline-block', padding: '5px', whiteSpace: 'pre-wrap'}
-                newItem = String(item).substr(anchorPrefix.length);
-                newItem = newItem.replace(/\\n/g, "\n");
-                
+                item = item.replace(/\/\//g, "");  // Remove leading slashes
+                item = item.replace(/\\n/g, "\n"); // insert new-line characters
                 return(
-                  <Typography variant="h5" style={anchorStyle} ref={this.textRef} color="textPrimary" align="center">{newItem}</Typography>
+                  <Typography variant="h5" style={anchorStyle} ref={this.textRef} color="textPrimary" align="center">{item}</Typography>
                 )    
               } else if (item === "\\n") { //line break
                 return(<br></br>);                
