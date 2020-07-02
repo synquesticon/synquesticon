@@ -123,46 +123,35 @@ class ButtonViewComponent extends Component {
         <div className="responsesButtons">
           {
             this.props.task.responses.map((item, index)=>{
-              var anchorNote = '//';
-              var regex = new RegExp('//');
-              var isAnchor = regex.test(String(item));
-              if(isAnchor){ //render as anchors
-                var newItem = String(item).substr(anchorNote.length);
-                return (
-                  <span className="inputButton" key={index}>
-                  <Button  
-                  variant="contained" 
-                  onClick={() => this.onAnswer(item)}
-                  disabled={true}>
-                    {newItem}
-                  </Button>
-                </span>)               
-
+              var anchorPrefix = '//';
+              var regex = new RegExp(anchorPrefix);
+              var isAnchor = regex.test(String(item)); //if the item string includes prefix
+              var newItem = item;
+              var buttonDisable = false; //display anchors as a disabled button
+              var buttonStyle = null //styling for the items in/out of pickedItems
+              
+              if(isAnchor){ //check if the item is an anchor
+                newItem = String(item).substr(anchorPrefix.length);
+                buttonDisable = true;
               } else{ //render as buttons
-                if (this.pickedItems.includes(item)) { // if this item has been chosen
-                  return (
-                    <span className="inputButton" key={index}>
-                    <Button  
-                    variant="contained" 
-                    onClick={() => this.onAnswer(item)}
-                    style={{backgroundColor: "red"}}>
-                      {item}                  
-                    </Button>
-                  </span>)
-                } else{
-  
-                }
-                return (
-                <span className="inputButton" key={index}>
-                  <Button  
-                  variant="contained" 
-                  onClick={() => this.onAnswer(item)}>
-                    {item}
-                  </Button>
-                </span>)
+                var buttonStyle = null
               }
 
-            })
+              if (this.pickedItems.includes(item)) { // if this item has been chosen
+                buttonStyle = {backgroundColor: '#33ccff'};
+              }
+              return (
+                <span className="inputButton" key={index}>
+                <Button  
+                variant="contained" 
+                onClick={() => this.onAnswer(item)}
+                style={buttonStyle}
+                disabled={buttonDisable}>
+                  {newItem}                  
+                </Button>
+              </span>)
+            }
+            )
           }
         </div>
       </div>
