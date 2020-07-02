@@ -185,24 +185,24 @@ class DisplayTaskHelper extends React.Component { //for the sake of recursion
     this.progressCount += 1;
 
     //===========check requirement of number of correct answers===========
-    if ((this.state.currentTaskIndex + 1) >= this.props.taskSet.data.length && this.numCorrectAnswers < this.props.repeatSetThreshold){
-      if (!(store.getState().experimentInfo.participantId === "TESTING")) {
-        alert("you did not meet the required number of correct answers. This set will be repeated now.");
+    // if ((this.state.currentTaskIndex + 1) >= this.props.taskSet.data.length && this.numCorrectAnswers < this.props.repeatSetThreshold){
+    //   if (!(store.getState().experimentInfo.participantId === "TESTING")) {
+    //     alert("you did not meet the required number of correct answers. This set will be repeated now.");
 
-        this.progressCount = this.props.progressCount;
+    //     this.progressCount = this.props.progressCount;
 
-        this.numCorrectAnswers = 0;
-        this.currentLineOfData = null;
-        //reset state
-        this.setState({
-          hasBeenAnswered: false,
-          answerItem: null,
-          currentTaskIndex: 0
-        });
+    //     this.numCorrectAnswers = 0;
+    //     this.currentLineOfData = null;
+    //     //reset state
+    //     this.setState({
+    //       hasBeenAnswered: false,
+    //       answerItem: null,
+    //       currentTaskIndex: 0
+    //     });
 
-        return;
-      }
-    }
+    //     return;
+    //   }
+    // }
 
     //Broadcast a status update to any observers listening
     let eventObject = {eventType: "PROGRESSCOUNT",
