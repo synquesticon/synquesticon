@@ -264,6 +264,10 @@ class DisplayTaskHelper extends React.Component { //for the sake of recursion
   render() {
     if(!this.isTheEndOfSet()) {
       this.currentTask = this.props.taskSet.data[this.state.currentTaskIndex];
+      //check if there is screen ID for this screen
+      //if there is a screen ID, continue
+      //if not, get currentTaskIndex-1 ....
+      //not as simple as Michael thought it would be
       var id = this.currentTask._id + "_" + this.progressCount;
 
       let trackingTaskSetNames = this.props.tasksFamilyTree.slice(); //clone array, since javascript passes by reference, we need to keep the orginal familyTree untouched
