@@ -132,6 +132,7 @@ console.log(item);
                 let newItem = item;
                 let anchorStyle = {display: 'inline-block', padding: '5px', whiteSpace: 'pre-wrap'}
                 newItem = String(item).substr(anchorPrefix.length);
+                newItem = newItem.replace(/\\n/g, "\n");
                 
                 return(
                   <Typography variant="h5" style={anchorStyle} ref={this.textRef} color="textPrimary" align="center">{newItem}</Typography>
