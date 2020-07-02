@@ -115,29 +115,30 @@ class ButtonViewComponent extends Component {
 
   render() {
     let theme=this.props.theme;
-
     return (
       <div className={this.props.className}>
         <div>
           <Typography ref={this.textRef} variant="h3" color="textPrimary" align="center" style={{whiteSpace:"pre-line"}}>{this.props.task.displayText}</Typography>
         </div>
-        <div className="responsesButtons">
+        <div className="responsesButtons" style={{whiteSpace:"pre-wrap"}}>
           {
             this.props.task.responses.map((item, index)=>{
+console.log(item);
               let anchorPrefix = '//';
               let regex = new RegExp(anchorPrefix);
               let isAnchor = regex.test(String(item)); //if the item string includes prefix
               
               if(isAnchor){ 
                 let newItem = item;
-                let anchorStyle = {display: 'inline-block', padding: '5px'}
+                let anchorStyle = {display: 'inline-block', padding: '5px', whiteSpace: 'pre-wrap'}
                 newItem = String(item).substr(anchorPrefix.length);
                 
                 return(
-                  <Typography variant="h4" style={anchorStyle} ref={this.textRef} color="textPrimary" align="center">{newItem}</Typography>
-                
-                )                
-              } else{ //render as buttons
+                  <Typography variant="h5" style={anchorStyle} ref={this.textRef} color="textPrimary" align="center">{newItem}</Typography>
+                )    
+              } else if (item === "\\n") { //line break
+                return(<br></br>);                
+              } else { //render as buttons
                 let buttonStyle = null //styling for the items in/out of pickedItems
                 if (this.pickedItems.includes(item)) { // if this item has been chosen
                   buttonStyle = {backgroundColor: '#33ccff'};
@@ -150,11 +151,9 @@ class ButtonViewComponent extends Component {
                   style={buttonStyle}>
                     {item}                  
                   </Button>
-                </span>)
-                
+                  </span>
+                )                
               }
-
-              
             }
             )
           }
