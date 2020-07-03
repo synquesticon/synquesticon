@@ -113,22 +113,25 @@ class ButtonViewComponent extends Component {
     }
   }
 
+//  <span style={{display:'flex', justifyContent: 'space-between'}}>
+//  <span>left</span>test<span>right thisiasidiasjdasjdajsdjsad ja</span>
+//  </span>
+//whiteSpace:"pre-wrap"
   render() {
     let theme=this.props.theme;
-    return (
+      return (
       <div className={this.props.className}>
         <div>
           <Typography ref={this.textRef} variant="h3" color="textPrimary" align="center" style={{whiteSpace:"pre-line"}}>{this.props.task.displayText}</Typography>
         </div>
+
         <div className="responsesButtons" style={{whiteSpace:"pre-wrap"}}>
           {
-            this.props.task.responses.map((item, index)=>{              
+            this.props.task.responses.map((item, index)=>{
               if (item.includes("//")){ 
                 item = item.replace(/\/\//g, "");  // Remove leading slashes
                 item = item.replace(/\\n/g, "\n"); // insert new-line characters
-                return(
-                  <Typography variant="h5" style={{display: 'inline-block', padding: '5px', whiteSpace: 'pre-wrap'}} ref={this.textRef} color="textPrimary" align="center">{item}</Typography>
-                )    
+                return(<Typography variant="h5" style={{display: 'inline-block', padding: '5px', whiteSpace: 'pre-wrap'}} ref={this.textRef} color="textPrimary" align="center">{item}</Typography>)
               } else if (item === "\\n") { //line break
                 return(<br></br>);                
               } else { //render as buttons
