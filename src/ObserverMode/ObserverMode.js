@@ -73,7 +73,7 @@ class ObserverMode extends Component {
       }
       else if (msg.eventType === "RESETANSWER") {
         if (this.isSameIdentifier(pair[0], msg)) {
-          msg.eventType = "ANSWERED"; //we cheat so we don't have to handle new case
+          // msg.eventType = "ANSWERED"; //we cheat so we don't have to handle new case
           pair.push(msg);
           return msgArray;
         }

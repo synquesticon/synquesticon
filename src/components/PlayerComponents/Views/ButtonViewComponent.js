@@ -89,7 +89,7 @@ class ButtonViewComponent extends Component {
     if (this.props.task.resetResponses) { //buttons with this feature are authorized to log their own data
       var lineOfData = JSON.parse(JSON.stringify(this.delegate));
       lineOfData.timeToCompletion = playerUtils.getCurrentTime() - lineOfData.startTimestamp;
-      lineOfData.responses = response; //Was wrapped in []
+      lineOfData.responses = [response]; //Was wrapped in []
       lineOfData.correctlyAnswered = this.checkAnswer();
       lineOfData.componentType = this.props.task.objType;
 

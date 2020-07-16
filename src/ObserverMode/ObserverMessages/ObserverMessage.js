@@ -85,6 +85,16 @@ class ObserverMessage extends React.Component {
         //
         this.showCommentButton = false;
         break;
+      
+      case "RESETANSWER":
+        console.log('Here is the case');
+        var responses = args.lineOfData.responses.join(', ');
+        displayText = <Typography display="inline" variant="body1" color="textPrimary">
+                      <font color={color}>"{responses}"</font>
+                      </Typography>;
+        this.showCommentButton = false;
+        break;
+      
       case "SKIPPED":
       /*
       "SKIPPED",
