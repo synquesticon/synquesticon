@@ -16,6 +16,25 @@ class ObserverMessage extends React.Component {
     this.marginTop = false;
   }
 
+  convertHMS(milliseconds) {
+    var sec = milliseconds/1000;
+    if (sec < 60){
+      return sec+' secs';
+    }
+    var hours   = Math.floor(sec / 3600); // get hours
+    var minutes = Math.floor((sec - (hours * 3600)) / 60); // get minutes
+    var seconds = sec - (hours * 3600) - (minutes * 60); //  get seconds
+    // add 0 if value < 10
+    if (hours === 0){
+      return minutes+' mins: '+seconds+' secs'; // Return is MM : SS
+    }
+    if (hours   < 10) {hours   = "0"+hours;}
+    if (minutes < 10) {minutes = "0"+minutes;}
+    if (seconds < 10) {seconds = "0"+seconds;}
+
+    return hours+' hours: '+minutes+' mins: '+seconds+' secs' // Return is HH : MM : SS
+  }
+
   parseMessage(args) {
     var redColor = "#E94B3C";
     var greenColor = "#006B38";
@@ -64,8 +83,8 @@ class ObserverMessage extends React.Component {
                    obj.aoiCheckedList];
        */
         var responses = args.lineOfData.responses.join(', ');
-        timeToCompletion = args.lineOfData.timeToCompletion < 0 ? 0 : args.lineOfData.timeToCompletion/1000;
-        var timeToFirstAnswer = args.lineOfData.timeToFirstAnswer < 0 ? 0 : args.lineOfData.timeToFirstAnswer/1000;
+        timeToCompletion = args.lineOfData.timeToCompletion < 0 ? 0 : this.convertHMS(args.lineOfData.timeToCompletion);
+        var timeToFirstAnswer = args.lineOfData.timeToFirstAnswer < 0 ? 0 : this.convertHMS(args.lineOfData.timeToFirstAnswer);
         var color = this.props.theme.palette.textPrimary;
         if (args.lineOfData.correctlyAnswered === "correct") {
           color = greenColor;
@@ -74,7 +93,7 @@ class ObserverMessage extends React.Component {
           color = redColor;
         }
         displayText = <Typography display="inline" variant="body1" color="textPrimary">
-                      <font color={color}>"{responses}"</font> ({timeToFirstAnswer}s /{timeToCompletion}s)
+                      <font color={color}>"{responses}"</font> ({timeToFirstAnswer} /{timeToCompletion})
                       </Typography>;
 
         /*var aoisList = "";
@@ -87,10 +106,10 @@ class ObserverMessage extends React.Component {
         break;
       
       case "RESETANSWER":
-        console.log('Here is the case');
+        var timeToCompletion = this.convertHMS(args.lineOfData.timeToCompletion);
         var responses = args.lineOfData.responses.join(', ');
         displayText = <Typography display="inline" variant="body1" color="textPrimary">
-                      <font color={color}>"{responses}"</font>
+                      <font color={color}>"{responses}"</font> {timeToCompletion}
                       </Typography>;
         this.showCommentButton = false;
         break;
@@ -103,7 +122,7 @@ class ObserverMessage extends React.Component {
                   store.getState().experimentInfo.selectedTracker,
                   obj.timeToCompletion
       */
-        timeToCompletion = args.lineOfData.timeToCompletion < 0 ? 0 : args.lineOfData.timeToCompletion/1000;
+        timeToCompletion = args.lineOfData.timeToCompletion < 0 ? 0 : this.convertHMS(args.lineOfData.timeToCompletion);
         displayText = <Typography variant="body1" color="textPrimary">
                         <font color={redColor}>Skipped </font> (NA / {timeToCompletion}s)
                       </Typography>;
