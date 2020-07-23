@@ -3,8 +3,9 @@ import Button from '@material-ui/core/Button';
 
 const buttonElement = (props) => {
     const [isClicked, setIsClicked] = useState(false);
-    const isResetable = props.reset;
-    const isSingleChoice = props.isSingleChoice
+    const clickedButtonStyle = {
+        backgroundColor: "#33ccff"
+    }
 
     useEffect( () => {
         if (props.id === props.clickedButton) {
@@ -14,28 +15,24 @@ const buttonElement = (props) => {
         }
     }, [props.clickedButton])
 
-    const clickedButtonStyle = {
-        backgroundColor: "#33ccff"
-    }
-
-    const onButtonPressed = (event) => {
+    const onButtonPressed = () => {
         if(isClicked === true){
-            setIsClicked(false); // Unclick
+            if (!props.isSingleChoice) {
+                setIsClicked(false); // Unclick
+            }
             props.logComponentData(props.id, false, props.content)
         } else {
-            if (isResetable) {
+            if (props.reset) {
                 setIsClicked(true)
                 console.log('Button needs to reset')
                 setTimeout(() => {
                     setIsClicked(false)
                 }, 1000);
             } else {
-                if (isSingleChoice) {
-                    props.setClickedButton(props.id)   
-                } else {
+                if (!props.isSingleChoice) {
                     setIsClicked(true)
                 }
-                props.logComponentData(props.id, true, props.content)
+            props.logComponentData(props.id, true, props.content)
             }
         }
     }
