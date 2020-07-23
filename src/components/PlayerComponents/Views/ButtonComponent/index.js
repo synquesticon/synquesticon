@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react'
 import { Typography } from '@material-ui/core';
 import { map } from 'lodash';
-import Button from './Button'
+import Button from './buttonElement'
 
 const buttonList = (props) => {
     
@@ -16,7 +16,6 @@ const buttonList = (props) => {
     const [pressedKey, setPressedKey] = useState(null)
 
     return(
-        <div style={buttonListStyle}>
             {
                 props.task.responses.map((item, index) => {
                     if (item.includes("//")){ 

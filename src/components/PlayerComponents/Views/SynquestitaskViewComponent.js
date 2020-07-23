@@ -5,7 +5,7 @@ import InstructionViewComponent from './InstructionViewComponent';
 import TextEntryComponent from './TextEntryComponent';
 import NumpadComponent from './NumpadComponent';
 // import ButtonViewComponent from './ButtonViewComponent_refactored';
-import ButtonList from './Button/ButtonList'
+import ButtonComponent from './ButtonComponent/'
 import ImageViewComponent from './ImageViewComponent';
 //import ComparisonViewComponent from './Views/ComparisonViewComponent';
 
@@ -103,7 +103,7 @@ class SynquestitaskViewComponent extends Component {
         }
         else if(item.objType === dbObjects.TaskTypes.MCHOICE.type){
             // return <ButtonViewComponent className="itemContainer" key={key} task={item} answerCallback={this.answerCallback} mapID={mapIndex} parentSet={this.props.task.name} delegate={newLine}/>;
-            return <ButtonList className="itemContainer" key={key} task={item} answerCallback={this.answerCallback} mapID={mapIndex} parentSet={this.props.task.name} delegate={newLine}/>;
+            return <ButtonComponent className="itemContainer" key={key} task={item} answerCallback={this.answerCallback} mapID={mapIndex} parentSet={this.props.task.name} delegate={newLine}/>;
         }
         else if(item.objType === dbObjects.TaskTypes.IMAGE.type) {
             return <ImageViewComponent className="itemContainer" key={key} task={item} answerCallback={this.answerCallback} mapID={mapIndex} parentSet={this.props.task.name}/>;

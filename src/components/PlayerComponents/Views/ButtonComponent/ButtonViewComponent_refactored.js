@@ -4,11 +4,11 @@ import Button from '@material-ui/core/Button';
 import { Typography } from '@material-ui/core';
 import { withTheme } from '@material-ui/styles';
 
-import mqtt from '../../../core/mqtt'
-import db_helper from '../../../core/db_helper';
-import * as playerUtils from '../../../core/player_utility_functions';
+import mqtt from '../../../../core/mqtt'
+import db_helper from '../../../../core/db_helper';
+import * as playerUtils from '../../../../core/player_utility_functions';
 
-import store from '../../../core/store';
+import store from '../../../../core/store';
 
 import './ButtonViewComponent.css';
 import { pick } from 'lodash';

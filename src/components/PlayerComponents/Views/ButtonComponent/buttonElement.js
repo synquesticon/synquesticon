@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import Button from '@material-ui/core/Button';
 
-const button = (props) => {
+const buttonElement = (props) => {
     const [isClicked, setIsClicked] = useState(false);
     const isResetable = props.reset;
     const isSingleChoice = props.isSingleChoice
@@ -26,7 +26,6 @@ const button = (props) => {
     }
 
     const onButtonPressed = (event) => {
-
         if(isClicked === true){
             setIsClicked(false); // Unclick
         } else {
@@ -55,4 +54,4 @@ const button = (props) => {
 
 }
 
-export default button;
+export default buttonElement;
