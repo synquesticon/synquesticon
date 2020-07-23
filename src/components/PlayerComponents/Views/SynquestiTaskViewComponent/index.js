@@ -1,17 +1,16 @@
-import React, { Component } from 'react';
+import React, { Suspense } from 'react';
 import Button from '@material-ui/core/Button';
-
-import InstructionViewComponent from '../InstructionViewComponent';
-import TextEntryComponent from '../TextEntryComponent';
-import NumpadComponent from '../NumpadComponent';
-import ButtonComponent from '../ButtonComponent'
-import ImageViewComponent from '../ImageViewComponent';
-
 import store from '../../../../core/store';
 import * as dbObjects from '../../../../core/db_objects';
 import * as playerUtils from '../../../../core/player_utility_functions';
 
 import './SynquestiTaskItem.css';
+
+const InstructionViewComponent = React.lazy(() => import('../InstructionViewComponent'));
+const TextEntryComponent = React.lazy(() => import('../TextEntryComponent'));
+const NumpadComponent = React.lazy(() => import('../NumpadComponent'));
+const ButtonComponent = React.lazy(() => import('../ButtonComponent'));
+const ImageViewComponent = React.lazy(() => import('../ImageViewComponent'));
 
 const synquestiTaskViewComponent = (props) => {
 
@@ -86,20 +85,19 @@ const synquestiTaskViewComponent = (props) => {
         var key = props.renderKey+dbObjects.ObjectTypes.TASK+i;
 
         if(item.objType === dbObjects.TaskTypes.INSTRUCTION.type){
-            return <InstructionViewComponent className="itemContainer" key={key} task={item} mapID={mapIndex} parentSet={props.task.name}/>;
+            return <Suspense fallback={<div>Loading...</div>}><InstructionViewComponent className="itemContainer" key={key} task={item} mapID={mapIndex} parentSet={props.task.name}/></Suspense>;
         }
         else if(item.objType === dbObjects.TaskTypes.TEXTENTRY.type){
-            return <TextEntryComponent className="itemContainer" key={key} task={item} answerCallback={onAnswer} mapID={mapIndex} parentSet={props.task.name}/>;
+            return <Suspense fallback={<div>Loading...</div>}><TextEntryComponent className="itemContainer" key={key} task={item} answerCallback={onAnswer} mapID={mapIndex} parentSet={props.task.name}/></Suspense>;
         }
         else if(item.objType === dbObjects.TaskTypes.MCHOICE.type){
-            // return <ButtonViewComponent className="itemContainer" key={key} task={item} answerCallback={onAnswer} mapID={mapIndex} parentSet={props.task.name} delegate={newLine}/>;
-            return <ButtonComponent className="itemContainer" key={key} task={item} answerCallback={onAnswer} mapID={mapIndex} parentSet={props.task.name} delegate={newLine}/>;
+            return <Suspense fallback={<div>Loading...</div>}><ButtonComponent className="itemContainer" key={key} task={item} answerCallback={onAnswer} mapID={mapIndex} parentSet={props.task.name} delegate={newLine}/></Suspense>;
         }
         else if(item.objType === dbObjects.TaskTypes.IMAGE.type) {
-            return <ImageViewComponent className="itemContainer" key={key} task={item} answerCallback={onAnswer} mapID={mapIndex} parentSet={props.task.name}/>;
+            return <Suspense fallback={<div>Loading...</div>}><ImageViewComponent className="itemContainer" key={key} task={item} answerCallback={onAnswer} mapID={mapIndex} parentSet={props.task.name}/></Suspense>;
         }
         else if(item.objType === dbObjects.TaskTypes.NUMPAD.type) {
-            return <NumpadComponent className="itemContainer" key={key} task={item} answerCallback={onAnswer} mapID={mapIndex} parentSet={props.task.name}/>;
+            return <Suspense fallback={<div>Loading...</div>}><NumpadComponent className="itemContainer" key={key} task={item} answerCallback={onAnswer} mapID={mapIndex} parentSet={props.task.name}/></Suspense>;
         }
         else{
           return null;
