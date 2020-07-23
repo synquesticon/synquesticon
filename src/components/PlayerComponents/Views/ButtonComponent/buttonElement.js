@@ -7,19 +7,12 @@ const buttonElement = (props) => {
     const isSingleChoice = props.isSingleChoice
 
     useEffect( () => {
-        if (props.id === props.pressedKey) {
-            console.log(props.id + "SAME" + props.pressedKey)
+        if (props.id === props.clickedButton) {
             setIsClicked(true)
         } else {
-            console.log(props.id + "DIFF" + props.pressedKey)
             setIsClicked(false)
         }
-    }, [props.pressedKey])
-
-
-    const buttonStyle = {
-        padding: '5px'
-    }
+    }, [props.clickedButton])
 
     const clickedButtonStyle = {
         backgroundColor: "#33ccff"
@@ -28,6 +21,7 @@ const buttonElement = (props) => {
     const onButtonPressed = (event) => {
         if(isClicked === true){
             setIsClicked(false); // Unclick
+            props.logComponentData(props.id, false, props.content)
         } else {
             if (isResetable) {
                 setIsClicked(true)
@@ -35,10 +29,13 @@ const buttonElement = (props) => {
                 setTimeout(() => {
                     setIsClicked(false)
                 }, 1000);
-            } else if (isSingleChoice) {
-                props.resetKeys(props.id)                
             } else {
-                setIsClicked(true)
+                if (isSingleChoice) {
+                    props.setClickedButton(props.id)   
+                } else {
+                    setIsClicked(true)
+                }
+                props.logComponentData(props.id, true, props.content)
             }
         }
     }
@@ -52,7 +49,6 @@ const buttonElement = (props) => {
             {props.content}
         </Button>
     )
-
 }
 
 export default buttonElement;

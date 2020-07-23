@@ -4,21 +4,15 @@ import { map } from 'lodash';
 import Button from './buttonElement'
 import store from '../../../../core/store';
 
+
+let responsesArray = new Array()
+
 const buttonList = (props) => {
-
     const textRef = React.createRef();
+    const [clickedButton, setClickedButton] = useState(null)
     
-    const buttonListStyle = {
-        textAlign: 'center',
-        padding: '5px',
-        marginTop: '10px'
-    }
-
-    const isSingleChoice = props.task.singleChoice
-
-    const [pressedKey, setPressedKey] = useState(null)
-
     useEffect(() => {
+       responsesArray = new Array(props.task.responses.length).fill(null)
         var textAOIAction = {
           type: 'ADD_AOIS',
           aois: {
@@ -31,6 +25,19 @@ const buttonList = (props) => {
       }, 
       []
     );
+
+    const logComponentData = (id, isClicked, content) => {
+        if (props.task.singleChoice) {
+            responsesArray.fill(null)
+        }
+
+        if (isClicked) {
+            responsesArray[id] = content
+        } else {
+            responsesArray[id] = null
+        }
+        console.log(responsesArray)
+    }
 
     return (
         <div className={props.className}>
@@ -60,10 +67,12 @@ const buttonList = (props) => {
                     <Button
                         content={item}
                         reset={props.task.resetResponses}
-                        isSingleChoice={isSingleChoice}
+                        isSingleChoice={props.task.singleChoice}
                         id={index} 
-                        pressedKey = {pressedKey}
-                        resetKeys = {setPressedKey}
+                        key={index}
+                        clickedButton = {clickedButton}
+                        setClickedButton = {setClickedButton}
+                        logComponentData = {logComponentData}
                     />
                     </span>
                   )                
