@@ -5,17 +5,7 @@ import Button from './buttonElement'
 import store from '../../../../core/store';
 
 const buttonList = (props) => {
-
     const textRef = React.createRef();
-    
-    const buttonListStyle = {
-        textAlign: 'center',
-        padding: '5px',
-        marginTop: '10px'
-    }
-
-    const isSingleChoice = props.task.singleChoice
-
     const [pressedKey, setPressedKey] = useState(null)
 
     useEffect(() => {
@@ -60,7 +50,7 @@ const buttonList = (props) => {
                     <Button
                         content={item}
                         reset={props.task.resetResponses}
-                        isSingleChoice={isSingleChoice}
+                        isSingleChoice={props.task.singleChoice}
                         id={index} 
                         pressedKey = {pressedKey}
                         resetKeys = {setPressedKey}
