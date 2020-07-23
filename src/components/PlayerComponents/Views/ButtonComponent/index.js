@@ -28,8 +28,7 @@ const buttonList = (props) => {
             console.log("Final answer: "+ responsesArray.filter(item => item))
             console.log("Final count: "+responseCountArray.reduce((a, b) => {return a + b}, 0))
         }
-      }, 
-      []
+      }, []
     );
 
     const logComponentData = (id, isClicked, content) => {
@@ -96,8 +95,6 @@ const buttonList = (props) => {
           </div>
         </div>
       );
-
-    
 }
 
 export default buttonList;
