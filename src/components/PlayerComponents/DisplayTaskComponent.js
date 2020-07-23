@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { Typography } from '@material-ui/core';
 import { withTheme } from '@material-ui/styles';
 
-import SynquestitaskViewComponent from './Views/SynquestitaskViewComponent';
+import SynquestitaskViewComponent from './Views/SynquestiTaskViewComponent';
 
 import PauseDialog from './PauseDialog';
 
