@@ -17,10 +17,12 @@ const buttonElement = (props) => {
 
     const onButtonPressed = () => {
         if(isClicked === true){
-            if (!props.isSingleChoice) {
-                setIsClicked(false); // Unclick
+            if (!props.reset) {
+                if (!props.isSingleChoice) {
+                    setIsClicked(false); // Unclick
+                }
+                props.logComponentData(props.id, false, props.content)
             }
-            props.logComponentData(props.id, false, props.content)
         } else {
             if (props.reset) {
                 setIsClicked(true)
