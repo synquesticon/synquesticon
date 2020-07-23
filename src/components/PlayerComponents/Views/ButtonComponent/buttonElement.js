@@ -7,7 +7,7 @@ const buttonElement = (props) => {
     const isSingleChoice = props.isSingleChoice
 
     useEffect( () => {
-        if (props.id == props.pressedKey) {
+        if (props.id === props.pressedKey) {
             console.log(props.id + "SAME" + props.pressedKey)
             setIsClicked(true)
         } else {
@@ -44,10 +44,11 @@ const buttonElement = (props) => {
     }
 
     return (
-        <Button 
+        <Button
+        variant="contained"                        
         key={props.id}
         onClick={(event) => onButtonPressed(event)}
-        style={isClicked ? clickedButtonStyle : buttonStyle}>
+        style={isClicked ? clickedButtonStyle : null}>
             {props.content}
         </Button>
     )
