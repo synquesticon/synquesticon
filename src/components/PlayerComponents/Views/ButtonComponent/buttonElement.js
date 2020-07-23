@@ -16,26 +16,29 @@ const buttonElement = (props) => {
     }, [props.clickedButton])
 
     const onButtonPressed = () => {
-        if(isClicked === true){
-            if (!props.reset) {
-                if (!props.isSingleChoice) {
-                    setIsClicked(false); // Unclick
-                }
-                props.logComponentData(props.id, false, props.content)
-            }
-        } else {
-            if (props.reset) {
+        if (props.reset) {                      //Auto-reset buttons
+            if (!isClicked){
                 setIsClicked(true)
-                console.log('Button needs to reset')
                 setTimeout(() => {
                     setIsClicked(false)
                 }, 1000);
-            } else {
-                if (!props.isSingleChoice) {
-                    setIsClicked(true)
-                }
-            props.logComponentData(props.id, true, props.content)
             }
+            props.logComponentData(props.id, true, props.content)
+        } else if (props.isSingleChoice) {      //Single-choice buttons
+            if (isClicked) {
+                props.logComponentData(props.id, false, props.content)
+            } else {
+                props.logComponentData(props.id, true, props.content)
+            }
+        } else {                                //Multiple-choice buttons
+            if (isClicked) {
+                setIsClicked(false)
+                props.logComponentData(props.id, false, props.content)
+            } else {
+                setIsClicked(true)
+                props.logComponentData(props.id, true, props.content)
+            }
+
         }
     }
 

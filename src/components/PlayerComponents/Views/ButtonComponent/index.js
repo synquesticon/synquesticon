@@ -25,6 +25,7 @@ const buttonList = (props) => {
         }
         store.dispatch(textAOIAction);
         return () => {
+            console.log("Final answer: "+ responsesArray.filter(item => item))
             console.log("Final count: "+responseCountArray.reduce((a, b) => {return a + b}, 0))
         }
       }, 
