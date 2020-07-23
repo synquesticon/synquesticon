@@ -101,9 +101,7 @@ const synquestiTaskViewComponent = (props) => {
         else if(item.objType === dbObjects.TaskTypes.NUMPAD.type) {
             return <NumpadComponent className="itemContainer" key={key} task={item} answerCallback={onAnswer} mapID={mapIndex} parentSet={props.task.name}/>;
         }
-        // else if(item.objType === "Comparison") {
-        //     return <ComparisonViewComponent className="itemContainer" key={key} task={item} answerCallback={onAnswer} mapID={mapIndex} parentSet={props.task.name}/>;
-        // }
+
         else{
           return null;
         }
