@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import Button from '@material-ui/core/Button';
 
-const buttonElement = (props) => {
+const buttonElement = React.memo( (props) => {
     const [isClicked, setIsClicked] = useState(false);
     const clickedButtonStyle = {
         backgroundColor: "#33ccff"
@@ -23,20 +23,20 @@ const buttonElement = (props) => {
                     setIsClicked(false)
                 }, 1000);
             }
-            props.logComponentData(props.id, true, props.content)
+            props.logElementData(props.id, true, props.content)
         } else if (props.isSingleChoice) {      //Single-choice buttons
             if (isClicked) {
-                props.logComponentData(props.id, false, props.content)
+                props.logElementData(props.id, false, props.content)
             } else {
-                props.logComponentData(props.id, true, props.content)
+                props.logElementData(props.id, true, props.content)
             }
         } else {                                //Multiple-choice buttons
             if (isClicked) {
                 setIsClicked(false)
-                props.logComponentData(props.id, false, props.content)
+                props.logElementData(props.id, false, props.content)
             } else {
                 setIsClicked(true)
-                props.logComponentData(props.id, true, props.content)
+                props.logElementData(props.id, true, props.content)
             }
 
         }
@@ -51,6 +51,6 @@ const buttonElement = (props) => {
             {props.content}
         </Button>
     )
-}
+})
 
 export default buttonElement;

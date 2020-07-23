@@ -5,12 +5,13 @@ import Button from './buttonElement'
 import store from '../../../../core/store';
 
 
-let responsesArray = new Array()
-let responseCountArray = new Array()
-
 const buttonList = (props) => {
+    let responsesArray = new Array()
+    let responseCountArray = new Array()
     const textRef = React.createRef();
-    const [clickedButton, setClickedButton] = useState(null)
+    let clickedButton = null
+
+    console.log("render")
     
     useEffect(() => {
        responsesArray = new Array(props.task.responses.length).fill(null)
@@ -31,14 +32,14 @@ const buttonList = (props) => {
       }, []
     );
 
-    const logComponentData = (id, isClicked, content) => {
+    const logElementData = (id, isClicked, content) => {
         responseCountArray[id]++
         if (props.task.singleChoice) {
             responsesArray.fill(null)
             if (isClicked) {
-                setClickedButton(id)
+                clickedButton = id
             } else {
-                setClickedButton(null)
+                clickedButton = null
             }
         }
 
@@ -84,7 +85,7 @@ const buttonList = (props) => {
                         id={index} 
                         key={index}
                         clickedButton = {clickedButton}
-                        logComponentData = {logComponentData}
+                        logElementData = {logElementData}
                     />
                     </span>
                   )                
