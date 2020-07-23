@@ -101,7 +101,6 @@ const synquestiTaskViewComponent = (props) => {
         else if(item.objType === dbObjects.TaskTypes.NUMPAD.type) {
             return <NumpadComponent className="itemContainer" key={key} task={item} answerCallback={onAnswer} mapID={mapIndex} parentSet={props.task.name}/>;
         }
-
         else{
           return null;
         }
@@ -119,10 +118,10 @@ const synquestiTaskViewComponent = (props) => {
 
   let nextButton = null;
   if(!contentObject.hideNext){
-    let nextButtonText = props.isAnswered ? "Next" : "Skip";
+//    let nextButtonText = props.isAnswered ? "Next" : "Skip";
     nextButton = <div style={{position:'fixed', bottom:20, right:20, zIndex:99}}>
                     <Button className="nextButton" variant="contained" onClick={props.nextCallback}>
-                      {nextButtonText}
+                      Next
                     </Button>
                   </div>;
   }
