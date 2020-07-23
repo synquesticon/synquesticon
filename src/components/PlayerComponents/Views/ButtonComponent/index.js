@@ -22,10 +22,14 @@ const buttonList = (props) => {
           }
         }
         store.dispatch(textAOIAction);
-        return () => {
+        return () => {      // this code is called when component unmounts
             console.log("Final answer: "+ responsesArray.filter(item => item).sort())
             console.log("Final count: "+responseCountArray.reduce((a, b) => {return a + b}, 0))
-
+            if (props.task.correctResponses.length > 0) {
+                console.log("Overall correct: " + arrayEquals(responsesArray, props.task.correctResponses))
+            } else {
+                console.log("No correct answers defined.")
+            }
         }
       }, []
     );
@@ -55,6 +59,8 @@ const buttonList = (props) => {
     }
 
     const arrayEquals = (a, b) => {
+        a = a.filter(item => item).sort()
+        b = b.filter(item => item).sort()
         return Array.isArray(a) &&
           Array.isArray(b) &&
           a.length === b.length &&

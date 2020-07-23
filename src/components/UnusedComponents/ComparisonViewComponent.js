@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 
-import ImageViewComponent from './ImageViewComponent';
+import ImageViewComponent from '../PlayerComponents/Views/ImageViewComponent';
 
 import { Typography } from '@material-ui/core';
 import { withTheme } from '@material-ui/styles';
 
-import store from '../../../core/store';
+import store from '../../core/store';
 
 import './ComparisonViewComponent.css';
 
