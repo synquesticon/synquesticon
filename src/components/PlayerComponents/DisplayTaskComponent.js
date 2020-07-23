@@ -21,7 +21,6 @@ import queryString from 'query-string';
 import './DisplayTaskComponent.css';
 import '../../core/utility.css';
 
-//var checkShouldSave = true;
 
 /*
 ██████  ███████  ██████ ██    ██ ██████  ███████ ██  ██████  ███    ██      ██████  ██████  ███    ███ ██████   ██████  ███    ██ ███████ ███    ██ ████████
