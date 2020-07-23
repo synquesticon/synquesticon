@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import Button from '@material-ui/core/Button';
 
-const buttonElement = React.memo( (props) => {
+const buttonElement = (props) => {
     const [isClicked, setIsClicked] = useState(false);
     const clickedButtonStyle = {
         backgroundColor: "#33ccff"
     }
 
     useEffect( () => {
+        console.log("fromprops")
         if (props.id === props.clickedButton) {
             setIsClicked(true)
         } else {
@@ -16,6 +17,7 @@ const buttonElement = React.memo( (props) => {
     }, [props.clickedButton])
 
     const onButtonPressed = () => {
+        console.log(props.clickedButton)
         if (props.reset) {                      //Auto-reset buttons
             if (!isClicked){
                 setIsClicked(true)
@@ -51,6 +53,6 @@ const buttonElement = React.memo( (props) => {
             {props.content}
         </Button>
     )
-})
+}
 
 export default buttonElement;

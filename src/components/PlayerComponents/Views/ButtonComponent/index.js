@@ -4,18 +4,15 @@ import { map } from 'lodash';
 import Button from './buttonElement'
 import store from '../../../../core/store';
 
-
 const buttonList = (props) => {
-    let responsesArray = new Array()
-    let responseCountArray = new Array()
     const textRef = React.createRef();
-    let clickedButton = null
+    let [clickedButton, setClickedButton] = useState(null)
+    let [responseCountArray, setResponseCountArray] = useState(new Array(props.task.responses.length).fill(0))
+    let [responsesArray, setResponsesArray] = useState(new Array(props.task.responses.length).fill(null))
 
     console.log("render")
     
     useEffect(() => {
-       responsesArray = new Array(props.task.responses.length).fill(null)
-       responseCountArray = new Array(props.task.responses.length).fill(0)
         var textAOIAction = {
           type: 'ADD_AOIS',
           aois: {
@@ -26,20 +23,23 @@ const buttonList = (props) => {
         }
         store.dispatch(textAOIAction);
         return () => {
-            console.log("Final answer: "+ responsesArray.filter(item => item))
+            console.log("Final answer: "+ responsesArray.filter(item => item).sort())
             console.log("Final count: "+responseCountArray.reduce((a, b) => {return a + b}, 0))
+
         }
       }, []
     );
 
     const logElementData = (id, isClicked, content) => {
+        clickedButton = id
         responseCountArray[id]++
         if (props.task.singleChoice) {
             responsesArray.fill(null)
             if (isClicked) {
-                clickedButton = id
+                console.log("single")
+                setClickedButton(id)
             } else {
-                clickedButton = null
+                setClickedButton(null)
             }
         }
 
@@ -48,9 +48,17 @@ const buttonList = (props) => {
         } else {
             responsesArray[id] = null
         }
+        console.log("correct: "+props.task.correctResponses)
         console.log(responsesArray)
         console.log(responseCountArray)
         console.log("Total responses: "+responseCountArray.reduce((a, b) => {return a + b}, 0))
+    }
+
+    const arrayEquals = (a, b) => {
+        return Array.isArray(a) &&
+          Array.isArray(b) &&
+          a.length === b.length &&
+          a.every((val, index) => val.toUpperCase() === b[index].toUpperCase());
     }
 
     return (
@@ -70,6 +78,7 @@ const buttonList = (props) => {
                     variant="h5" 
                     style={{display: 'inline-block', padding: '5px', whiteSpace: 'pre-wrap'}} 
                     ref={textRef} 
+                    key={index}
                     color="textPrimary" 
                     align="center">{item}
                   </Typography>)
