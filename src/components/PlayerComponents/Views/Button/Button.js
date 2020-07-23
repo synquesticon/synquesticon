@@ -6,17 +6,16 @@ const button = (props) => {
     const isResetable = props.reset;
     const isSingleChoice = props.isSingleChoice
 
-    // useEffect(
-    //     () => {
-    //         console.log('Button checks condition only when it is clicked')
-    //         if (isResetable && isClicked) {
-    //             console.log('Button needs to reset')
-    //             setTimeout(() => {
-    //                 setIsClicked(false)
-    //             }, 1000);
-    //         }
-    //     }
-    // , [isClicked]);
+    useEffect( () => {
+        if (props.id == props.pressedKey) {
+            console.log(props.id + "SAME" + props.pressedKey)
+            setIsClicked(true)
+        } else {
+            console.log(props.id + "DIFF" + props.pressedKey)
+            setIsClicked(false)
+        }
+    }, [props.pressedKey])
+
 
     const buttonStyle = {
         padding: '5px'
@@ -27,32 +26,27 @@ const button = (props) => {
     }
 
     const onButtonPressed = (event) => {
+
         if(isClicked === true){
             setIsClicked(false); // Unclick
-            
-
         } else {
-            setIsClicked(true);
-
             if (isResetable) {
+                setIsClicked(true)
                 console.log('Button needs to reset')
                 setTimeout(() => {
                     setIsClicked(false)
                 }, 1000);
-            }
-
-            if (isSingleChoice) {
-                
+            } else if (isSingleChoice) {
+                props.resetKeys(props.id)                
+            } else {
+                setIsClicked(true)
             }
         }
-
-        
-        
-        
     }
 
     return (
         <Button 
+        key={props.id}
         onClick={(event) => onButtonPressed(event)}
         style={isClicked ? clickedButtonStyle : buttonStyle}>
             {props.content}
@@ -60,18 +54,5 @@ const button = (props) => {
     )
 
 }
-
-    
-
-    
-
-    
-
-
-        
-
-    
-
-
 
 export default button;
