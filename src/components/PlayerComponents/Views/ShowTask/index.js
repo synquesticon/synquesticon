@@ -21,6 +21,15 @@ const ShowTask = (props) => {
   //Callback from the task components when the user has provided an answer
   const onAnswer = (answerObj) => {
     //Update the map with the resonse to the task, overwriting any existing answer for that task
+
+
+    // lineOfData.startTimestamp
+    // lineOfData.firstResponseTimestamp
+    // lineOfData.timeToFirstAnswer
+    // lineOfData.clickedPoints = answerObj.clickedPoints;
+    // lineOfData.responses = Array.isArray(answerObj.responses)?answerObj.responses:[];
+    // lineOfData.correctlyAnswered = answerObj.correctlyAnswered;
+    
     var lineOfData = taskResponses.get(props.task._id+answerObj.mapID);
 
     if (lineOfData.firstResponseTimestamp === -1) { //log the timeToFirstAnswer
