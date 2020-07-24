@@ -1,7 +1,8 @@
-import React, { Component } from 'react'
+import React, { useState, useEffect } from 'react'
 
 import ShowTask from '../ShowTask'
 import mqtt from '../../../../core/mqtt'
+import DisplayTaskHelper from '../../Views/DisplayTaskHelper'
 
 import eventStore from '../../../../core/eventStore';
 import store from '../../../../core/store';
@@ -11,18 +12,22 @@ import * as dbObjects from '../../../../core/db_objects';
 import * as dbObjectsUtilityFunctions from '../../../../core/db_objects_utility_functions';
 import * as playerUtils from '../../../../core/player_utility_functions';
 
-class DisplayTaskHelper extends Component { //for the sake of recursion
-    constructor() {
-      super();
-      this.state = {
-        currentTaskIndex: 0,
-        hasBeenAnswered: false
-      };
-  
-      this.handleMultipleScreenEvent = this.onMultipleScreenEvent.bind(this);
-      this.handleOnNextClicked = this.onClickNext.bind(this);
-    }
-  
+const displayTaskHelper = (props) => { //for the sake of recursion
+
+
+  const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
+  const [hasBeenAnswered, setHasBeenAnswered] = useState(false);
+
+  var currentLineOfData = null;
+  var progressCount = 0;
+  var numCorrectAnswers = 0;
+  var currentTask = null;
+  var hasBeenInitiated = false;
+  var hasFinished = false;
+
+  const savedObjects = [];
+
+
     /*
      ██████  ██████  ███    ███ ██████   ██████  ███    ██ ███████ ███    ██ ████████     ███████ ██    ██ ███    ██  ██████ ████████ ██  ██████  ███    ██ ███████
     ██      ██    ██ ████  ████ ██   ██ ██    ██ ████   ██ ██      ████   ██    ██        ██      ██    ██ ████   ██ ██         ██    ██ ██    ██ ████   ██ ██
@@ -31,28 +36,16 @@ class DisplayTaskHelper extends Component { //for the sake of recursion
      ██████  ██████  ██      ██ ██       ██████  ██   ████ ███████ ██   ████    ██        ██       ██████  ██   ████  ██████    ██    ██  ██████  ██   ████ ███████
     */
   
-    componentWillMount() {
-      this.progressCount = 0;
-      this.numCorrectAnswers = 0;
-      this.currentTask = null;
-      this.currentLineOfData = null;
-      this.hasBeenInitiated = false;
-      this.hasFinished = false;
-  
-      this.progressCount = 0;//this.props.progressCount;
-      eventStore.addMultipleScreenListener(this.handleMultipleScreenEvent);
-  
-      this.savedObjects = [];
-  
-      this.setState({
-        currentTaskIndex: 0,
-        hasBeenAnswered: false
-      });
+  useEffect(() => {
+    setCurrentTaskIndex(0);
+    setHasBeenAnswered(false);    
+    eventStore.addMultipleScreenListener(onMultipleScreenEvent);
+
+    return () => { //clean up work after the component is unmounted, equals to componentWillUnmount
+      eventStore.removeMultipleScreenListener(onMultipleScreenEvent);
     }
-  
-    componentWillUnmount(){
-      eventStore.removeMultipleScreenListener(this.handleMultipleScreenEvent);
-    }
+  }, []);
+
   
     /*
      ██████  █████  ██      ██      ██████   █████   ██████ ██   ██ ███████
@@ -62,13 +55,13 @@ class DisplayTaskHelper extends Component { //for the sake of recursion
      ██████ ██   ██ ███████ ███████ ██████  ██   ██  ██████ ██   ██ ███████
     */
   
-    onMultipleScreenEvent(payload) {
+    const onMultipleScreenEvent = (payload) => {
       if(store.getState().multipleScreens && payload.type === 'nextTask'){
-        this.onClickNext(null, true);
+        onClickNext(null, true);
       }
     }
   
-    saveGlobalVariable(participantId, label, value) {
+    const saveGlobalVariable = (participantId, label, value) => {
       var globalVariableObj = {
         label: label,
         value: value
@@ -78,7 +71,7 @@ class DisplayTaskHelper extends Component { //for the sake of recursion
       }
     }
   
-    resetAOIs() {
+    const resetAOIs = () => {
       var aoiAction = {
         type: 'RESET_AOIS'
       }
@@ -86,12 +79,12 @@ class DisplayTaskHelper extends Component { //for the sake of recursion
       store.dispatch(aoiAction);
     }
   
-    onClickNext(e, fromEmitter) {
+    const onClickNext = (e, fromEmitter) => {
       //===========reset aoi list===========
-      this.resetAOIs();
+      resetAOIs();
   
       //===========save gazedata===========
-      this.props.saveGazeData(dbObjectsUtilityFunctions.getTaskContent(this.currentTask));
+      props.saveGazeData(dbObjectsUtilityFunctions.getTaskContent(currentTask));
   
       //Get the current screenID
       let screenID=store.getState().screenID;
@@ -99,18 +92,18 @@ class DisplayTaskHelper extends Component { //for the sake of recursion
   
   
       //===========save logging data===========
-      if(this.currentLineOfData){
-        for (const [key, line] of this.currentLineOfData.entries()) {
+      if(currentLineOfData){
+        for (const [key, line] of currentLineOfData.entries()) {
           //Only save to the database once
-          if(!this.savedObjects.includes(key)){
-            this.savedObjects.push(key);
+          if(!savedObjects.includes(key)){
+            savedObjects.push(key);
   
             //If there is a global var we save it
             if (line.isGlobalVariable !== undefined) {
-              this.saveGlobalVariable(store.getState().experimentInfo.participantId,
+              saveGlobalVariable(store.getState().experimentInfo.participantId,
                                       line.label, line.responses);
             } //Check if the task has the setScreenID tag and if the line is of the MChoice type
-            else if(this.currentTask.tags.includes("setScreenID") && line.objType===dbObjects.TaskTypes.MCHOICE.type){
+            else if(currentTask.tags.includes("setScreenID") && line.objType===dbObjects.TaskTypes.MCHOICE.type){
               // If the answer has a response we set multiple screens to true and set the
               // screenID for this screen to the response
               if(line.responses && line.responses.length > 0){
@@ -135,19 +128,19 @@ class DisplayTaskHelper extends Component { //for the sake of recursion
             //Broadcast a status update to any observers listening
             let stringifiedMessage = playerUtils.stringifyMessage(store, {_id:line.taskId}, line,
                                                       (line.firstResponseTimestamp !== -1) ? "ANSWERED" : "SKIPPED",
-                                                      this.progressCount, -1);
+                                                      progressCount, -1);
             mqtt.broadcastEvents(stringifiedMessage);
           }
         }
       }
   
-      this.progressCount += 1;
+      progressCount += 1;
   
   
       //Broadcast a status update to any observers listening
       let eventObject = {eventType: "PROGRESSCOUNT",
                          participantId: store.getState().experimentInfo.participantId,
-                         progressCount: this.progressCount};
+                         progressCount: progressCount};
   
       mqtt.broadcastEvents(JSON.stringify(eventObject));
   
@@ -161,32 +154,28 @@ class DisplayTaskHelper extends Component { //for the sake of recursion
       }
   
       //===========reset===========
-      this.currentLineOfData = null;
-      this.hasBeenInitiated = false;
+      currentLineOfData = null;
+      hasBeenInitiated = false;
+
       //reset state
-      this.setState({
-        hasBeenAnswered: false,
-        answerItem: null,
-        currentTaskIndex: (this.state.currentTaskIndex + 1)
-      });
+      setHasBeenAnswered(false);
+      setCurrentTaskIndex(prevCount => prevCount + 1); //good practice: set new state based on previous state
     }
   
-    onAnswer(answer) {
+    const onAnswer = (answer) => {
       if(!(store.getState().experimentInfo.participantId === "TESTING")) {
-        this.currentLineOfData = answer.linesOfData;
+        currentLineOfData = answer.linesOfData;
   
         if (answer.correctlyAnswered === "correct") {
-          this.currentTask.numCorrectAnswers += 1;
+          currentTask.numCorrectAnswers += 1;
         }
       }
-      this.setState({
-        hasBeenAnswered: true
-      });
+      setHasBeenAnswered(true);
     }
   
-    onFinishedRecursion() {
-      this.progressCount += this.currentTask.data.length;
-      this.onClickNext(false);
+    const onFinishedRecursion = () => {
+      progressCount += currentTask.data.length;
+      onClickNext(false);
     }
   
     /*
@@ -197,81 +186,79 @@ class DisplayTaskHelper extends Component { //for the sake of recursion
     ██   ██ ███████ ██   ████ ██████  ███████ ██   ██
     */
     //This function is the anchor of recursion
-    isTheEndOfSet() {
-      return (this.props.taskSet.data.length > 0 && this.state.currentTaskIndex >= this.props.taskSet.data.length)
+    const isTheEndOfSet = () => {
+      return (props.taskSet.data.length > 0 && currentTaskIndex >= props.taskSet.data.length)
     }
   
-    render() {
-      if(!this.isTheEndOfSet()) {
-        this.currentTask = this.props.taskSet.data[this.state.currentTaskIndex];
-        //check if there is screen ID for this screen
-        //if there is a screen ID, continue
-        //if not, get currentTaskIndex-1 ....
-        //not as simple as Michael thought it would be
-        var id = this.currentTask._id + "_" + this.progressCount;
-  
-        let trackingTaskSetNames = this.props.tasksFamilyTree.slice(); //clone array, since javascript passes by reference, we need to keep the orginal familyTree untouched
-        trackingTaskSetNames.push(this.currentTask.name);
-  
-        var parentSet = this.props.tasksFamilyTree[this.props.tasksFamilyTree.length - 1];
-  
-        if (this.currentTask.objType === dbObjects.ObjectTypes.SET) {
-          //shuffle set if set was marked as "Random"
-          var runThisTaskSet = this.currentTask.data;
-          if (this.currentTask.setTaskOrder === "Random") {
-            runThisTaskSet = shuffle(runThisTaskSet);
-          }
-  
-          let updatedTaskSet = this.currentTask;
-          updatedTaskSet.data = runThisTaskSet;
-  
-          //recursion
-          //let id = this.currentTask._id + "_" + this.progressCount;
-          return <DisplayTaskHelper key={id}
-                                    tasksFamilyTree={trackingTaskSetNames}
-                                    taskSet={updatedTaskSet}
-                                    onFinished={this.onFinishedRecursion.bind(this)}
-                                    saveGazeData={this.props.saveGazeData}
-                                    progressCount={this.progressCount}
-                                    repeatSetThreshold={updatedTaskSet.repeatSetThreshold}/>
+
+    if(!isTheEndOfSet()) {
+      currentTask = props.taskSet.data[currentTaskIndex];
+      //check if there is screen ID for this screen
+      //if there is a screen ID, continue
+      //if not, get currentTaskIndex-1 ....
+      //not as simple as Michael thought it would be
+      var id = currentTask._id + "_" + progressCount;
+
+      let trackingTaskSetNames = props.tasksFamilyTree.slice(); //clone array, since javascript passes by reference, we need to keep the orginal familyTree untouched
+      trackingTaskSetNames.push(currentTask.name);
+
+      var parentSet = props.tasksFamilyTree[props.tasksFamilyTree.length - 1];
+
+      if (currentTask.objType === dbObjects.ObjectTypes.SET) {
+        //shuffle set if set was marked as "Random"
+        var runThisTaskSet = currentTask.data;
+        if (currentTask.setTaskOrder === "Random") {
+          runThisTaskSet = shuffle(runThisTaskSet);
         }
-        else { //not a set
-          return (
-            <div className="page" key={id+this.currentTaskIndex}>
-              <div className="mainDisplay">
-                <ShowTask key={id}
-                                            tasksFamilyTree={trackingTaskSetNames}
-                                            task={this.currentTask}
-                                            answerCallback={this.onAnswer.bind(this)}
-                                            nextCallback={this.handleOnNextClicked}
-                                            isAnswered={this.state.hasBeenAnswered}
-                                            answerItem={this.state.answerItem}
-                                            newTask={!this.state.hasBeenAnswered}
-                                            hasBeenInitiated={this.hasBeenInitiated}
-                                            parentSet={parentSet}
-                                            initCallback={(taskResponses) => {
-                                              this.currentLineOfData = taskResponses;
-                                            }}
-                                            logTheStartOfTask={(task, log, ind) => {
-                                              let eventObject = playerUtils.stringifyMessage(store, task, log, "START", this.progressCount, this.progressCount+1);
-                                              mqtt.broadcastEvents(eventObject);
-                                              this.hasBeenInitiated = true;
-                                            }}
-                                            renderKey={id}/>
-  
-              </div>
+
+        let updatedTaskSet = currentTask;
+        updatedTaskSet.data = runThisTaskSet;
+
+        //recursion
+        //let id = this.currentTask._id + "_" + this.progressCount;
+        return <DisplayTaskHelper key={id}
+                                  tasksFamilyTree={trackingTaskSetNames}
+                                  taskSet={updatedTaskSet}
+                                  onFinished={onFinishedRecursion}
+                                  saveGazeData={props.saveGazeData}
+                                  progressCount={progressCount}
+                                  repeatSetThreshold={updatedTaskSet.repeatSetThreshold}/>
+      }
+      else { //not a set
+        return (
+          <div className="page" key={id+currentTaskIndex}>
+            <div className="mainDisplay">
+              <ShowTask key={id}
+                                          tasksFamilyTree={trackingTaskSetNames}
+                                          task={currentTask}
+                                          answerCallback={onAnswer}
+                                          nextCallback={onClickNext}
+                                          isAnswered={hasBeenAnswered}
+                                          newTask={!hasBeenAnswered}
+                                          hasBeenInitiated={hasBeenInitiated}
+                                          parentSet={parentSet}
+                                          initCallback={(taskResponses) => {
+                                            currentLineOfData = taskResponses;
+                                          }}
+                                          logTheStartOfTask={(task, log, ind) => {
+                                            let eventObject = playerUtils.stringifyMessage(store, task, log, "START", progressCount, progressCount+1);
+                                            mqtt.broadcastEvents(eventObject);
+                                            hasBeenInitiated = true;
+                                          }}
+                                          renderKey={id}/>
+
             </div>
-            );
-        }
+          </div>
+          );
       }
-      else {
-        if(!this.hasFinished){
-          this.props.onFinished();
-          this.hasFinished = true;
-        }
-        return (null);
+    } else {
+      if(!hasFinished){
+        props.onFinished();
+        hasFinished = true;
       }
+      return (null);
     }
+
 }
 
-export default DisplayTaskHelper
+export default displayTaskHelper
