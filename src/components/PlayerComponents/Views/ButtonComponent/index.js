@@ -23,7 +23,7 @@ const buttonList = (props) => {
           }
         }
         store.dispatch(textAOIAction);
-        return () => {      // this code is called when component unmounts
+        return () => {      // log data when component unmounts
             console.log("Final answer: "+ responsesArray.filter(item => item).sort())
             console.log("Final count: "+responseCountArray.reduce((a, b) => {return a + b}, 0))
             if (props.task.correctResponses.length > 0) {
