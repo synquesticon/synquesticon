@@ -9,7 +9,6 @@ const buttonElement = (props) => {
     }
 
     useEffect( () => {
-        console.log("fromprops")
         if (props.id === props.clickedButton) {
             setIsClicked(true)
         } else {
