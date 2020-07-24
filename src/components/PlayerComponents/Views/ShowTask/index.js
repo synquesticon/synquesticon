@@ -1,6 +1,7 @@
 import React, { useEffect, Suspense } from 'react';
 import Button from '@material-ui/core/Button';
 import store from '../../../../core/store';
+import mqtt from '../../../../core/mqtt'
 import * as dbObjects from '../../../../core/db_objects';
 import * as playerUtils from '../../../../core/player_utility_functions';
 
@@ -13,6 +14,10 @@ const ButtonComponent = React.lazy(() => import('../ButtonComponent'));
 const ImageViewComponent = React.lazy(() => import('../ImageViewComponent'));
 
 const ShowTask = (props) => {
+    console.log("Props from showTask" + JSON.stringify(props.task))
+  useEffect( () => {
+
+  }, [])
 
   //Map to hold all the answers from the questions
   //in key = questionID, value = [AnswerList]}
@@ -50,34 +55,6 @@ const ShowTask = (props) => {
     props.answerCallback({ linesOfData: taskResponses, correctlyAnswered: answerObj.correctlyAnswered });
   }
 
-  const logTheStartOfTask = (task, _id, mapIndex) => {
-    if (!props.hasBeenInitiated) {
-      var newLine = new dbObjects.LineOfData(playerUtils.getCurrentTime(),
-        _id,
-        props.tasksFamilyTree,
-        task.objType === dbObjects.TaskTypes.IMAGE.type ? task.image : task.displayText,
-        task.correctResponses,
-        task.objType);
-        console.log("newLine" + JSON.stringify(newLine))
-      if (task.globalVariable) {
-        newLine.isGlobalVariable = true;
-        newLine.label = task.displayText;
-      }
-      if (!task.resetResponses) { //this item is authorized to log its own data, remove the logging from parent task
-        taskResponses.set(_id + mapIndex, newLine);
-      }
-
-      props.logTheStartOfTask(props.task, newLine, mapIndex);
-      //logTheStartOfTask={(task, log, ind) => {
-      //let eventObject = playerUtils.stringifyMessage(store, task, log, "START", this.progressCount, this.progressCount + 1);
-      //mqtt.broadcastEvents(eventObject);
-      //this.hasBeenInitiated = true;
-
-      return newLine;
-    }
-    return null;
-  }
-
   const getDisplayedContent = (taskList, _id, mapIndex) => {
     if (!taskList) {
       return null;
@@ -93,26 +70,23 @@ const ShowTask = (props) => {
         }
 
         mapIndex = i;
-        var newLine = null;
-        if (props.newTask /*&& item.objType !== "Instruction"*/) {
-          newLine = logTheStartOfTask(item, _id, mapIndex);
-        }
+
         var key = props.renderKey + dbObjects.ObjectTypes.TASK + i;
 
         if (item.objType === dbObjects.TaskTypes.INSTRUCTION.type) {
-          return <Suspense fallback={<div>Loading...</div>}><InstructionViewComponent className="itemContainer" key={key} task={item} mapID={mapIndex} parentSet={props.task.name} /></Suspense>;
+          return <Suspense fallback={<div>Loading...</div>}><InstructionViewComponent className="itemContainer"   key={key} task={item} mapID={mapIndex} parentSet={props.task.name} /></Suspense>;
         }
         else if (item.objType === dbObjects.TaskTypes.TEXTENTRY.type) {
-          return <Suspense fallback={<div>Loading...</div>}><TextEntryComponent className="itemContainer" key={key} task={item} answerCallback={onAnswer} mapID={mapIndex} parentSet={props.task.name} /></Suspense>;
+          return <Suspense fallback={<div>Loading...</div>}><TextEntryComponent className="itemContainer"         key={key} task={item} mapID={mapIndex} parentSet={props.task.name} /></Suspense>;
         }
         else if (item.objType === dbObjects.TaskTypes.MCHOICE.type) {
-          return <Suspense fallback={<div>Loading...</div>}><ButtonComponent className="itemContainer" key={key} task={item} answerCallback={onAnswer} mapID={mapIndex} parentSet={props.task.name} delegate={newLine} /></Suspense>;
+          return <Suspense fallback={<div>Loading...</div>}><ButtonComponent className="itemContainer"            key={key} task={item} mapID={mapIndex} parentSet={props.task.name} taskID={props.task._id} familyTree={props.tasksFamilyTree} objType={item.objType} correctResponses={item.correctResponses} image={item.image} displayText={item.displayText} taskObj={props.task} /></Suspense>;
         }
         else if (item.objType === dbObjects.TaskTypes.IMAGE.type) {
-          return <Suspense fallback={<div>Loading...</div>}><ImageViewComponent className="itemContainer" key={key} task={item} answerCallback={onAnswer} mapID={mapIndex} parentSet={props.task.name} /></Suspense>;
+          return <Suspense fallback={<div>Loading...</div>}><ImageViewComponent className="itemContainer"         key={key} task={item} mapID={mapIndex} parentSet={props.task.name} /></Suspense>;
         }
         else if (item.objType === dbObjects.TaskTypes.NUMPAD.type) {
-          return <Suspense fallback={<div>Loading...</div>}><NumpadComponent className="itemContainer" key={key} task={item} answerCallback={onAnswer} mapID={mapIndex} parentSet={props.task.name} /></Suspense>;
+          return <Suspense fallback={<div>Loading...</div>}><NumpadComponent className="itemContainer"            key={key} task={item} mapID={mapIndex} parentSet={props.task.name} /></Suspense>;
         }
         else {
           return null;
@@ -123,15 +97,11 @@ const ShowTask = (props) => {
     return { components: components, hideNext: hideNext };
   }
 
-
-  var runThisTaskSet = props.task.childObj;
-
-  var contentObject = getDisplayedContent(runThisTaskSet, props.task._id, 0);
+  var contentObject = getDisplayedContent(props.task.childObj, props.task._id, 0);
   props.initCallback(taskResponses);
 
   let nextButton = null;
   if (!contentObject.hideNext) {
-    //    let nextButtonText = props.isAnswered ? "Next" : "Skip";
     nextButton = <div style={{ position: 'fixed', bottom: 20, right: 20, zIndex: 99 }}>
       <Button className="nextButton" variant="contained" onClick={props.nextCallback}>
         Next

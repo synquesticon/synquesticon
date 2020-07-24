@@ -1,11 +1,14 @@
 import React, {useState, useEffect} from 'react'
 import { Typography } from '@material-ui/core';
 import { map } from 'lodash';
+import mqtt from '../../../../core/mqtt'
 import Button from './buttonElement'
-import store from '../../../../core/store';
+import store from '../../../../core/store'
+import * as dbObjects from '../../../../core/db_objects'
+import * as playerUtils from '../../../../core/player_utility_functions'
 
 const buttonList = (props) => {
-  console.log(props)
+  console.log("Props from ButtonComponent" + JSON.stringify(props))
     const textRef = React.createRef();
     let [clickedButton, setClickedButton] = useState(null)
     let [responseCountArray, setResponseCountArray] = useState(new Array(props.task.responses.length).fill(0))
@@ -32,8 +35,24 @@ const buttonList = (props) => {
                 console.log("No correct answers defined.")
             }
         }
-      }, []
-    );
+      }, [])
+
+    useEffect(() => {
+      let newLine = new dbObjects.LineOfData(playerUtils.getCurrentTime(),
+        props.taskID,
+        props.familyTree,
+        props.objType === dbObjects.TaskTypes.IMAGE.type ? props.image : props.displayText,
+        props.correctResponses,
+        props.objType);
+        console.log("newLine" + JSON.stringify(newLine))
+      // if (task.globalVariable) {
+      //   newLine.isGlobalVariable = true;
+      //   newLine.label = task.displayText;
+      // }
+
+        let eventObject = playerUtils.stringifyMessage(store, props.taskObj, newLine, "START", 0, 1); //last two params are "progressCount /progressCount+1"
+        mqtt.broadcastEvents(eventObject)
+    }, [])
 
     const logElementData = (id, isClicked, content) => {
         clickedButton = id
