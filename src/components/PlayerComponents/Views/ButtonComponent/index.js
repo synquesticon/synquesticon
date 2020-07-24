@@ -5,6 +5,7 @@ import Button from './buttonElement'
 import store from '../../../../core/store';
 
 const buttonList = (props) => {
+  console.log(props)
     const textRef = React.createRef();
     let [clickedButton, setClickedButton] = useState(null)
     let [responseCountArray, setResponseCountArray] = useState(new Array(props.task.responses.length).fill(0))

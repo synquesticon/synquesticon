@@ -4,7 +4,7 @@ import store from '../../../../core/store';
 import * as dbObjects from '../../../../core/db_objects';
 import * as playerUtils from '../../../../core/player_utility_functions';
 
-import './SynquestiTaskItem.css';
+import './showTask.css';
 
 const InstructionViewComponent = React.lazy(() => import('../InstructionViewComponent'));
 const TextEntryComponent = React.lazy(() => import('../TextEntryComponent'));
@@ -12,7 +12,7 @@ const NumpadComponent = React.lazy(() => import('../NumpadComponent'));
 const ButtonComponent = React.lazy(() => import('../ButtonComponent'));
 const ImageViewComponent = React.lazy(() => import('../ImageViewComponent'));
 
-const synquestiTaskViewComponent = (props) => {
+const ShowTask = (props) => {
 
     //Map to hold all the answers from the questions
     //in key = questionID, value = [AnswerList]}
@@ -132,4 +132,4 @@ const synquestiTaskViewComponent = (props) => {
   );
 }
 
-export default synquestiTaskViewComponent;
+export default ShowTask;

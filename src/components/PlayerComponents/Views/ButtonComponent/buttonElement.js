@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Button from '@material-ui/core/Button';
 
 const buttonElement = (props) => {
+    //console.log(props)
     const [isClicked, setIsClicked] = useState(false);
     const clickedButtonStyle = {
         backgroundColor: "#33ccff"

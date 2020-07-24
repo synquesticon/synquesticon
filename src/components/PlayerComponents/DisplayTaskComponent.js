@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { Typography } from '@material-ui/core';
 import { withTheme } from '@material-ui/styles';
 
-import SynquestitaskViewComponent from './Views/SynquestiTaskViewComponent';
+import ShowTask from './Views/ShowTask';
 
 import PauseDialog from './PauseDialog';
 
@@ -258,7 +258,7 @@ class DisplayTaskHelper extends React.Component { //for the sake of recursion
         return (
           <div className="page" key={id+this.currentTaskIndex}>
             <div className="mainDisplay">
-              <SynquestitaskViewComponent key={id}
+              <ShowTask key={id}
                                           tasksFamilyTree={trackingTaskSetNames}
                                           task={this.currentTask}
                                           answerCallback={this.onAnswer.bind(this)}
