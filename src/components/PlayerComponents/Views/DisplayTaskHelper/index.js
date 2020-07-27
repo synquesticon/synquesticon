@@ -1,21 +1,15 @@
 import React, { useState, useEffect } from 'react'
-
 import ShowTask from '../ShowTask'
-import mqtt from '../../../../core/mqtt'
 import DisplayTaskHelper from '../../Views/DisplayTaskHelper'
-
 import eventStore from '../../../../core/eventStore';
 import store from '../../../../core/store';
 import shuffle from '../../../../core/shuffle';
-import db_helper from '../../../../core/db_helper'
 import * as dbObjects from '../../../../core/db_objects';
 import * as dbObjectsUtilityFunctions from '../../../../core/db_objects_utility_functions';
-import * as playerUtils from '../../../../core/player_utility_functions';
 
 const displayTaskHelper = (props) => {
   const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
 
-  var currentLineOfData = null;
   var progressCount = 0;
   var currentTask = null;
   var hasFinished = false;
@@ -40,7 +34,6 @@ const displayTaskHelper = (props) => {
     store.dispatch({ type: 'RESET_AOIS' });      // reset aoi list
     props.saveGazeData(dbObjectsUtilityFunctions.getTaskContent(currentTask));
     progressCount += 1;
-    currentLineOfData = null;
     setCurrentTaskIndex(prevCount => prevCount + 1); //good practice: set new state based on previous state
   }
 
