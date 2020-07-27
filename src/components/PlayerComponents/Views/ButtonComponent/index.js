@@ -13,8 +13,6 @@ const buttonList = (props) => {
   let [responseCountArray, setResponseCountArray] = useState(new Array(props.task.responses.length).fill(0))
   let [responsesArray, setResponsesArray] = useState(new Array(props.task.responses.length).fill(null))
 
-  console.log("render")
-
   useEffect(() => {
     var textAOIAction = {
       type: 'ADD_AOIS',
