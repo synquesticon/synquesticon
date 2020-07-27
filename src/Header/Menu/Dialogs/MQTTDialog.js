@@ -11,29 +11,31 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 
 import * as mqtt from '../../../core/mqtt';
+import { set } from 'lodash';
 
 const mqttDialog = (props) => {
 
-  const [useWSS, setUseWSS] = useState(false);
+  const [useWSS, setUseWSS] = useState(true);
   const [ipAddress, setIpAddress] = useState('127.0.0.1');
   const [port, setPort] = useState('9001');
+
 
   useEffect(() => {
     var mqttConfig = JSON.parse(props.myStorage.getItem('mqtt'));
 
+    const mqttObject = {
+      ip: ipAddress,
+      port: port,
+      bUseWSS: useWSS
+    };
+
     if (mqttConfig){
-      if(mqttConfig.ip){
-        setIpAddress(mqttConfig.ip);
-      }
-      
-      if(mqttConfig.port){
-        setPort(mqttConfig.port);
-      }
-
-      if(mqttConfig.bUseWSS) {
-        setUseWSS(mqttConfig.bUseWSS)
-      }
-
+      mqtt.startMQTT(mqttConfig);
+      setIpAddress(mqttConfig.ip);
+      setPort(mqttConfig.port);
+      setUseWSS(mqttConfig.bUseWSS);
+    } else {
+      mqtt.startMQTT(mqttObject);
     }
 
   }, []);
@@ -47,6 +49,7 @@ const mqttDialog = (props) => {
       port: port,
       bUseWSS: useWSS
     };
+
     props.myStorage.setItem('mqtt', JSON.stringify(mqttObject));
 
     //Start MQTT and allow restart if there is an existing connection before
