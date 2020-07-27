@@ -1,44 +1,43 @@
 import React, { useState, useEffect } from 'react'
 import ShowTask from '../ShowTask'
 import DisplayTaskHelper from '../../Views/DisplayTaskHelper'
-import eventStore from '../../../../core/eventStore';
-import store from '../../../../core/store';
-import shuffle from '../../../../core/shuffle';
-import * as dbObjects from '../../../../core/db_objects';
-import * as dbObjectsUtilityFunctions from '../../../../core/db_objects_utility_functions';
+import eventStore from '../../../../core/eventStore'
+import store from '../../../../core/store'
+import shuffle from '../../../../core/shuffle'
+import * as dbObjects from '../../../../core/db_objects'
+import * as dbObjectsUtilityFunctions from '../../../../core/db_objects_utility_functions'
 
 const displayTaskHelper = (props) => {
-  const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
-
-  let progressCount = 0;
-  let currentTask = null;
-  let hasFinished = false;
+  const [currentTaskIndex, setCurrentTaskIndex] = useState(0)
+  let progressCount = 0
+  let currentTask = null
+  let hasFinished = false
 
   useEffect(() => {
-    setCurrentTaskIndex(0);
-    eventStore.addMultipleScreenListener(onMultipleScreenEvent);
+    setCurrentTaskIndex(0)
+    eventStore.addMultipleScreenListener(onMultipleScreenEvent)
 
     return () => { //clean up work after the component is unmounted
-      eventStore.removeMultipleScreenListener(onMultipleScreenEvent);
+      eventStore.removeMultipleScreenListener(onMultipleScreenEvent)
     }
-  }, []);
+  }, [])
 
-  const onMultipleScreenEvent = (payload) => {
+  const onMultipleScreenEvent = payload => {
     if (payload.type === 'nextTask') {
-      startNextTask();
+      startNextTask()
     }
   }
 
   const startNextTask = () => {
-    store.dispatch({ type: 'RESET_AOIS' });      // reset aoi list
-    props.saveGazeData(dbObjectsUtilityFunctions.getTaskContent(currentTask));
-    progressCount += 1;
-    setCurrentTaskIndex(prevCount => prevCount + 1); //good practice: set new state based on previous state
+    store.dispatch({ type: 'RESET_AOIS' })      // reset aoi list
+    props.saveGazeData(dbObjectsUtilityFunctions.getTaskContent(currentTask))
+    progressCount += 1
+    setCurrentTaskIndex(prevCount => prevCount + 1) //good practice: set new state based on previous state
   }
 
   const onFinishedRecursion = () => {
-    progressCount += currentTask.data.length;
-    startNextTask();
+    progressCount += currentTask.data.length
+    startNextTask()
   }
 
   //This function is the anchor of recursion
@@ -52,26 +51,26 @@ const displayTaskHelper = (props) => {
   if (!isTheEndOfSet()) {
     currentTask = props.taskSet.data[currentTaskIndex]
 //    console.log("currentTask: " + JSON.stringify(currentTask))
-    let id = currentTask._id + "_" + progressCount;
+    let id = currentTask._id + "_" + progressCount
 
-    let trackingTaskSetNames = props.tasksFamilyTree.slice(); //clone array, since javascript passes by reference, we need to keep the orginal familyTree untouched
-    trackingTaskSetNames.push(currentTask.name);
+    let trackingTaskSetNames = props.tasksFamilyTree.slice() //clone array, since javascript passes by reference, we need to keep the orginal familyTree untouched
+    trackingTaskSetNames.push(currentTask.name)
 
-    var parentSet = props.tasksFamilyTree[props.tasksFamilyTree.length - 1];
+    const parentSet = props.tasksFamilyTree[props.tasksFamilyTree.length - 1]
 
     if (currentTask.objType === dbObjects.ObjectTypes.SET) {
- console.log("SET")
+      console.log("SET")
       //shuffle set if set was marked as "Random"
-      var runThisTaskSet = currentTask.data;
+      let runThisTaskSet = currentTask.data
       if (currentTask.setTaskOrder === "Random") {
-        runThisTaskSet = shuffle(runThisTaskSet);
+        runThisTaskSet = shuffle(runThisTaskSet)
       }
 
-      let updatedTaskSet = currentTask;
-      updatedTaskSet.data = runThisTaskSet;
+      let updatedTaskSet = currentTask
+      updatedTaskSet.data = runThisTaskSet
 
       //recursion
-      let id = currentTask._id + "_" + progressCount;
+      let id = currentTask._id + "_" + progressCount
       return <DisplayTaskHelper key={id}
         tasksFamilyTree={trackingTaskSetNames}
         taskSet={updatedTaskSet}
@@ -89,14 +88,14 @@ const displayTaskHelper = (props) => {
               renderKey={id} />
           </div>
         </div>
-      );
+      )
     }
   } else {
     if (!hasFinished) {
-      props.onFinished();
-      hasFinished = true;
+      props.onFinished()
+      hasFinished = true
     }
-    return (null);
+    return (null)
   }
 }
 
