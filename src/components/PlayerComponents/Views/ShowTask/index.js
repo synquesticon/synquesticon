@@ -29,6 +29,7 @@ const ShowTask = (props) => {
 
     let hideNext = false;
     let components = taskList.map((item, i) => {
+      console.log("RenderKey" + props.renderKey+"xxx")
       if ((store.getState().multipleScreens && (item.screenIDS.includes(store.getState().screenID)
         || item.screenIDS.length === 0)) || !store.getState().multipleScreens) {
 
@@ -36,24 +37,20 @@ const ShowTask = (props) => {
           hideNext = true;
         }
 
-        mapIndex = i;
-
-        var key = props.renderKey + dbObjects.ObjectTypes.TASK + i;
-
         if (item.objType === dbObjects.TaskTypes.INSTRUCTION.type) {
-          return <Suspense fallback={<div>Loading...</div>}><InstructionViewComponent className="itemContainer" key={key} task={item} mapID={mapIndex} parentSet={props.task.name} /></Suspense>;
+          return <Suspense fallback={<div>Loading...</div>}><InstructionViewComponent className="itemContainer" key={props.renderKey  + i} task={item} parentSet={props.task.name} /></Suspense>;
         }
         else if (item.objType === dbObjects.TaskTypes.TEXTENTRY.type) {
-          return <Suspense fallback={<div>Loading...</div>}><TextEntryComponent className="itemContainer" key={key} task={item} mapID={mapIndex} parentSet={props.task.name} /></Suspense>;
+          return <Suspense fallback={<div>Loading...</div>}><TextEntryComponent className="itemContainer" key={props.renderKey + i} task={item} parentSet={props.task.name} /></Suspense>;
         }
         else if (item.objType === dbObjects.TaskTypes.MCHOICE.type) {
-          return <Suspense fallback={<div>Loading...</div>}><ButtonComponent className="itemContainer" key={key} task={item} mapID={mapIndex} parentSet={props.task.name} taskID={props.task._id} familyTree={props.tasksFamilyTree} objType={item.objType} correctResponses={item.correctResponses} image={item.image} displayText={item.displayText} taskObj={props.task} /></Suspense>;
+          return <Suspense fallback={<div>Loading...</div>}><ButtonComponent className="itemContainer" key={props.renderKey +dbObjects.TaskTypes.MCHOICE.type + i} task={item} parentSet={props.task.name} taskID={props.task._id} familyTree={props.tasksFamilyTree} objType={item.objType} correctResponses={item.correctResponses} image={item.image} displayText={item.displayText} taskObj={props.task} /></Suspense>;
         }
         else if (item.objType === dbObjects.TaskTypes.IMAGE.type) {
-          return <Suspense fallback={<div>Loading...</div>}><ImageViewComponent className="itemContainer" key={key} task={item} mapID={mapIndex} parentSet={props.task.name} /></Suspense>;
+          return <Suspense fallback={<div>Loading...</div>}><ImageViewComponent className="itemContainer" key={props.renderKey +dbObjects.TaskTypes.IMAGE.type + i} task={item} parentSet={props.task.name} /></Suspense>;
         }
         else if (item.objType === dbObjects.TaskTypes.NUMPAD.type) {
-          return <Suspense fallback={<div>Loading...</div>}><NumpadComponent className="itemContainer" key={key} task={item} mapID={mapIndex} parentSet={props.task.name} /></Suspense>;
+          return <Suspense fallback={<div>Loading...</div>}><NumpadComponent className="itemContainer" key={props.renderKey +dbObjects.TaskTypes.NUMPAD.type + i} task={item} parentSet={props.task.name} /></Suspense>;
         }
         else {
           return null;
@@ -69,7 +66,7 @@ const ShowTask = (props) => {
   let nextButton = null;
   if (!contentObject.hideNext) {
     nextButton = <div style={{ position: 'fixed', bottom: 20, right: 20, zIndex: 99 }}>
-      <Button className="nextButton" variant="contained" onClick={nextPressed}>
+      <Button className="nextButton" variant="contained" onClick={nextPressed} >
         Next
       </Button>
     </div>;
