@@ -7,7 +7,7 @@ import * as dbObjects from '../../../../core/db_objects'
 import * as playerUtils from '../../../../core/player_utility_functions'
 
 const buttonList = (props) => {
-  console.log("Props from ButtonComponent" + JSON.stringify(props))
+  //console.log("Props from ButtonComponent" + JSON.stringify(props))
   const textRef = React.createRef();
   let [clickedButton, setClickedButton] = useState(null)
   let [responseCountArray, setResponseCountArray] = useState(new Array(props.task.responses.length).fill(0))
@@ -71,7 +71,7 @@ const buttonList = (props) => {
       props.objType === dbObjects.TaskTypes.IMAGE.type ? props.image : props.displayText,
       props.correctResponses,
       props.objType);
-    console.log("newLine" + JSON.stringify(newLine))
+    //console.log("newLine" + JSON.stringify(newLine))
     // if (task.globalVariable) {
     //   newLine.isGlobalVariable = true;
     //   newLine.label = task.displayText;
