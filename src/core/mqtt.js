@@ -63,7 +63,10 @@ function onRETData(newMessage) {
 function _startMQTT(config, restart) {
   if(restart){
     console.log("restarting mqtt client");
-    mqttClient.end();
+    if(mqttClient){
+      mqttClient.end();
+    }
+    
   }
   else if (last_config && (last_config.ip === config.ip && last_config.port === config.port))
   {
