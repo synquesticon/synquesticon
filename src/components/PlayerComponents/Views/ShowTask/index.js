@@ -1,4 +1,4 @@
-import React, { useEffect, Suspense } from 'react'
+import React, { Suspense } from 'react'
 import Button from '@material-ui/core/Button'
 import store from '../../../../core/store'
 import mqtt from '../../../../core/mqtt'
