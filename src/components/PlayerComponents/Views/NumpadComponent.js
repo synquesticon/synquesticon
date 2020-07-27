@@ -15,7 +15,7 @@ const fourth_line_keyboard = [0, '.', "<"]
 //var textRef = React.createRef();
 
 const NumpadComponent = props => {
-  const [numpadEntry, setNumpadEntry] = useState("");
+  const [numpadEntry, setNumpadEntry] = useState('');
   const [decimalWasPressed, setdecimalWasPressed] = useState(false);
   const [textRef] = useState(React.createRef());
 
@@ -31,23 +31,27 @@ const NumpadComponent = props => {
     store.dispatch(textAOIAction);
   }, []);
 
+  useEffect( () => {
+    onAnswer();
+  }, [numpadEntry]);
+
+
   const onMyKeyboardPressed = key => {
     if (key === "<") {
       var lastChar = numpadEntry[numpadEntry.length -1];
       if (lastChar === '.') {
         setdecimalWasPressed(false);
       }
-      setNumpadEntry(numpadEntry.substring(0, numpadEntry.length-1));
+      setNumpadEntry(prevNumpadEntry=> prevNumpadEntry.substring(0, prevNumpadEntry.length-1));
     }
     else if (key === '.') {
       if (!decimalWasPressed) {
-        setNumpadEntry(numpadEntry+key)
+        setNumpadEntry(prevNumpadEntry => prevNumpadEntry+key);
         setdecimalWasPressed(true);
       }
     } else {
-      setNumpadEntry(numpadEntry + "" + key);
+      setNumpadEntry(prevNumpadEntry => prevNumpadEntry+key);
     }
-    onAnswer();
   }
 
   function checkAnswer() {
@@ -73,13 +77,13 @@ const NumpadComponent = props => {
   }
 
   function onAnswer() {
+    console.log(numpadEntry);
     const answerObj = {
       responses: [parseFloat(numpadEntry)],
       correctlyAnswered: checkAnswer(),
       //taskID: props.task._id,
       mapID: props.mapID,
     }
-    props.answerCallback(answerObj);
   }
 
   const getKeyboardLine = (keyboard, css) => {
@@ -99,7 +103,7 @@ const NumpadComponent = props => {
   return (
     <div className={props.className} >
       <div>
-        <Typography ref={textRef} variant="h3" align="center" style={{whiteSpace:"pre-line"}} color="textPrimary">{props.displayText}</Typography>
+        <Typography ref={textRef} variant="h3" align="center" style={{whiteSpace:"pre-line"}} color="textPrimary">{props.task.displayText}</Typography>
       </div>
       <div className="inputField">
         <Typography color="textPrimary">{numpadEntry}</Typography>
