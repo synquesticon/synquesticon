@@ -20,86 +20,33 @@ const displayTaskHelper = (props) => {
   var currentTask = null;
   var hasFinished = false;
 
-  const savedObjects = [];
-
   useEffect(() => {
     setCurrentTaskIndex(0);
     eventStore.addMultipleScreenListener(onMultipleScreenEvent);
 
-    return () => { //clean up work after the component is unmounted, equals to componentWillUnmount
+    return () => { //clean up work after the component is unmounted
       eventStore.removeMultipleScreenListener(onMultipleScreenEvent);
     }
   }, []);
 
   const onMultipleScreenEvent = (payload) => {
-    if (store.getState().multipleScreens && payload.type === 'nextTask') {
-      onClickNext(null, true);
+    if (payload.type === 'nextTask') {
+      console.log("next please!")
+      onClickNext();
     }
   }
 
-  const onClickNext = (e, fromEmitter) => {
+  const onClickNext = () => {
     store.dispatch({ type: 'RESET_AOIS' });      // reset aoi list
-
-    //===========save gazedata===========
     props.saveGazeData(dbObjectsUtilityFunctions.getTaskContent(currentTask));
-
-    //Get the current screenID
-    let screenID = store.getState().screenID;
-    let doNotBroadcastNext = false;
-
-    //==save logging data==  !!!!  MOVE TO COMPONENT LEVEL   !!!!
-    if (currentLineOfData) {
-      for (const [key, line] of currentLineOfData.entries()) {
-        //Only save to the database once
-        if (!savedObjects.includes(key)) {
-          savedObjects.push(key);
-
-          line.timeToCompletion = playerUtils.getCurrentTime() - line.startTimestamp;
-          if (store.getState().experimentInfo.shouldSave) {
-            db_helper.addNewLineToParticipantDB(store.getState().experimentInfo.participantId, JSON.stringify(line));
-          }
-
-          //Broadcast a status update to any observers listening
-          let stringifiedMessage = playerUtils.stringifyMessage(store, { _id: line.taskId }, line,
-            (line.firstResponseTimestamp !== -1) ? "ANSWERED" : "SKIPPED",
-            progressCount, -1);
-          mqtt.broadcastEvents(stringifiedMessage);
-        }
-      }
-    }
-
     progressCount += 1;
-
-    //Broadcast a status update to any observers listening
-    let eventObject = {
-      eventType: "PROGRESSCOUNT",
-      participantId: store.getState().experimentInfo.participantId,
-      progressCount: progressCount
-    };
-
-    mqtt.broadcastEvents(JSON.stringify(eventObject));
-
-    //To prevent the receiving components from broadcasting a new click event
-    if (!fromEmitter && !doNotBroadcastNext) {
-      mqtt.broadcastMultipleScreen(JSON.stringify({
-        type: "nextTask",
-        deviceID: window.localStorage.getItem('deviceID'),
-        screenID: screenID
-      }));
-    }
-
-    //===========reset===========
     currentLineOfData = null;
-
-    //reset state
     setCurrentTaskIndex(prevCount => prevCount + 1); //good practice: set new state based on previous state
   }
 
-  //        currentLineOfData = answer.linesOfData;
-
   const onFinishedRecursion = () => {
     progressCount += currentTask.data.length;
-    onClickNext(false);
+    onClickNext();
   }
 
   //This function is the anchor of recursion
@@ -109,10 +56,6 @@ const displayTaskHelper = (props) => {
 
   if (!isTheEndOfSet()) {
     currentTask = props.taskSet.data[currentTaskIndex];
-    //check if there is screen ID for this screen
-    //if there is a screen ID, continue
-    //if not, get currentTaskIndex-1 ....
-    //not as simple as Michael thought it would be
     var id = currentTask._id + "_" + progressCount;
 
     let trackingTaskSetNames = props.tasksFamilyTree.slice(); //clone array, since javascript passes by reference, we need to keep the orginal familyTree untouched
@@ -131,7 +74,7 @@ const displayTaskHelper = (props) => {
       updatedTaskSet.data = runThisTaskSet;
 
       //recursion
-      //let id = this.currentTask._id + "_" + this.progressCount;
+      let id = currentTask._id + "_" + progressCount;
       return <DisplayTaskHelper key={id}
         tasksFamilyTree={trackingTaskSetNames}
         taskSet={updatedTaskSet}
@@ -145,7 +88,6 @@ const displayTaskHelper = (props) => {
             <ShowTask key={id}
               tasksFamilyTree={trackingTaskSetNames}
               task={currentTask}
-              nextCallback={onClickNext}
               parentSet={parentSet}
               renderKey={id} />
           </div>
