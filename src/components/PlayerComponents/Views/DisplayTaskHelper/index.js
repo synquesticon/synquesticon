@@ -25,7 +25,6 @@ const displayTaskHelper = (props) => {
 
   const onMultipleScreenEvent = (payload) => {
     if (payload.type === 'nextTask') {
-      console.log("next please!")
       startNextTask();
     }
   }
@@ -44,11 +43,15 @@ const displayTaskHelper = (props) => {
 
   //This function is the anchor of recursion
   const isTheEndOfSet = () => {
+    // console.log("currentTaskIndex: " + currentTaskIndex)
+    // console.log("props.taskSet.data.legth: " + props.taskSet.data.length)
+    // console.log("props.taskSet.data: " + JSON.stringify(props.taskSet.data))
     return (props.taskSet.data.length > 0 && currentTaskIndex >= props.taskSet.data.length)
   }
 
   if (!isTheEndOfSet()) {
-    currentTask = props.taskSet.data[currentTaskIndex];
+    currentTask = props.taskSet.data[currentTaskIndex]
+//    console.log("currentTask: " + JSON.stringify(currentTask))
     let id = currentTask._id + "_" + progressCount;
 
     let trackingTaskSetNames = props.tasksFamilyTree.slice(); //clone array, since javascript passes by reference, we need to keep the orginal familyTree untouched
@@ -57,6 +60,7 @@ const displayTaskHelper = (props) => {
     var parentSet = props.tasksFamilyTree[props.tasksFamilyTree.length - 1];
 
     if (currentTask.objType === dbObjects.ObjectTypes.SET) {
+ console.log("SET")
       //shuffle set if set was marked as "Random"
       var runThisTaskSet = currentTask.data;
       if (currentTask.setTaskOrder === "Random") {
