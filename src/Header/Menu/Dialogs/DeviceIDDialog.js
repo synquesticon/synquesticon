@@ -23,8 +23,8 @@ import store from '../../../core/store';
 const DEFAULT_ROLES = ["SRO", "RO", "TO"];
 
 const DeviceIDDialog = props => {
-  let deviceName = props.myStorage.getItem('deviceID');
-  let screenID = store.getState().screenID;
+  const [deviceName, setDeviceName] = useState(props.myStorage.getItem('deviceID'));
+  const [screenID, setScreenID] = useState(store.getState().screenID);
   const [roles, setRoles] = useState(DEFAULT_ROLES);
   const [multipleScreens, setMultipleScreens] = useState(store.getState().multipleScreens);
   let selectedRole = props.myStorage.getItem('deviceRole') ? props.myStorage.getItem('deviceRole') : roles[0];
@@ -51,6 +51,10 @@ const DeviceIDDialog = props => {
 
   const multipleScreensToggled = (e, checked) => {
     setMultipleScreens(checked);
+    
+    if(!checked){
+      setScreenID(null);
+    }
   }
 
   const onChangeDeviceID = e => {
@@ -81,7 +85,7 @@ const DeviceIDDialog = props => {
             label="Device ID"
             padding="dense"
             variant="outlined"
-            onChange={(e)=>{deviceName = e.target.value}}
+            onChange={(e)=>setDeviceName(e.target.value)}
           />
           <TextField
               defaultValue={screenID}
@@ -90,7 +94,7 @@ const DeviceIDDialog = props => {
               label="Screen ID"
               padding="dense"
               variant="outlined"
-              onChange={(e)=>{screenID = e.target.value}}
+              onChange={(e)=>setScreenID(e.target.value)}
             />
           <FormControl style={{width:'calc(50% - 5px)', marginRight:5}}>
             <InputLabel htmlFor="uncontrolled-native">Role</InputLabel>
