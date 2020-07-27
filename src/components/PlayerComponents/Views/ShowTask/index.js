@@ -13,7 +13,7 @@ const ButtonComponent = React.lazy(() => import('../ButtonComponent'));
 const ImageViewComponent = React.lazy(() => import('../ImageViewComponent'));
 
 const ShowTask = (props) => {
-  console.log("Props from showTask" + JSON.stringify(props.task))
+  //console.log("Props from showTask" + JSON.stringify(props.task))
 
   const nextPressed = () => {
     mqtt.broadcastMultipleScreen(JSON.stringify({

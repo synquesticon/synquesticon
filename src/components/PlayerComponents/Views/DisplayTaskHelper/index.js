@@ -26,11 +26,11 @@ const displayTaskHelper = (props) => {
   const onMultipleScreenEvent = (payload) => {
     if (payload.type === 'nextTask') {
       console.log("next please!")
-      onClickNext();
+      startNextTask();
     }
   }
 
-  const onClickNext = () => {
+  const startNextTask = () => {
     store.dispatch({ type: 'RESET_AOIS' });      // reset aoi list
     props.saveGazeData(dbObjectsUtilityFunctions.getTaskContent(currentTask));
     progressCount += 1;
@@ -39,7 +39,7 @@ const displayTaskHelper = (props) => {
 
   const onFinishedRecursion = () => {
     progressCount += currentTask.data.length;
-    onClickNext();
+    startNextTask();
   }
 
   //This function is the anchor of recursion
