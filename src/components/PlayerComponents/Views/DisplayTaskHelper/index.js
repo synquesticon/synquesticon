@@ -10,9 +10,9 @@ import * as dbObjectsUtilityFunctions from '../../../../core/db_objects_utility_
 const displayTaskHelper = (props) => {
   const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
 
-  var progressCount = 0;
-  var currentTask = null;
-  var hasFinished = false;
+  let progressCount = 0;
+  let currentTask = null;
+  let hasFinished = false;
 
   useEffect(() => {
     setCurrentTaskIndex(0);
@@ -49,7 +49,7 @@ const displayTaskHelper = (props) => {
 
   if (!isTheEndOfSet()) {
     currentTask = props.taskSet.data[currentTaskIndex];
-    var id = currentTask._id + "_" + progressCount;
+    let id = currentTask._id + "_" + progressCount;
 
     let trackingTaskSetNames = props.tasksFamilyTree.slice(); //clone array, since javascript passes by reference, we need to keep the orginal familyTree untouched
     trackingTaskSetNames.push(currentTask.name);
