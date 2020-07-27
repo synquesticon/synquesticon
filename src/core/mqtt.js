@@ -32,7 +32,7 @@ function onMultipleScreenEvent(message) {
     let parsedMessage = JSON.parse(message);
 
     //Only respond to the message if the device ID matches our own and the screenID is different so we don't repeat messages endlessly
-    if(parsedMessage.deviceID === window.localStorage.getItem('deviceID') && (parsedMessage.screenID !== store.default.getState().screenID)||(parsedMessage.screenID==='')){
+    if(parsedMessage.deviceID === window.localStorage.getItem('deviceID') && ((parsedMessage.screenID !== store.default.getState().screenID)||(parsedMessage.screenID===''))){
       eventStore.default.emitMultipleScreenEvent(JSON.parse(message));
     }
   }
