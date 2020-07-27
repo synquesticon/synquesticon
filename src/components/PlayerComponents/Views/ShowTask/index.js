@@ -1,9 +1,8 @@
-import React, { useEffect, Suspense } from 'react';
-import Button from '@material-ui/core/Button';
-import store from '../../../../core/store';
+import React, { useEffect, Suspense } from 'react'
+import Button from '@material-ui/core/Button'
+import store from '../../../../core/store'
 import mqtt from '../../../../core/mqtt'
-import * as dbObjects from '../../../../core/db_objects';
-
+import * as dbObjects from '../../../../core/db_objects'
 import './showTask.css'
 
 const InstructionViewComponent = React.lazy(() => import('../InstructionViewComponent'))
@@ -12,9 +11,8 @@ const NumpadComponent = React.lazy(() => import('../NumpadComponent'))
 const ButtonComponent = React.lazy(() => import('../ButtonComponent'))
 const ImageViewComponent = React.lazy(() => import('../ImageViewComponent'))
 
-const ShowTask = (props) => {
+const ShowTask = props => {
   //console.log("Props from showTask" + JSON.stringify(props.task))
-
   const nextPressed = () => {
     mqtt.broadcastMultipleScreen(JSON.stringify({
       type: "nextTask",
@@ -32,7 +30,6 @@ const ShowTask = (props) => {
     let components = taskList.map((item, i) => {
       if ((store.getState().multipleScreens && (item.screenIDS.includes(store.getState().screenID)
         || item.screenIDS.length === 0)) || !store.getState().multipleScreens) {
-
         if (store.getState().multipleScreens && item.hideNext) {
           hideNext = true
         }
@@ -81,4 +78,4 @@ const ShowTask = (props) => {
   )
 }
 
-export default ShowTask;
+export default ShowTask
