@@ -34,7 +34,7 @@ class DisplayTaskComponent extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isPaused : false
+      isPaused: false
     };
     this.handleNewCommandEvent = this.onNewCommandEvent.bind(this);
 
@@ -45,7 +45,7 @@ class DisplayTaskComponent extends Component {
 
   componentWillMount() {
     this.setState({
-      isPaused : false
+      isPaused: false
     });
 
     this.gazeDataArray = [];
@@ -69,7 +69,7 @@ class DisplayTaskComponent extends Component {
       return;
     }
 
-    if(participantID){
+    if (participantID) {
       let participantAction = {
         type: 'SET_PARTICIPANT_ID',
         participantId: participantID
@@ -79,17 +79,17 @@ class DisplayTaskComponent extends Component {
 
     db_helper.getTasksOrTaskSetsWithIDs(mainTaskSetId, (dbQueryResult, count, mainTaskSetName) => {
       //Force preload all images
-      if(dbQueryResult.data){
+      if (dbQueryResult.data) {
         playerUtils.getAllImagePaths(dbQueryResult.data).forEach((picture) => {
-            const img = document.createElement('img');
-            img.src = picture;
+          const img = document.createElement('img');
+          img.src = picture;
         });
       }
 
       //If the participantID is undefined we create a participant and add it to he experiment
-      if(store.getState().experimentInfo.participantId===undefined){
+      if (store.getState().experimentInfo.participantId === undefined) {
         db_helper.addParticipantToDb(new dbObjects.ParticipantObject(dbQueryResult._id),
-          (returnedIdFromDB)=> {
+          (returnedIdFromDB) => {
             let action = {
               type: 'SET_EXPERIMENT_INFO',
               experimentInfo: {
@@ -105,9 +105,9 @@ class DisplayTaskComponent extends Component {
             }
             store.dispatch(action);
             this.forceUpdate();
-        });
+          });
       }
-      else{
+      else {
         let action = {
           type: 'SET_EXPERIMENT_INFO',
           experimentInfo: {
@@ -177,7 +177,6 @@ class DisplayTaskComponent extends Component {
 
 
   saveGazeData(task) {
-
     if (this.gazeDataArray.length > 0) {
       var copiedGazeData = this.gazeDataArray.slice();
       this.gazeDataArray = [];
@@ -188,12 +187,12 @@ class DisplayTaskComponent extends Component {
   //TODO currently this is updated using an interval timer.However it would be better to only update when
   // new events occur.
   //Updates the location of the Gaze Cursor. And checks if any of the AOIs were looked at
-  updateCursorLocation(){
+  updateCursorLocation() {
     try {
       let gazeLoc = store.getState().gazeData[store.getState().experimentInfo.selectedTracker];
-      if(this.frameDiv){
-        var cursorX = (gazeLoc.locX*this.frameDiv.current.offsetWidth-this.cursorRadius);
-        var cursorY = (gazeLoc.locY*this.frameDiv.current.offsetHeight-this.cursorRadius);
+      if (this.frameDiv) {
+        var cursorX = (gazeLoc.locX * this.frameDiv.current.offsetWidth - this.cursorRadius);
+        var cursorY = (gazeLoc.locY * this.frameDiv.current.offsetHeight - this.cursorRadius);
 
         var aois = store.getState().aois;
 
@@ -203,9 +202,9 @@ class DisplayTaskComponent extends Component {
           var polygon = [];
 
           if (a.boundingbox.length > 0) {
-            for(let boundingbox of a.boundingbox){
-              var x = boundingbox[0]*imageDivRect.width/100 + imageDivRect.x;
-              var y = boundingbox[1]*imageDivRect.height/100 + imageDivRect.y;
+            for (let boundingbox of a.boundingbox) {
+              var x = boundingbox[0] * imageDivRect.width / 100 + imageDivRect.x;
+              var y = boundingbox[1] * imageDivRect.height / 100 + imageDivRect.y;
               polygon.push([x, y]);
             }
           }
@@ -215,7 +214,7 @@ class DisplayTaskComponent extends Component {
             polygon.push([imageDivRect.x + imageDivRect.width, imageDivRect.y + imageDivRect.height]);
             polygon.push([imageDivRect.x, imageDivRect.y + imageDivRect.height]);
           }
-          if (playerUtils.pointIsInPoly([cursorX, cursorY], polygon)){
+          if (playerUtils.pointIsInPoly([cursorX, cursorY], polygon)) {
             gazeLoc.target = a;
             break;
           }
@@ -230,26 +229,6 @@ class DisplayTaskComponent extends Component {
     }
   }
 
-  broadcastEndEvent() {
-    var dt = new Date();
-    var timestamp = dt.toUTCString();
-
-    let eventObject = {
-      eventType: "FINISHED",
-      participantId: store.getState().experimentInfo.participantId,
-      participantLabel: store.getState().experimentInfo.participantLabel,
-      startTimestamp: store.getState().experimentInfo.startTimestamp,
-      selectedTracker: store.getState().experimentInfo.selectedTracker,
-      mainTaskSetId: store.getState().experimentInfo.mainTaskSetId,
-      lineOfData: {
-        startTaskTime: timestamp
-      },
-      timestamp: timestamp
-    };
-
-    var info = JSON.stringify(eventObject);
-    mqtt.broadcastEvents(info);
-  }
 
   /*
  ██████  ██████  ███    ███ ███    ███  █████  ███    ██ ██████  ███████
@@ -285,18 +264,32 @@ class DisplayTaskComponent extends Component {
   }
 
   onFinished() {
-    if (!(store.getState().experimentInfo.participantId === "TESTING")) {
-      this.broadcastEndEvent();
-    }
+    const timestamp = new Date().toUTCString();
 
-    this.props.history.goBack();
-
-    let snackbarAction = {
-      type: 'TOAST_SNACKBAR_MESSAGE',
-      snackbarOpen: true,
-      snackbarMessage: "Finished"
+    let eventObject = {
+      eventType: "FINISHED",
+      participantId: store.getState().experimentInfo.participantId,
+      participantLabel: store.getState().experimentInfo.participantLabel,
+      startTimestamp: store.getState().experimentInfo.startTimestamp,
+      selectedTracker: store.getState().experimentInfo.selectedTracker,
+      mainTaskSetId: store.getState().experimentInfo.mainTaskSetId,
+      lineOfData: {
+        startTaskTime: timestamp
+      },
+      timestamp: timestamp
     };
-    store.dispatch(snackbarAction);
+
+    mqtt.broadcastEvents(JSON.stringify(eventObject));
+
+    console.log("FINISHED")
+        this.props.history.goBack();
+// We want the following code back eventually, but it caused a strange error whereby the onFinished function would be called again anad again, causing it to go back repeatedly, eventually out of the application
+    // let snackbarAction = {     
+    //   type: 'TOAST_SNACKBAR_MESSAGE',
+    //   snackbarOpen: true,
+    //   snackbarMessage: "Finished"
+    // };
+    // store.dispatch(snackbarAction);
   }
 
   render() {
@@ -316,24 +309,23 @@ class DisplayTaskComponent extends Component {
           taskSet = store.getState().experimentInfo.taskSet;
         }
         var renderObj = <DisplayTaskHelper tasksFamilyTree={[store.getState().experimentInfo.mainTaskSetId]}
-                                           taskSet={taskSet}
-                                           displayOnePage={store.getState().experimentInfo.taskSet.displayOnePage}
-                                           onFinished={this.onFinished.bind(this)}
-                                           saveGazeData={this.saveGazeData.bind(this)}
-                                           progressCount={0}
-                                           repeatSetThreshold={store.getState().experimentInfo.taskSet.repeatSetThreshold}/>;
+          taskSet={taskSet}
+          displayOnePage={store.getState().experimentInfo.taskSet.displayOnePage}
+          onFinished={this.onFinished.bind(this)}
+          saveGazeData={this.saveGazeData.bind(this)}
+          progressCount={0} />;
         return (
-            <div style={{backgroundColor:rightBG}} className="page" ref={this.frameDiv}>
-              {renderObj}
-              <PauseDialog openDialog={this.state.isPaused} pauseMessage="Task paused."/>
-            </div>
+          <div style={{ backgroundColor: rightBG }} className="page" ref={this.frameDiv}>
+            {renderObj}
+            <PauseDialog openDialog={this.state.isPaused} pauseMessage="Task paused." />
+          </div>
         );
       }
-      catch(err) {
-        return <div style={{backgroundColor:rightBG}}/>;
+      catch (err) {
+        return <div style={{ backgroundColor: rightBG }} />;
       }
     }
-    return <Typography variant="h2" color="textPrimary" style={{position:'absolute', left:'50%', top:'50%'}}>Loading...</Typography>;
+    return <Typography variant="h2" color="textPrimary" style={{ position: 'absolute', left: '50%', top: '50%' }}>Loading...</Typography>;
   }
 }
 

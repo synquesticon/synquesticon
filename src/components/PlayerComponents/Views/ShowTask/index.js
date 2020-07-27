@@ -1,9 +1,8 @@
 import React, { useEffect, Suspense } from 'react';
 import Button from '@material-ui/core/Button';
 import store from '../../../../core/store';
-import mqtt from '../../../../core/mqtt'
+//import mqtt from '../../../../core/mqtt'
 import * as dbObjects from '../../../../core/db_objects';
-import * as playerUtils from '../../../../core/player_utility_functions';
 
 import './showTask.css';
 
@@ -14,46 +13,7 @@ const ButtonComponent = React.lazy(() => import('../ButtonComponent'));
 const ImageViewComponent = React.lazy(() => import('../ImageViewComponent'));
 
 const ShowTask = (props) => {
-    console.log("Props from showTask" + JSON.stringify(props.task))
-  useEffect( () => {
-
-  }, [])
-
-  //Map to hold all the answers from the questions
-  //in key = questionID, value = [AnswerList]}
-  const taskResponses = new Map();
-
-  //Callback from the task components when the user has provided an answer
-  const onAnswer = (answerObj) => {
-    //Update the map with the resonse to the task, overwriting any existing answer for that task
-
-
-    // lineOfData.startTimestamp
-    // lineOfData.firstResponseTimestamp
-    // lineOfData.timeToFirstAnswer
-    // lineOfData.clickedPoints = answerObj.clickedPoints;
-    // lineOfData.responses = Array.isArray(answerObj.responses)?answerObj.responses:[];
-    // lineOfData.correctlyAnswered = answerObj.correctlyAnswered;
-
-    var lineOfData = taskResponses.get(props.task._id + answerObj.mapID);
-
-    if (lineOfData.firstResponseTimestamp === -1) { //log the timeToFirstAnswer
-      lineOfData.firstResponseTimestamp = playerUtils.getCurrentTime();
-      lineOfData.timeToFirstAnswer = lineOfData.firstResponseTimestamp - lineOfData.startTimestamp;
-    }
-
-    //update answer
-    lineOfData.clickedPoints = answerObj.clickedPoints;
-    lineOfData.responses = Array.isArray(answerObj.responses) ? answerObj.responses : [];
-    lineOfData.correctlyAnswered = answerObj.correctlyAnswered;
-
-
-    if (props.task._id + answerObj.mapID) {
-      taskResponses.set(props.task._id + answerObj.mapID, lineOfData);
-    }
-
-    props.answerCallback({ linesOfData: taskResponses, correctlyAnswered: answerObj.correctlyAnswered });
-  }
+  console.log("Props from showTask" + JSON.stringify(props.task))
 
   const getDisplayedContent = (taskList, _id, mapIndex) => {
     if (!taskList) {
@@ -97,8 +57,7 @@ const ShowTask = (props) => {
     return { components: components, hideNext: hideNext };
   }
 
-  var contentObject = getDisplayedContent(props.task.childObj, props.task._id, 0);
-  props.initCallback(taskResponses);
+  const contentObject = getDisplayedContent(props.task.childObj, props.task._id, 0);
 
   let nextButton = null;
   if (!contentObject.hideNext) {
