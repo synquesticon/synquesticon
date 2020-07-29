@@ -29,7 +29,7 @@ const runSet = props => {
   }
 
   const onControlMsg = payload => {
-    if (payload.type === 'nextTask' && payload.setID.toString() === props.taskSet._id.toString()){ 
+    if (payload.type === 'nextTask' && payload.setID === props.taskSet._id) { 
       startNextTask()
     }      
   }
