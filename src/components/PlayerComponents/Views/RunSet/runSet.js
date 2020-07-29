@@ -13,23 +13,23 @@ const runSet = props => {
   useEffect(() => {    
     setCurrentTaskIndex(0)
     eventStore.addControlMsgListener(onControlMsg)
-
-    return () => { //clean up work after the component is unmounted
+    return () => { //clean up when component gets unmounted
       eventStore.removeControlMsgListener(onControlMsg)
     }
   }, [])
 
-  const nextPressed = familyTree => {
+
+  const nextPressed = setID => {
     mqtt.broadcastMultipleScreen(JSON.stringify({
       type: "nextTask",
-      parentSet: familyTree,
+      setID: setID,
       deviceID: window.localStorage.getItem('deviceID'),
       screenID: store.getState().screenID
     }))
   }
 
   const onControlMsg = payload => {
-    if (payload.type === 'nextTask' && payload.parentSet.toString() === props.familyTree.toString() ){ 
+    if (payload.type === 'nextTask' && payload.setID.toString() === props.taskSet._id.toString()){ 
       startNextTask()
     }      
   }
@@ -57,6 +57,7 @@ const runSet = props => {
         <div className="page" key={currentTask._id + "_" + currentTaskIndex}>
           <div className="mainDisplay">
             <ShowTask key={currentTask._id + "_" + currentTaskIndex}
+              setID={props.taskSet._id}
               familyTree={props.familyTree}
               task={currentTask}
               parentSet={parentSet}
