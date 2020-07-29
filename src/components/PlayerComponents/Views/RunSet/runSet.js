@@ -18,23 +18,24 @@ const runSet = props => {
     }
   }, [])
 
-
   const nextPressed = setID => {
     mqtt.broadcastMultipleScreen(JSON.stringify({
       type: "nextTask",
       setID: setID,
       deviceID: window.localStorage.getItem('deviceID'),
-      screenID: store.getState().screenID
+      screenID: store.getState().screenID,
+      randomSeed: Math.random(),
+      nextIndex: currentTaskIndex + 1
     }))
   }
 
   const onControlMsg = payload => {
     if (payload.type === 'nextTask' && payload.setID === props.taskSet._id) { 
-      startNextTask()
+      startNextTask(payload.nextIndex)
     }      
   }
 
-  const startNextTask = () => {
+  const startNextTask = nextIndex => {
     setCurrentTaskIndex(prevCount => prevCount + 1) 
   }
 
