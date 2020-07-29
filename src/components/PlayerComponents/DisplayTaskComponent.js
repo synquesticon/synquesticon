@@ -1,21 +1,15 @@
 import React, { Component } from 'react';
-
 import { Typography } from '@material-ui/core';
 import { withTheme } from '@material-ui/styles';
-
-import DisplayTaskHelper from './Views/DisplayTaskHelper/runSet'
-
+import RunSet from './Views/RunSet/runSet'
 import PauseDialog from './PauseDialog';
-
 import mqtt from '../../core/mqtt'
-
 import eventStore from '../../core/eventStore';
 import store from '../../core/store';
 import db_helper from '../../core/db_helper';
 import * as dbObjects from '../../core/db_objects';
 import * as playerUtils from '../../core/player_utility_functions';
 import queryString from 'query-string';
-
 import './DisplayTaskComponent.css';
 import '../../core/utility.css';
 
@@ -35,22 +29,18 @@ class DisplayTaskComponent extends Component {
     super(props);
     this.state = {
       isPaused: false
-    };
-    this.handleNewCommandEvent = this.onNewCommandEvent.bind(this);
-
-    //this.gazeDataArray = [];
-    //this.frameDiv = React.createRef();
-    //this.cursorRadius = 20;
+    }
+    this.handleNewCommandEvent = this.onNewCommandEvent.bind(this)
   }
 
   componentWillMount() {
     this.setState({
       isPaused: false
-    });
+    })
 
-    this.gazeDataArray = [];
-    this.frameDiv = React.createRef();
-    this.cursorRadius = 20;
+    this.gazeDataArray = []
+    this.frameDiv = React.createRef()
+    this.cursorRadius = 20
 
     var layoutAction = {
       type: 'SET_SHOW_HEADER',
@@ -58,15 +48,15 @@ class DisplayTaskComponent extends Component {
       showFooter: false
     }
 
-    store.dispatch(layoutAction);
+    store.dispatch(layoutAction)
 
-    var parsed = queryString.parse(this.props.location.search);
-    let participantID = parsed.pid;
-    var mainTaskSetId = parsed.id;
-    var tracker = parsed.tracker;
+    var parsed = queryString.parse(this.props.location.search)
+    let participantID = parsed.pid
+    var mainTaskSetId = parsed.id
+    var tracker = parsed.tracker
 
     if (mainTaskSetId === undefined) {
-      return;
+      return
     }
 
     if (participantID) {
@@ -74,16 +64,16 @@ class DisplayTaskComponent extends Component {
         type: 'SET_PARTICIPANT_ID',
         participantId: participantID
       }
-      store.dispatch(participantAction);
+      store.dispatch(participantAction)
     }
 
     db_helper.getTasksOrTaskSetsWithIDs(mainTaskSetId, (dbQueryResult, count, mainTaskSetName) => {
       //Force preload all images
       if (dbQueryResult.data) {
         playerUtils.getAllImagePaths(dbQueryResult.data).forEach((picture) => {
-          const img = document.createElement('img');
-          img.src = picture;
-        });
+          const img = document.createElement('img')
+          img.src = picture
+        })
       }
 
       //If the participantID is undefined we create a participant and add it to he experiment
@@ -103,11 +93,10 @@ class DisplayTaskComponent extends Component {
                 selectedTracker: tracker,
               }
             }
-            store.dispatch(action);
-            this.forceUpdate();
-          });
-      }
-      else {
+            store.dispatch(action)
+            this.forceUpdate()
+          })
+      } else {
         let action = {
           type: 'SET_EXPERIMENT_INFO',
           experimentInfo: {
@@ -120,37 +109,24 @@ class DisplayTaskComponent extends Component {
             taskSetCount: count,
             selectedTracker: tracker,
           }
-        };
-
+        }
         store.dispatch(action);
         this.forceUpdate();
       }
-    });
-    eventStore.addNewCommandListener(this.handleNewCommandEvent);
+    })
+    eventStore.addNewCommandListener(this.handleNewCommandEvent)
   }
 
   componentDidMount() {
-    if (store.getState().experimentInfo && store.getState().experimentInfo.participantId !== "TESTING" && (store.getState().experimentInfo.selectedTracker !== "")) {
-
-      this.gazeDataArray = [];
+    if (store.getState().experimentInfo && (store.getState().experimentInfo.selectedTracker !== "")) {
+      this.gazeDataArray = []
       this.timer = setInterval(this.updateCursorLocation.bind(this), 4); //Update the gaze cursor location every 4ms
-
-      //Force preload all images
-      /*if(store.getState().experimentInfo.taskSet){
-        playerUtils.getAllImagePaths(store.getState().experimentInfo.taskSet).forEach((picture) => {
-            const img = new Image();
-            img.src = picture.fileName;
-        });
-      }*/
     }
-    //checkShouldSave = true;
   }
 
   componentWillUnmount() {
-    if (store.getState().experimentInfo.participantId !== "TESTING"
-      && (store.getState().experimentInfo.selectedTracker !== "")) {
-
-      clearInterval(this.timer);
+    if (store.getState().experimentInfo.selectedTracker !== "") {
+      clearInterval(this.timer)
     }
     var layoutAction = {
       type: 'SET_SHOW_HEADER',
@@ -158,8 +134,8 @@ class DisplayTaskComponent extends Component {
       showFooter: true
     }
 
-    store.dispatch(layoutAction);
-    eventStore.removeNewCommandListener(this.handleNewCommandEvent);
+    store.dispatch(layoutAction)
+    eventStore.removeNewCommandListener(this.handleNewCommandEvent)
 
     var resetExperimentAction = {
       type: 'RESET_EXPERIMENT'
@@ -238,11 +214,11 @@ class DisplayTaskComponent extends Component {
  ██████  ██████  ██      ██ ██      ██ ██   ██ ██   ████ ██████  ███████
 */
   onNewCommandEvent() {
-    var args = JSON.parse(eventStore.getCurrentCommand());
-    var shouldProcess = false;
+    var args = JSON.parse(eventStore.getCurrentCommand())
+    var shouldProcess = false
 
     if (args.participantId === -1 || args.participantId === store.getState().experimentInfo.participantId) {
-      shouldProcess = true;
+      shouldProcess = true
     }
 
     if (shouldProcess) {
@@ -265,7 +241,6 @@ class DisplayTaskComponent extends Component {
 
   onFinished() {
     const timestamp = new Date().toUTCString();
-
     let eventObject = {
       eventType: "FINISHED",
       participantId: store.getState().experimentInfo.participantId,
@@ -277,26 +252,16 @@ class DisplayTaskComponent extends Component {
         startTaskTime: timestamp
       },
       timestamp: timestamp
-    };
-
-    mqtt.broadcastEvents(JSON.stringify(eventObject));
-
-    console.log("FINISHED")
-        this.props.history.goBack();
-// We want the following code back eventually, but it caused a strange error whereby the onFinished function would be called again anad again, causing it to go back repeatedly, eventually out of the application
-    // let snackbarAction = {     
-    //   type: 'TOAST_SNACKBAR_MESSAGE',
-    //   snackbarOpen: true,
-    //   snackbarMessage: "Finished"
-    // };
-    // store.dispatch(snackbarAction);
+    }
+    mqtt.broadcastEvents(JSON.stringify(eventObject))
+    this.props.history.goBack()
   }
 
   render() {
     if (store.getState().experimentInfo) {
-      let theme = this.props.theme;
+      let theme = this.props.theme
       let rightBG = theme.palette.type === "light" ? theme.palette.primary.main : theme.palette.primary.dark;
-      var taskSet = null;
+      var taskSet = null
       try {
         if (store.getState().experimentInfo.taskSet.displayOnePage) {
           taskSet = {
@@ -308,25 +273,26 @@ class DisplayTaskComponent extends Component {
         else {
           taskSet = store.getState().experimentInfo.taskSet;
         }
-        var renderObj = <DisplayTaskHelper tasksFamilyTree={[store.getState().experimentInfo.mainTaskSetId]}
-          taskSet={taskSet}
-          displayOnePage={store.getState().experimentInfo.taskSet.displayOnePage}
-          onFinished={this.onFinished.bind(this)}
-          saveGazeData={this.saveGazeData.bind(this)}
-          progressCount={0} />;
+        var renderObj =
+          <RunSet
+            familyTree={[store.getState().experimentInfo.mainTaskSetId]}
+            taskSet={taskSet}
+            onFinished={this.onFinished.bind(this)}
+            saveGazeData={this.saveGazeData.bind(this)}
+          />;
         return (
           <div style={{ backgroundColor: rightBG }} className="page" ref={this.frameDiv}>
             {renderObj}
             <PauseDialog openDialog={this.state.isPaused} pauseMessage="Task paused." />
           </div>
-        );
+        )
       }
       catch (err) {
-        return <div style={{ backgroundColor: rightBG }} />;
+        return <div style={{ backgroundColor: rightBG }} />
       }
     }
     return <Typography variant="h2" color="textPrimary" style={{ position: 'absolute', left: '50%', top: '50%' }}>Loading...</Typography>;
   }
 }
 
-export default withTheme(DisplayTaskComponent);
+export default withTheme(DisplayTaskComponent)
