@@ -18,6 +18,7 @@ const ShowTask = (props) => {
   const nextPressed = () => {
     mqtt.broadcastMultipleScreen(JSON.stringify({
       type: "nextTask",
+      parentSet: props.tasksFamilyTree,
       deviceID: window.localStorage.getItem('deviceID'),
       screenID: store.getState().screenID
     }));
@@ -69,7 +70,7 @@ const ShowTask = (props) => {
   let nextButton = null;
   if (!contentObject.hideNext) {
     nextButton = <div style={{ position: 'fixed', bottom: 20, right: 20, zIndex: 99 }}>
-      <Button className="nextButton" variant="contained" onClick={nextPressed}>
+      <Button className="nextButton" variant="contained" onClick={() => nextPressed(props.tasksFamilyTree)}>
         Next
       </Button>
     </div>;

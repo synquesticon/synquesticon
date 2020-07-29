@@ -12,9 +12,8 @@ const displayTaskHelper = (props) => {
 
   let progressCount = 0;
   let currentTask = null;
-  let hasFinished = false;
 
-  useEffect(() => {
+  useEffect(() => {    
     setCurrentTaskIndex(0);
     eventStore.addMultipleScreenListener(onMultipleScreenEvent);
 
@@ -25,8 +24,10 @@ const displayTaskHelper = (props) => {
 
   const onMultipleScreenEvent = (payload) => {
     if (payload.type === 'nextTask') {
-      console.log("next please!")
-      startNextTask();
+      const previousIndex = payload.parentSet.length - 2;
+      if (payload.parentSet[previousIndex] === props.tasksFamilyTree[props.tasksFamilyTree.length -1]){
+        startNextTask();
+      }      
     }
   }
 
@@ -34,13 +35,13 @@ const displayTaskHelper = (props) => {
     store.dispatch({ type: 'RESET_AOIS' });      // reset aoi list
     props.saveGazeData(dbObjectsUtilityFunctions.getTaskContent(currentTask));
     progressCount += 1;
-    setCurrentTaskIndex(prevCount => prevCount + 1); //good practice: set new state based on previous state
+    setCurrentTaskIndex(prevCount => {
+      console.log(prevCount+1);
+      return prevCount+1;
+
+    }); //good practice: set new state based on previous state
   }
 
-  const onFinishedRecursion = () => {
-    progressCount += currentTask.data.length;
-    startNextTask();
-  }
 
   //This function is the anchor of recursion
   const isTheEndOfSet = () => {
@@ -71,9 +72,10 @@ const displayTaskHelper = (props) => {
       return <DisplayTaskHelper key={id}
         tasksFamilyTree={trackingTaskSetNames}
         taskSet={updatedTaskSet}
-        onFinished={onFinishedRecursion}
+        onFinished={startNextTask}
         saveGazeData={props.saveGazeData}
-        progressCount={progressCount} />
+        progressCount={progressCount}
+      />
     } else { //not a set
       return (
         <div className="page" key={id + currentTaskIndex}>
@@ -88,11 +90,8 @@ const displayTaskHelper = (props) => {
       );
     }
   } else {
-    if (!hasFinished) {
-      props.onFinished();
-      hasFinished = true;
-    }
-    return (null);
+    props.onFinished();
+    return null;
   }
 }
 
