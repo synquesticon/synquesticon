@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import ShowTask from '../ShowTask'
-import DisplayTaskHelper from '../../Views/DisplayTaskHelper'
+import runSet from './runSet'
 import eventStore from '../../../../core/eventStore'
 import store from '../../../../core/store'
 import shuffle from '../../../../core/shuffle'
 import * as dbObjects from '../../../../core/db_objects'
 import * as dbObjectsUtilityFunctions from '../../../../core/db_objects_utility_functions'
 
-const displayTaskHelper = (props) => {
+const runSet = props => {
   const [currentTaskIndex, setCurrentTaskIndex] = useState(0)
 
   let progressCount = 0
@@ -71,7 +71,7 @@ const displayTaskHelper = (props) => {
 
       //recursion
       let id = currentTask._id + "_" + progressCount
-      return <DisplayTaskHelper key={id}
+      return <runSet key={id}
         tasksFamilyTree={trackingTaskSetNames}
         taskSet={updatedTaskSet}
         onFinished={startNextTask}
@@ -97,4 +97,4 @@ const displayTaskHelper = (props) => {
   }
 }
 
-export default displayTaskHelper
+export default runSet
