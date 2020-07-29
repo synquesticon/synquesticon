@@ -45,10 +45,10 @@ class CEventStore extends EventEmitter {
     this.emit(NEW_COMMAND_EVENT);
   }
 
-  addMultipleScreenListener(callback) {
+  addControlMsgListener(callback) {
     this.addListener(MULTIPLE_SCREEN_EVENT, callback);
   }
-  removeMultipleScreenListener(callback) {
+  removeControlMsgListener(callback) {
     this.removeListener(MULTIPLE_SCREEN_EVENT, callback);
   }
   emitMultipleScreenEvent(payload) {

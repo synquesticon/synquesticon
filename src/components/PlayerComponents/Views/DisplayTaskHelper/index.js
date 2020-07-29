@@ -8,35 +8,35 @@ import * as dbObjects from '../../../../core/db_objects'
 import * as dbObjectsUtilityFunctions from '../../../../core/db_objects_utility_functions'
 
 const displayTaskHelper = (props) => {
-  const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
+  const [currentTaskIndex, setCurrentTaskIndex] = useState(0)
 
-  let progressCount = 0;
-  let currentTask = null;
+  let progressCount = 0
+  let currentTask = null
 
   useEffect(() => {    
-    setCurrentTaskIndex(0);
-    eventStore.addMultipleScreenListener(onMultipleScreenEvent);
+    setCurrentTaskIndex(0)
+    eventStore.addControlMsgListener(onControlMsg)
 
     return () => { //clean up work after the component is unmounted
-      eventStore.removeMultipleScreenListener(onMultipleScreenEvent)
+      eventStore.removeControlMsgListener(onControlMsg)
     }
   }, [])
 
-  const onMultipleScreenEvent = payload => {
+  const onControlMsg = payload => {
     if (payload.type === 'nextTask') {
-      const parentIndex = payload.parentSet.length - 2;
+      const parentIndex = payload.parentSet.length - 2
       // start next task if the sender is the direct child of this component
       if (payload.parentSet[parentIndex] === props.tasksFamilyTree[props.tasksFamilyTree.length -1]){ 
-        startNextTask();
+        startNextTask()
       }      
     }
   }
 
   const startNextTask = () => {
     store.dispatch({ type: 'RESET_AOIS' });      // reset aoi list
-    props.saveGazeData(dbObjectsUtilityFunctions.getTaskContent(currentTask));
-    progressCount += 1;
-    setCurrentTaskIndex(prevCount => prevCount+1); //good practice: set new state based on previous state
+    props.saveGazeData(dbObjectsUtilityFunctions.getTaskContent(currentTask))
+    progressCount += 1
+    setCurrentTaskIndex(prevCount => prevCount+1) //good practice: set new state based on previous state
   }
 
 
@@ -92,8 +92,8 @@ const displayTaskHelper = (props) => {
       )
     }
   } else {
-    props.onFinished();
-    return null;
+    props.onFinished()
+    return null
   }
 }
 
