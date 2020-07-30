@@ -73,10 +73,6 @@ const Menu = (props) => {
     store.dispatch(toggleThemeAction);
   }
 
-  var deviceName = myStorage.getItem('deviceID');
-  if (!deviceName || deviceName === "") {
-    deviceName="Device ID";
-  }
 
   let speechSettings = props.showSpeechSettings ?
     <ListItem button key="Speech Settings" onClick={() => setOpenSpeechSettings(true)}>
@@ -95,7 +91,7 @@ const Menu = (props) => {
         >
           <List >
             <ListItem button key="Device ID" onClick={() => setOpenDeviceIDSettings(true)}>
-              <ListItemText primary={deviceName} />
+              <ListItemText primary="Device Settings" />
             </ListItem>
             <ListItem button key="MQTT Settings" onClick={() => setOpenMQTTSettings(true)}>
               <ListItemText primary="MQTT Settings" />

@@ -12,54 +12,19 @@ import { withTheme } from '@material-ui/styles';
 
 import Button from '@material-ui/core/Button';
 
-import Input from '@material-ui/core/Input';
-import InputLabel from '@material-ui/core/InputLabel';
-import FormControl from '@material-ui/core/FormControl';
-import NativeSelect from '@material-ui/core/NativeSelect';
-
-import db_helper from '../../../core/db_helper';
 import store from '../../../core/store';
-
-const DEFAULT_ROLES = ["SRO", "RO", "TO"];
 
 const DeviceIDDialog = props => {
   const [deviceName, setDeviceName] = useState(props.myStorage.getItem('deviceID'));
   const [screenID, setScreenID] = useState(store.getState().screenID);
-  const [roles, setRoles] = useState(DEFAULT_ROLES);
   const [multipleScreens, setMultipleScreens] = useState(store.getState().multipleScreens);
-  let selectedRole = props.myStorage.getItem('deviceRole') ? props.myStorage.getItem('deviceRole') : roles[0];
-
-  useEffect( () => {
-    db_helper.getAllRolesFromDb((receivedRoles) => {
-      if (receivedRoles && receivedRoles.length <= 0) {
-        //init the roles
-        DEFAULT_ROLES.map((item, index) => {
-          db_helper.addRoleToDb({name: item});
-          return 1;
-        });
-      } else {
-        var roleArray = [];
-        receivedRoles.map((role, index) => {
-          roleArray.push(role.name);
-          return 1;
-        })
-        setRoles(roleArray);
-      }
-      return 1;
-    });
-  }, []);
 
   const multipleScreensToggled = (e, checked) => {
     setMultipleScreens(checked);
-    
-    if(!checked){
-      setScreenID(null);
-    }
   }
 
   const onChangeDeviceID = e => {
     props.myStorage.setItem('deviceID', deviceName);
-    props.myStorage.setItem('deviceRole', selectedRole);
 
     var storeAction = {
       type: 'SET_MULTISCREEN',
@@ -96,26 +61,10 @@ const DeviceIDDialog = props => {
               variant="outlined"
               onChange={(e)=>setScreenID(e.target.value)}
             />
-          <FormControl style={{width:'calc(50% - 5px)', marginRight:5}}>
-            <InputLabel htmlFor="uncontrolled-native">Role</InputLabel>
-            <NativeSelect
-              defaultValue={selectedRole}
-
-              input={<Input style={{backgroundColor:props.theme.palette.primary.main,
-                color:props.theme.palette.text.primary}} name="role" id="role-selector" />}
-              onChange={(e)=>{selectedRole = e.target.value}}
-            >
-              {roles.map((role, index) => {
-                return <option style={{backgroundColor:props.theme.palette.primary.main, color:props.theme.palette.text.primary}}
-                value={role} key={index}>{role}</option>
-              })}
-            </NativeSelect>
-          </FormControl>
             <FormControlLabel label="Multiple screens"
-              style={{marginTop:5}}
+              style={{width:'calc(50% - 5px)', marginRight:5}}
               checked={multipleScreens}
               id="mScreens"
-
               control={<Checkbox color="secondary" />}
               onChange={multipleScreensToggled}
               labelPlacement="end"
