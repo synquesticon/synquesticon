@@ -21,9 +21,9 @@ const PlayMode = props => {
   useEffect( () => {
     //save data into DB before closing
     db_helper.queryTasksFromDb(db_objects.ObjectTypes.SET, ["experiment"],"OR", dbTaskSetCallback);
-    eventStore.addMultipleScreenListener(onMultipleScreenEvent);
+    eventStore.addControlMsgListener(onControlMsg);
     return () => {
-      eventStore.removeMultipleScreenListener(onMultipleScreenEvent);
+      eventStore.removeControlMsgListener(onControlMsg);
     }
   }, []);
 
@@ -119,7 +119,7 @@ const PlayMode = props => {
     store.dispatch(snackbarAction);
   }
 
-  const onMultipleScreenEvent = payload => {
+  const onControlMsg = payload => {
     console.log(payload);
     //Was checking if multipe screen. With the new change we should just check for same device ID instead
     if(window.localStorage.getItem('deviceID')===payload.deviceID && payload.type === 'StartExperiment'){
