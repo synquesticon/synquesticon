@@ -5,6 +5,7 @@ import RunSet from './runSet'
 import eventStore from '../../../../core/eventStore'
 import store from '../../../../core/store'
 import * as dbObjects from '../../../../core/db_objects'
+import uuid from 'react-uuid'
 
 const runSet = props => {
   const [currentTaskIndex, setCurrentTaskIndex] = useState(0)
@@ -37,9 +38,12 @@ const runSet = props => {
 
   const startNextTask = nextIndex => {
     setCurrentTaskIndex(prevCount => prevCount + 1) 
+    console.log("nextIndex " + nextIndex)
+    console.log(" ")
   }
 
   if (!(props.taskSet.data.length > 0 && currentTaskIndex >= props.taskSet.data.length)) {
+    console.log(uuid())
     currentTask = props.taskSet.data[currentTaskIndex]
 
     let trackingTaskSetNames = props.familyTree.slice() //clone array, since javascript passes by reference, we need to keep the orginal familyTree untouched
@@ -51,6 +55,8 @@ const runSet = props => {
       return <RunSet key={currentTask._id + "_" + currentTaskIndex}
         familyTree={trackingTaskSetNames}
         taskSet={currentTask}
+        parentID={props.taskSet._id}
+        lastIndex={currentTaskIndex}
         onFinished={startNextTask}
       />
     } else { 

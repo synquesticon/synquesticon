@@ -12,7 +12,7 @@
     "dnd": "^0.1.0",
     "file-saver": "^2.0.2",
     "immutability-helper": "^3.0.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "material-ui": "^1.0.0-beta.47",
     "mongodb": "^3.1.9",
     "mqtt": "^3.0.0",
@@ -31,6 +31,7 @@
     "react-reorder": "^3.0.0-alpha.7",
     "react-router-dom": "^5.0.0",
     "react-scripts": "2.1.8",
+    "react-uuid": "^1.0.2",
     "redux": "^4.0.1",
     "seedrandom": "^3.0.5",
     "styled-components": "^5.0.1"

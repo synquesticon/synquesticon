@@ -24,14 +24,14 @@ const buttonList = (props) => {
     }
     store.dispatch(textAOIAction);
     return () => {      // log data when component unmounts
-      console.log("Final answer: " + responsesArray.filter(item => item).sort())
-      console.log("Final count: " + responseCountArray.reduce((a, b) => { return a + b }, 0))
-      if (props.task.correctResponses.length > 0) {
-        console.log("Overall correct: " + arrayEquals(responsesArray, props.task.correctResponses))
-      } else {
-        console.log("No correct answers defined.")
-      }
-      //CODE comes from DisplayTaskHelper, must be updated
+      // console.log("Final answer: " + responsesArray.filter(item => item).sort())
+      // console.log("Final count: " + responseCountArray.reduce((a, b) => { return a + b }, 0))
+      // if (props.task.correctResponses.length > 0) {
+      //   console.log("Overall correct: " + arrayEquals(responsesArray, props.task.correctResponses))
+      // } else {
+      //   console.log("No correct answers defined.")
+      // }
+      // //CODE comes from DisplayTaskHelper, must be updated
       // if (currentTask.tags.includes("setScreenID")) {
       //   // If the answer has a response we set multiple screens to true and set the
       //   // screenID for this screen to the response
