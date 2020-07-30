@@ -43,6 +43,9 @@ class App extends Component {
 
   componentDidMount() {
     window.addEventListener('resize', this.resize)
+    store.subscribe(() => {
+      document.title = 'Synquesticon screen ' + store.getState().screenID;
+    })
   }
 
   componentWillUnmount() {
@@ -76,7 +79,7 @@ class App extends Component {
                 <Route path={"/"+AppModes.EDIT} component={EditMode} />
                 <Route path="/ObserverMode" component={ObserverMode} />
                 <Route path="/ExportationMode" component={ExportMode} />
-                <Route path="/study" component={DisplayTaskComponent}/>} />
+                <Route path="/study" component={DisplayTaskComponent}/>
               </Switch>
             </div>
           </div>
