@@ -25,7 +25,7 @@ const ShowTask = props => {
         }
         switch (item.objType) {
           case dbObjects.TaskTypes.MCHOICE.type:
-            return <Suspense fallback={<div></div>}><ButtonComponent className="itemContainer" key={props.renderKey +dbObjects.TaskTypes.MCHOICE.type + i} task={item} parentSet={props.task.name} taskID={props.task._id} familyTree={props.tasksFamilyTree} objType={item.objType} correctResponses={item.correctResponses} image={item.image} displayText={item.displayText} taskObj={props.task} /></Suspense>
+            return <Suspense fallback={<div></div>}><ButtonComponent className="itemContainer" key={props.renderKey +dbObjects.TaskTypes.MCHOICE.type + i} task={item} tags={props.task.tags} parentSet={props.task.name} taskID={props.task._id} familyTree={props.tasksFamilyTree} objType={item.objType} correctResponses={item.correctResponses} image={item.image} displayText={item.displayText} taskObj={props.task} /></Suspense>
           case dbObjects.TaskTypes.INSTRUCTION.type:
             return <Suspense fallback={<div></div>}><InstructionViewComponent className="itemContainer" key={props.renderKey  + i} task={item} parentSet={props.task.name} /></Suspense>
           case item.objType === dbObjects.TaskTypes.IMAGE.type:

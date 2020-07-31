@@ -23,7 +23,8 @@ const buttonList = (props) => {
       }
     }
     store.dispatch(textAOIAction);
-    return () => {      // log data when component unmounts
+    return () => {      
+      // log data when component unmounts
       // console.log("Final answer: " + responsesArray.filter(item => item).sort())
       // console.log("Final count: " + responseCountArray.reduce((a, b) => { return a + b }, 0))
       // if (props.task.correctResponses.length > 0) {
@@ -31,23 +32,27 @@ const buttonList = (props) => {
       // } else {
       //   console.log("No correct answers defined.")
       // }
-      // //CODE comes from DisplayTaskHelper, must be updated
-      // if (currentTask.tags.includes("setScreenID")) {
-      //   // If the answer has a response we set multiple screens to true and set the
-      //   // screenID for this screen to the response
-      //   if (line.responses && line.responses.length > 0) {
-      //     doNotBroadcastNext = true;
-      //     //Update the local screenID
-      //     screenID = line.responses[0].toString();
-      //     let multipleScreensAction = {
-      //       type: 'SET_MULTISCREEN',
-      //       multipleScreens: true,
-      //       screenID: screenID
-      //     }
-      //     store.dispatch(multipleScreensAction);
-      //   }
-      // }
-      //If there is a global var we save it
+
+
+      // allow user to set screens ID based on button component
+      if (props.tags.length > 0 && props.tags.includes("setScreenID")) {
+        // If the answer has a response we set multiple screens to true and set the
+        // screenID for this screen to the response
+        const screenIDs = responsesArray.filter(response => response !== null);
+        if (screenIDs && screenIDs.length === 1) {
+          //Update the local screenID
+          let screenID = screenIDs[0].toString();
+          let multipleScreensAction = {
+            type: 'SET_MULTISCREEN',
+            multipleScreens: true,
+            screenID: screenID
+          }
+          store.dispatch(multipleScreensAction);
+        }
+          
+      }
+
+      // If there is a global var we save it
       // if (line.isGlobalVariable !== undefined) {
       //   saveGlobalVariable(store.getState().experimentInfo.participantId,
       //     line.label, line.responses);
@@ -60,7 +65,6 @@ const buttonList = (props) => {
       //   if (store.getState().experimentInfo.shouldSave) {
       //     db_helper.addNewGlobalVariableToParticipantDB(participantId, JSON.stringify(globalVariableObj));
       //   }
-      // }
     }
   }, [])
 
