@@ -41,7 +41,7 @@ const buttonList = (props) => {
         const screenIDs = responsesArray.filter(response => response !== null);
         if (screenIDs && screenIDs.length === 1) {
           //Update the local screenID
-          let screenID = screenIDs[0].toString();
+          let screenID = screenIDs[0];
           let multipleScreensAction = {
             type: 'SET_MULTISCREEN',
             multipleScreens: true,
