@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Typography } from '@material-ui/core';
 import { withTheme } from '@material-ui/styles';
 import RunSet from './Views/RunSet/runSet'
@@ -13,149 +13,124 @@ import queryString from 'query-string';
 import './DisplayTaskComponent.css';
 import '../../core/utility.css';
 
+const play = (props) => {
+    
+    const [isPaused, setIsPaused] = useState(false);
+    const [taskSet, setTaskSet] = useState(null);
 
-/*
-██     ██ ██████   █████  ██████  ██████  ███████ ██████       ██████  ██████  ███    ███ ██████   ██████  ███    ██ ███████ ███    ██ ████████
-██     ██ ██   ██ ██   ██ ██   ██ ██   ██ ██      ██   ██     ██      ██    ██ ████  ████ ██   ██ ██    ██ ████   ██ ██      ████   ██    ██
-██  █  ██ ██████  ███████ ██████  ██████  █████   ██████      ██      ██    ██ ██ ████ ██ ██████  ██    ██ ██ ██  ██ █████   ██ ██  ██    ██
-██ ███ ██ ██   ██ ██   ██ ██      ██      ██      ██   ██     ██      ██    ██ ██  ██  ██ ██      ██    ██ ██  ██ ██ ██      ██  ██ ██    ██
- ███ ███  ██   ██ ██   ██ ██      ██      ███████ ██   ██      ██████  ██████  ██      ██ ██       ██████  ██   ████ ███████ ██   ████    ██
-*/
+    let gazeDataArray = [];
+    const frameDiv = React.createRef();
+    const cursorRadius = 20;
+    let timer = null;
 
-//The wrapper handles global measurement that does not need to be reinitiated every recursion
-//For example: gaze events
-class DisplayTaskComponent extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isPaused: false
-    }
-    this.handleNewCommandEvent = this.onNewCommandEvent.bind(this)
-  }
-
-  componentWillMount() {
-    this.setState({
-      isPaused: false
-    })
-
-    this.gazeDataArray = []
-    this.frameDiv = React.createRef()
-    this.cursorRadius = 20
-
-    var layoutAction = {
-      type: 'SET_SHOW_HEADER',
-      showHeader: false,
-      showFooter: false
-    }
-
-    store.dispatch(layoutAction)
-
-    var parsed = queryString.parse(this.props.location.search)
-    let participantID = parsed.pid
-    var mainTaskSetId = parsed.id
-    var tracker = parsed.tracker
-
-    if (mainTaskSetId === undefined) {
-      return
-    }
-
-    if (participantID) {
-      let participantAction = {
-        type: 'SET_PARTICIPANT_ID',
-        participantId: participantID
+    useEffect(() => {
+      let layoutAction = {
+        type: 'SET_SHOW_HEADER',
+        showHeader: false,
+        showFooter: false
       }
-      store.dispatch(participantAction)
-    }
-
-    db_helper.getTasksOrTaskSetsWithIDs(mainTaskSetId, (dbQueryResult, count, mainTaskSetName) => {
-      //Force preload all images
-      if (dbQueryResult.data) {
-        playerUtils.getAllImagePaths(dbQueryResult.data).forEach((picture) => {
-          const img = document.createElement('img')
-          img.src = picture
-        })
+  
+      store.dispatch(layoutAction)
+  
+      let parsed = queryString.parse(props.location.search)
+      let participantID = parsed.pid
+      let mainTaskSetId = parsed.id
+      let tracker = parsed.tracker
+  
+      if (mainTaskSetId === undefined) {
+        return
       }
-
-      //If the participantID is undefined we create a participant and add it to he experiment
-      if (store.getState().experimentInfo.participantId === undefined) {
-        db_helper.addParticipantToDb(new dbObjects.ParticipantObject(dbQueryResult._id),
-          (returnedIdFromDB) => {
-            let action = {
-              type: 'SET_EXPERIMENT_INFO',
-              experimentInfo: {
-                participantLabel: playerUtils.getDeviceName(),
-                participantId: returnedIdFromDB,
-                shouldSave: true,
-                startTimestamp: playerUtils.getFormattedCurrentTime(),
-                mainTaskSetId: mainTaskSetName,
-                taskSet: dbQueryResult,
-                taskSetCount: count,
-                selectedTracker: tracker,
-              }
-            }
-            store.dispatch(action)
-            this.forceUpdate()
-          })
-      } else {
-        let action = {
-          type: 'SET_EXPERIMENT_INFO',
-          experimentInfo: {
-            participantLabel: playerUtils.getDeviceName(),
-            participantId: store.getState().experimentInfo.participantId,
-            shouldSave: true,
-            startTimestamp: playerUtils.getFormattedCurrentTime(),
-            mainTaskSetId: mainTaskSetName,
-            taskSet: dbQueryResult,
-            taskSetCount: count,
-            selectedTracker: tracker,
-          }
+  
+      if (participantID) {
+        let participantAction = {
+          type: 'SET_PARTICIPANT_ID',
+          participantId: participantID
         }
-        store.dispatch(action);
-        this.forceUpdate();
+        store.dispatch(participantAction)
       }
-    })
-    eventStore.addNewCommandListener(this.handleNewCommandEvent)
-  }
+  
+      db_helper.getTasksOrTaskSetsWithIDs(mainTaskSetId, (dbQueryResult, count, mainTaskSetName) => {
 
-  componentDidMount() {
-    if (store.getState().experimentInfo && (store.getState().experimentInfo.selectedTracker !== "")) {
-      this.gazeDataArray = []
-      this.timer = setInterval(this.updateCursorLocation.bind(this), 4); //Update the gaze cursor location every 4ms
-    }
-  }
+        setTaskSet(dbQueryResult);
+        //Force preload all images
+        if (dbQueryResult.data) {
+          playerUtils.getAllImagePaths(dbQueryResult.data).forEach((picture) => {
+            const img = document.createElement('img');
+            img.src = picture;
+          })
+        }
+  
+        //If the participantID is undefined we create a participant and add it to the experiment
+        if (store.getState().experimentInfo.participantId === undefined) {
+          db_helper.addParticipantToDb(new dbObjects.ParticipantObject(dbQueryResult._id),
+            (returnedIdFromDB) => {
+              let action = {
+                type: 'SET_EXPERIMENT_INFO',
+                experimentInfo: {
+                  participantLabel: playerUtils.getDeviceName(),
+                  participantId: returnedIdFromDB,
+                  shouldSave: true,
+                  startTimestamp: playerUtils.getFormattedCurrentTime(),
+                  mainTaskSetId: mainTaskSetName,
+                  taskSet: dbQueryResult,
+                  taskSetCount: count,
+                  selectedTracker: tracker,
+                }
+              }
+              store.dispatch(action)
+              
+            })
+        } else {
+          let action = {
+            type: 'SET_EXPERIMENT_INFO',
+            experimentInfo: {
+              participantLabel: playerUtils.getDeviceName(),
+              participantId: store.getState().experimentInfo.participantId,
+              shouldSave: true,
+              startTimestamp: playerUtils.getFormattedCurrentTime(),
+              mainTaskSetId: mainTaskSetName,
+              taskSet: dbQueryResult,
+              taskSetCount: count,
+              selectedTracker: tracker,
+            }
+          }
+          store.dispatch(action);
+        }
+      })
+      eventStore.addNewCommandListener(onNewCommandEvent);
 
-  componentWillUnmount() {
-    if (store.getState().experimentInfo.selectedTracker !== "") {
-      clearInterval(this.timer)
-    }
-    var layoutAction = {
-      type: 'SET_SHOW_HEADER',
-      showHeader: true,
-      showFooter: true
-    }
+      if (store.getState().experimentInfo && (store.getState().experimentInfo.selectedTracker !== "")) {
+        gazeDataArray = [];
+        timer = setInterval(() => updateCursorLocation, 4); //Update the gaze cursor location every 4ms
+      }
 
-    store.dispatch(layoutAction)
-    eventStore.removeNewCommandListener(this.handleNewCommandEvent)
+      return () => {
+        if (store.getState().experimentInfo.selectedTracker !== "") {
+          clearInterval(timer)
+        }
+        var layoutAction = {
+          type: 'SET_SHOW_HEADER',
+          showHeader: true,
+          showFooter: true
+        }
+    
+        store.dispatch(layoutAction)
+        eventStore.removeNewCommandListener(onNewCommandEvent)
+    
+        var resetExperimentAction = {
+          type: 'RESET_EXPERIMENT'
+        }
+        store.dispatch(resetExperimentAction);
+      }
 
-    var resetExperimentAction = {
-      type: 'RESET_EXPERIMENT'
-    }
-    store.dispatch(resetExperimentAction);
-  }
-
-  /*
-   ██████   █████  ███████ ███████
-  ██       ██   ██    ███  ██
-  ██   ███ ███████   ███   █████
-  ██    ██ ██   ██  ███    ██
-   ██████  ██   ██ ███████ ███████
-  */
+    }, 
+  []);
 
 
-  saveGazeData(task) {
-    if (this.gazeDataArray.length > 0) {
-      var copiedGazeData = this.gazeDataArray.slice();
-      this.gazeDataArray = [];
+  const saveGazeData = (task) => {
+    if (gazeDataArray.length > 0) {
+      let copiedGazeData = gazeDataArray.slice();
+      gazeDataArray = [];
       db_helper.saveGazeData(store.getState().experimentInfo.participantId, task, copiedGazeData);
     }
   }
@@ -163,12 +138,12 @@ class DisplayTaskComponent extends Component {
   //TODO currently this is updated using an interval timer.However it would be better to only update when
   // new events occur.
   //Updates the location of the Gaze Cursor. And checks if any of the AOIs were looked at
-  updateCursorLocation() {
+  const updateCursorLocation = () => {
     try {
       let gazeLoc = store.getState().gazeData[store.getState().experimentInfo.selectedTracker];
-      if (this.frameDiv) {
-        var cursorX = (gazeLoc.locX * this.frameDiv.current.offsetWidth - this.cursorRadius);
-        var cursorY = (gazeLoc.locY * this.frameDiv.current.offsetHeight - this.cursorRadius);
+      if (frameDiv) {
+        var cursorX = (gazeLoc.locX * frameDiv.current.offsetWidth - cursorRadius);
+        var cursorY = (gazeLoc.locY * frameDiv.current.offsetHeight - cursorRadius);
 
         var aois = store.getState().aois;
 
@@ -197,8 +172,8 @@ class DisplayTaskComponent extends Component {
         }
 
         //var timestamp = playerUtils.getCurrentTime();
-        if (!this.gazeDataArray.includes(gazeLoc)) {
-          this.gazeDataArray.push(gazeLoc);
+        if (!gazeDataArray.includes(gazeLoc)) {
+          gazeDataArray.push(gazeLoc);
         }
       }
     } catch (err) {
@@ -206,14 +181,7 @@ class DisplayTaskComponent extends Component {
   }
 
 
-  /*
- ██████  ██████  ███    ███ ███    ███  █████  ███    ██ ██████  ███████
-██      ██    ██ ████  ████ ████  ████ ██   ██ ████   ██ ██   ██ ██
-██      ██    ██ ██ ████ ██ ██ ████ ██ ███████ ██ ██  ██ ██   ██ ███████
-██      ██    ██ ██  ██  ██ ██  ██  ██ ██   ██ ██  ██ ██ ██   ██      ██
- ██████  ██████  ██      ██ ██      ██ ██   ██ ██   ████ ██████  ███████
-*/
-  onNewCommandEvent() {
+  const onNewCommandEvent = () => {
     var args = JSON.parse(eventStore.getCurrentCommand())
     var shouldProcess = false
 
@@ -224,14 +192,10 @@ class DisplayTaskComponent extends Component {
     if (shouldProcess) {
       switch (args.commandType) {
         case "PAUSE":
-          this.setState({
-            isPaused: true
-          });
+          setIsPaused(true);
           break;
         case "RESUME":
-          this.setState({
-            isPaused: false
-          });
+          setIsPaused(false);
           break;
         default:
           break;
@@ -239,7 +203,7 @@ class DisplayTaskComponent extends Component {
     }
   }
 
-  onFinished() {
+  const onFinished = () => {
     const timestamp = new Date().toUTCString();
     let eventObject = {
       eventType: "FINISHED",
@@ -254,45 +218,27 @@ class DisplayTaskComponent extends Component {
       timestamp: timestamp
     }
     mqtt.broadcastEvents(JSON.stringify(eventObject))
-    this.props.history.goBack()
+    props.history.goBack()
   }
 
-  render() {
-    if (store.getState().experimentInfo) {
-      let theme = this.props.theme
-      let rightBG = theme.palette.type === "light" ? theme.palette.primary.main : theme.palette.primary.dark;
-      var taskSet = null
-      try {
-        if (store.getState().experimentInfo.taskSet.displayOnePage) {
-          taskSet = {
-            objType: dbObjects.ObjectTypes.SET,
-            displayOnePage: true,
-            data: [store.getState().experimentInfo.taskSet]
-          };
-        }
-        else {
-          taskSet = store.getState().experimentInfo.taskSet;
-        }
-        var renderObj =
-          <RunSet
-            familyTree={[store.getState().experimentInfo.mainTaskSetId]}
-            taskSet={taskSet}
-            onFinished={this.onFinished.bind(this)}
-            saveGazeData={this.saveGazeData.bind(this)}
-          />;
-        return (
-          <div style={{ backgroundColor: rightBG }} className="page" ref={this.frameDiv}>
-            {renderObj}
-            <PauseDialog openDialog={this.state.isPaused} pauseMessage="Task paused." />
-          </div>
-        )
-      }
-      catch (err) {
-        return <div style={{ backgroundColor: rightBG }} />
-      }
-    }
-    return <Typography variant="h2" color="textPrimary" style={{ position: 'absolute', left: '50%', top: '50%' }}>Loading...</Typography>;
+  if (taskSet !== null) {
+    let theme = props.theme
+    let rightBG = theme.palette.type === "light" ? theme.palette.primary.main : theme.palette.primary.dark;
+    var renderObj =
+      <RunSet
+        familyTree={[store.getState().experimentInfo.mainTaskSetId]}
+        taskSet={taskSet}
+        onFinished={onFinished}
+        saveGazeData={saveGazeData}
+      />;
+    return (
+      <div style={{ backgroundColor: rightBG }} className="page" ref={frameDiv}>
+        {renderObj}
+        <PauseDialog openDialog={isPaused} pauseMessage="Task paused." />
+      </div>
+    )
   }
+  return <Typography variant="h2" color="textPrimary" style={{ position: 'absolute', left: '50%', top: '50%' }}>Loading...</Typography>;
 }
 
-export default withTheme(DisplayTaskComponent)
+export default withTheme(play)
