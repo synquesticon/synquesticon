@@ -44,7 +44,7 @@ class App extends Component {
   componentDidMount() {
     window.addEventListener('resize', this.resize)
     store.subscribe(() => {
-      document.title = '['+store.getState().screenID+']Synquesticon';
+      document.title = 'Synquesticon screen ' + store.getState().screenID;
     })
   }
 
