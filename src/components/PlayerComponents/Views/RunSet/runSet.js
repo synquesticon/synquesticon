@@ -8,67 +8,65 @@ import * as dbObjects from '../../../../core/db_objects'
 import uuid from 'react-uuid'
 
 const runSet = props => {
-  const [currentTaskIndex, setCurrentTaskIndex] = useState(0)
-  let currentTask = null
+  const [taskIndex, setTaskIndex] = useState(0)
+  let task = null
 
   useEffect(() => {    
-    setCurrentTaskIndex(0)
+    setTaskIndex(0)
     eventStore.addControlMsgListener(onControlMsg)
-    return () => { //clean up when component gets unmounted
+    return () => { 
       eventStore.removeControlMsgListener(onControlMsg)
     }
   }, [])
 
   const nextPressed = setID => {
+    console.log("next please")
     mqtt.broadcastMultipleScreen(JSON.stringify({
       type: "nextTask",
       setID: setID,
       deviceID: window.localStorage.getItem('deviceID'),
       screenID: store.getState().screenID,
-      randomSeed: Math.random(),
-      nextIndex: currentTaskIndex + 1
+      nextIndex: taskIndex + 1
     }))
   }
 
   const onControlMsg = payload => {
     if (payload.type === 'nextTask' && payload.setID === props.taskSet._id) { 
-      startNextTask(payload.nextIndex)
+      startNextTask(payload.nextIndex, "MQTT")
     }      
   }
 
-  const startNextTask = nextIndex => {
-    setCurrentTaskIndex(prevCount => prevCount + 1) 
-    console.log("nextIndex " + nextIndex)
-    console.log(" ")
+  const startNextTask = (nextIndex, from) => {
+    setTaskIndex(nextIndex) 
+    console.log("nextIndex " + nextIndex + " -- from " + from)
   }
 
-  if (!(props.taskSet.data.length > 0 && currentTaskIndex >= props.taskSet.data.length)) {
-    console.log(uuid())
-    currentTask = props.taskSet.data[currentTaskIndex]
+  if (!(props.taskSet.data.length > 0 && taskIndex >= props.taskSet.data.length)) {
+    task = props.taskSet.data[taskIndex]
 
-    let trackingTaskSetNames = props.familyTree.slice() //clone array, since javascript passes by reference, we need to keep the orginal familyTree untouched
-    trackingTaskSetNames.push(currentTask.name)
+    let familyTree = props.familyTree.slice() //clone array, since javascript passes by reference, we need to keep the orginal familyTree untouched
+    familyTree.push(task.name)
 
     const parentSet = props.familyTree[props.familyTree.length - 1]
 
-    if (currentTask.objType === dbObjects.ObjectTypes.SET) {
-      return <RunSet key={currentTask._id + "_" + currentTaskIndex}
-        familyTree={trackingTaskSetNames}
-        taskSet={currentTask}
+    if (task.objType === dbObjects.ObjectTypes.SET) {
+      return <RunSet key={task._id + "_" + taskIndex}
+        familyTree={familyTree}
+        taskSet={task}
         parentID={props.taskSet._id}
-        lastIndex={currentTaskIndex}
-        onFinished={startNextTask}
+        lastIndex={taskIndex}
+        onFinished={() => startNextTask(taskIndex+1, "SET")}
       />
     } else { 
       return (
-        <div className="page" key={currentTask._id + "_" + currentTaskIndex}>
+        <div className="page" key={task._id + "_" + taskIndex}>
           <div className="mainDisplay">
-            <ShowTask key={currentTask._id + "_" + currentTaskIndex}
+            <ShowTask key={task._id + "_" + taskIndex}
               setID={props.taskSet._id}
               familyTree={props.familyTree}
-              task={currentTask}
+              task={task}
               parentSet={parentSet}
-              renderKey={currentTask._id + "_" + currentTaskIndex} 
+              renderKey={task._id + "_" + taskIndex} 
               nextPressed = {nextPressed}/>
           </div>
         </div>
