@@ -5,9 +5,10 @@ import RunSet from './runSet'
 import eventStore from '../../../../core/eventStore'
 import store from '../../../../core/store'
 import * as dbObjects from '../../../../core/db_objects'
+import uuid from 'react-uuid'
 
 const runSet = props => {
-  const [currentTaskIndex, setCurrentTaskIndex] = useState(0);
+  const [currentTaskIndex, setCurrentTaskIndex] = useState(0)
   let currentTask = null
 
   useEffect(() => {    
@@ -19,36 +20,30 @@ const runSet = props => {
   }, [])
 
   const nextPressed = setID => {
-    if (setID === props.taskSet._id){
-      //start next task on this component
-      // TODO: set nextIndex for startNextTask here
-      startNextTask();
-      // and send a mqtt message to all runSet component to update
-      // TODO broadcast nextIndex in this mqtt message
-      mqtt.broadcastMultipleScreen(JSON.stringify({
-        type: "nextTask",
-        setID: setID,
-        deviceID: window.localStorage.getItem('deviceID'),
-        screenID: store.getState().screenID
-        // nextIndex new Index should be added here.
-      }));
-    }
-    
+    mqtt.broadcastMultipleScreen(JSON.stringify({
+      type: "nextTask",
+      setID: setID,
+      deviceID: window.localStorage.getItem('deviceID'),
+      screenID: store.getState().screenID,
+      randomSeed: Math.random(),
+      nextIndex: currentTaskIndex + 1
+    }))
   }
 
   const onControlMsg = payload => {
-    if (payload.type === 'nextTask' && payload.setID === props.taskSet._id) {
-      startNextTask();
+    if (payload.type === 'nextTask' && payload.setID === props.taskSet._id) { 
+      startNextTask(payload.nextIndex)
     }      
   }
 
-  // TODO: use nextIndex as a parameter for this function 
-  const startNextTask = () => {
-    setCurrentTaskIndex(prevCount => prevCount + 1);
+  const startNextTask = nextIndex => {
+    setCurrentTaskIndex(prevCount => prevCount + 1) 
+    console.log("nextIndex " + nextIndex)
+    console.log(" ")
   }
 
   if (!(props.taskSet.data.length > 0 && currentTaskIndex >= props.taskSet.data.length)) {
-    // console.log(uuid())
+    console.log(uuid())
     currentTask = props.taskSet.data[currentTaskIndex]
 
     let trackingTaskSetNames = props.familyTree.slice() //clone array, since javascript passes by reference, we need to keep the orginal familyTree untouched
