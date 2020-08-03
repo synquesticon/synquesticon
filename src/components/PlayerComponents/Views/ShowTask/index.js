@@ -3,6 +3,7 @@ import Button from '@material-ui/core/Button'
 import store from '../../../../core/store'
 import * as dbObjects from '../../../../core/db_objects'
 import './showTask.css'
+import mqtt from '../../../../core/mqtt'
 
 const InstructionViewComponent = React.lazy(() => import('../InstructionViewComponent'))
 const TextEntryComponent = React.lazy(() => import('../TextEntryComponent'))
@@ -11,6 +12,7 @@ const ButtonComponent = React.lazy(() => import('../ButtonComponent'))
 const ImageViewComponent = React.lazy(() => import('../ImageViewComponent'))
 
 const ShowTask = props => {
+  
   const getDisplayedContent = (taskList, _id, mapIndex) => {
     if (!taskList) {
       return null
@@ -18,11 +20,18 @@ const ShowTask = props => {
 
     let hideNext = false
     let components = taskList.map((item, i) => {
-      if ((store.getState().multipleScreens && (item.screenIDS.includes(store.getState().screenID)
-        || item.screenIDS.length === 0)) || !store.getState().multipleScreens) {
+      if (
+        ( //show this component if multiscreen mode is selected and the component is set for this screen ID
+          (store.getState().multipleScreens && (item.screenIDS.includes(store.getState().screenID))
+          // or the component does not specify which screen
+          || item.screenIDS.length === 0)
+        ) 
+        || 
+          !store.getState().multipleScreens) {
         if (store.getState().multipleScreens && item.hideNext) {
           hideNext = true
         }
+
         switch (item.objType) {
           case dbObjects.TaskTypes.MCHOICE.type:
             return <Suspense fallback={<div></div>}><ButtonComponent className="itemContainer" key={props.renderKey +dbObjects.TaskTypes.MCHOICE.type + i} task={item} tags={props.task.tags} parentSet={props.task.name} taskID={props.task._id} familyTree={props.tasksFamilyTree} objType={item.objType} correctResponses={item.correctResponses} image={item.image} displayText={item.displayText} taskObj={props.task} /></Suspense>
