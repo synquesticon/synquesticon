@@ -5,7 +5,7 @@ import AOIComponent from '../../../EditMode/Task/ImageType/AOIEditor/AOIComponen
 import store from '../../../core/store';
 import * as playerUtils from '../../../core/player_utility_functions';
 
-import './ImageViewComponent.css';
+import './Play.css';
 
 var CLICK_RADIUS = "1";
 var OPACITY = "0.5";
