@@ -28,7 +28,7 @@ const ShowTask = props => {
             return <Suspense fallback={<div></div>}><ButtonComponent className="itemContainer" key={props.renderKey +dbObjects.TaskTypes.MCHOICE.type + i} task={item} tags={props.task.tags} parentSet={props.task.name} taskID={props.task._id} familyTree={props.tasksFamilyTree} objType={item.objType} correctResponses={item.correctResponses} image={item.image} displayText={item.displayText} taskObj={props.task} /></Suspense>
           case dbObjects.TaskTypes.INSTRUCTION.type:
             return <Suspense fallback={<div></div>}><InstructionViewComponent className="itemContainer" key={props.renderKey  + i} task={item} parentSet={props.task.name} /></Suspense>
-          case item.objType === dbObjects.TaskTypes.IMAGE.type:
+          case dbObjects.TaskTypes.IMAGE.type:
             return <Suspense fallback={<div></div>}><ImageViewComponent className="itemContainer" key={props.renderKey +dbObjects.TaskTypes.IMAGE.type + i} task={item} parentSet={props.task.name} /></Suspense>;
           case dbObjects.TaskTypes.TEXTENTRY.type:
             return <Suspense fallback={<div></div>}><TextEntryComponent className="itemContainer" key={props.renderKey + i} task={item} parentSet={props.task.name} /></Suspense>
