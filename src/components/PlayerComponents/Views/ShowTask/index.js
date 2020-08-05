@@ -48,7 +48,7 @@ const ShowTask = props => {
   let nextButton = null
   if (!contentObject.hideNext) {
     nextButton = <div style={{ position: 'fixed', bottom: 20, right: 20, zIndex: 99 }}>
-      <Button className="nextButton" variant="contained" onClick={() => props.nextPressed(props.setID)}>
+      <Button className="nextButton" variant="contained" onClick={() => props.nextPressed(props.setID, props.set)}>
         Next
       </Button>
     </div>

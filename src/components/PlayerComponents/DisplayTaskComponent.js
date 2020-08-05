@@ -227,7 +227,7 @@ const play = (props) => {
     var renderObj =
       <RunSet
         familyTree={[store.getState().experimentInfo.mainTaskSetId]}
-        taskSet={taskSet}
+        set={taskSet}
         onFinished={onFinished}
         saveGazeData={saveGazeData}
       />;

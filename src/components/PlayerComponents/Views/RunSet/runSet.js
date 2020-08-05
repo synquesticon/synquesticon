@@ -13,7 +13,7 @@ const runSet = props => {
     return ([selectedTask[0], taskSet])
   }
 
-  const [task, setTask] = useState(() => getTask(props.taskSet.data))
+  const [task, setTask] = useState(() => getTask(props.set.data))
 
   useEffect(() => {
     eventStore.addControlMsgListener(onControlMsg)
@@ -22,24 +22,25 @@ const runSet = props => {
     }
   }, [])
 
-  const nextPressed = setID => {
+  const nextPressed = (setID, set) => {
     mqtt.broadcastMultipleScreen(JSON.stringify({
       type: "nextTask",
       setID: setID,
+      set: set,
       deviceID: window.localStorage.getItem('deviceID'),
       screenID: store.getState().screenID
     }))
   }
 
   const onControlMsg = payload => {
-    if (payload.type === 'nextTask' && payload.setID === props.taskSet._id) {
-      startNextTask()
+    if (payload.type === 'nextTask' && payload.setID === props.set._id) {
+      startNextTask(payload.set)
     }
   }
 
-  const startNextTask = () => {
-    if (task[1].length > 0) {
-      setTask(getTask(task[1]))
+  const startNextTask = (taskSet = task[1]) => {
+    if (taskSet.length > 0) {
+      setTask(getTask(taskSet))
     } else {
       props.onFinished()
     }
@@ -52,17 +53,18 @@ const runSet = props => {
     return <RunSet
       key={uuid()}
       familyTree={familyTree}
-      taskSet={task[0]}
-      parentID={props.taskSet._id}
+      set={task[0]}
+      parentID={props.set._id}
       onFinished={startNextTask}
     />
   } else {
     return <div className="page" key={uuid()}>
       <div className="mainDisplay">
         <ShowTask key={uuid()}
-          setID={props.taskSet._id}
+          setID={props.set._id}
           familyTree={props.familyTree}
           task={task[0]}
+          set={task[1]}
           parentSet={props.familyTree[props.familyTree.length - 1]}
           renderKey={task._id + "_" + task}
           nextPressed={nextPressed} />
