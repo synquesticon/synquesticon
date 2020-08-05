@@ -8,16 +8,16 @@ import * as dbObjects from '../../../../core/db_objects'
 import uuid from 'react-uuid'
 
 const runSet = props => {
-  const getTask = taskSet => {   
-    let selectedTask = taskSet.splice(0,1)
-    return([selectedTask[0], taskSet])
+  const getTask = taskSet => {
+    let selectedTask = taskSet.splice(0, 1)
+    return ([selectedTask[0], taskSet])
   }
 
-  const [taskIndex, setTaskIndex] = useState(() => getTask(props.taskSet.data))
+  const [task, setTask] = useState(() => getTask(props.taskSet.data))
 
   useEffect(() => {
     eventStore.addControlMsgListener(onControlMsg)
-    return () => { 
+    return () => {
       eventStore.removeControlMsgListener(onControlMsg)
     }
   }, [])
@@ -27,63 +27,52 @@ const runSet = props => {
       type: "nextTask",
       setID: setID,
       deviceID: window.localStorage.getItem('deviceID'),
-      screenID: store.getState().screenID,
-      index: taskIndex
+      screenID: store.getState().screenID
     }))
   }
 
   const onControlMsg = payload => {
-    if (payload.type === 'nextTask' && payload.setID === props.taskSet._id) { 
+    if (payload.type === 'nextTask' && payload.setID === props.taskSet._id) {
       startNextTask()
-    }      
+    }
   }
 
   const startNextTask = () => {
-    if (taskIndex[1].length > 0) {
-      let currentArray = taskIndex[1]
-      let currentTask = currentArray.splice(0,1)
-      setTaskIndex([currentTask[0], currentArray])
+    if (task[1].length > 0) {
+      let currentArray = task[1]
+      let currentTask = currentArray.splice(0, 1)
+      setTask([currentTask[0], currentArray])
     } else {
       props.onFinished()
       return null
     }
   }
-  
-  if ( taskIndex[1].length >= 0) {
-    console.log("taskSet LENGTH " + props.taskSet.data.length)
-    let task = taskIndex[0]
 
-    let familyTree = props.familyTree.slice() 
-    familyTree.push(task.name)
+  let familyTree = props.familyTree.slice()
+  familyTree.push(task[0].name)
 
-    if (task.objType === dbObjects.ObjectTypes.SET) {
-      console.log("RENDER SET")
-      return <RunSet
-        key={uuid()}
-        familyTree={familyTree}
-        taskSet={task}
-        parentID={props.taskSet._id}
-        onFinished={startNextTask}
-      />
-    } else { 
-      console.log("RENDER TASK")
-      return (
-        <div className="page" key={uuid()}>
-          <div className="mainDisplay">
-            <ShowTask key={uuid()}
-              setID={props.taskSet._id}
-              familyTree={props.familyTree}
-              task={task}
-              parentSet={props.familyTree[props.familyTree.length - 1]}
-              renderKey={task._id + "_" + taskIndex} 
-              nextPressed = {nextPressed}/>
-          </div>
-        </div>
-      )
-    }
+  if (task[0].objType === dbObjects.ObjectTypes.SET) {
+    return <RunSet
+      key={uuid()}
+      familyTree={familyTree}
+      taskSet={task[0]}
+      parentID={props.taskSet._id}
+      onFinished={startNextTask}
+    />
   } else {
-    props.onFinished()
-    return null
+    return (
+      <div className="page" key={uuid()}>
+        <div className="mainDisplay">
+          <ShowTask key={uuid()}
+            setID={props.taskSet._id}
+            familyTree={props.familyTree}
+            task={task[0]}
+            parentSet={props.familyTree[props.familyTree.length - 1]}
+            renderKey={task._id + "_" + task}
+            nextPressed={nextPressed} />
+        </div>
+      </div>
+    )
   }
 }
 
