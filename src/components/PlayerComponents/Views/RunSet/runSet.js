@@ -8,11 +8,14 @@ import * as dbObjects from '../../../../core/db_objects'
 import uuid from 'react-uuid'
 
 const runSet = props => {
-  const [taskIndex, setTaskIndex] = useState(0)
-  let task = null
+  const getTask = taskSet => {   
+    let selectedTask = taskSet.splice(0,1)
+    return([selectedTask[0], taskSet])
+  }
 
-  useEffect(() => {    
-    setTaskIndex(0)
+  const [taskIndex, setTaskIndex] = useState(() => getTask(props.taskSet.data))
+
+  useEffect(() => {
     eventStore.addControlMsgListener(onControlMsg)
     return () => { 
       eventStore.removeControlMsgListener(onControlMsg)
@@ -20,52 +23,58 @@ const runSet = props => {
   }, [])
 
   const nextPressed = setID => {
-    console.log("next please")
     mqtt.broadcastMultipleScreen(JSON.stringify({
       type: "nextTask",
       setID: setID,
       deviceID: window.localStorage.getItem('deviceID'),
       screenID: store.getState().screenID,
-      nextIndex: taskIndex + 1
+      index: taskIndex
     }))
   }
 
   const onControlMsg = payload => {
     if (payload.type === 'nextTask' && payload.setID === props.taskSet._id) { 
-      startNextTask(payload.nextIndex, "MQTT")
+      startNextTask()
     }      
   }
 
-  const startNextTask = (nextIndex, from) => {
-    setTaskIndex(nextIndex) 
-    console.log("nextIndex " + nextIndex + " -- from " + from)
+  const startNextTask = () => {
+    if (taskIndex[1].length > 0) {
+      let currentArray = taskIndex[1]
+      let currentTask = currentArray.splice(0,1)
+      setTaskIndex([currentTask[0], currentArray])
+    } else {
+      props.onFinished()
+      return null
+    }
   }
+  
+  if ( taskIndex[1].length >= 0) {
+    console.log("taskSet LENGTH " + props.taskSet.data.length)
+    let task = taskIndex[0]
 
-  if (!(props.taskSet.data.length > 0 && taskIndex >= props.taskSet.data.length)) {
-    task = props.taskSet.data[taskIndex]
-
-    let familyTree = props.familyTree.slice() //clone array, since javascript passes by reference, we need to keep the orginal familyTree untouched
+    let familyTree = props.familyTree.slice() 
     familyTree.push(task.name)
 
-    const parentSet = props.familyTree[props.familyTree.length - 1]
-
     if (task.objType === dbObjects.ObjectTypes.SET) {
-      return <RunSet key={task._id + "_" + taskIndex}
+      console.log("RENDER SET")
+      return <RunSet
+        key={uuid()}
         familyTree={familyTree}
         taskSet={task}
         parentID={props.taskSet._id}
-        lastIndex={taskIndex}
-        onFinished={() => startNextTask(taskIndex+1, "SET")}
+        onFinished={startNextTask}
       />
     } else { 
+      console.log("RENDER TASK")
       return (
-        <div className="page" key={task._id + "_" + taskIndex}>
+        <div className="page" key={uuid()}>
           <div className="mainDisplay">
-            <ShowTask key={task._id + "_" + taskIndex}
+            <ShowTask key={uuid()}
               setID={props.taskSet._id}
               familyTree={props.familyTree}
               task={task}
-              parentSet={parentSet}
+              parentSet={props.familyTree[props.familyTree.length - 1]}
               renderKey={task._id + "_" + taskIndex} 
               nextPressed = {nextPressed}/>
           </div>
