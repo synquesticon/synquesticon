@@ -10,7 +10,7 @@ import db_helper from '../../core/db_helper'
 import * as dbObjects from '../../core/db_objects'
 import * as playerUtils from '../../core/player_utility_functions'
 import queryString from 'query-string'
-import './DisplayTaskComponent.css'
+import './Play.css'
 import '../../core/utility.css'
 
 const play = props => {
