@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useEffect } from 'react';
 
 import { Typography, TextField } from '@material-ui/core';
 
@@ -6,74 +6,68 @@ import store from '../../../core/store';
 
 import './TextEntryComponent.css';
 
-class TextEntryComponent extends Component {
-  constructor() {
-    super();
-    this.textEntry = "";
-    this.textRef = React.createRef();
-  }
+const textEntryComponent = (props) => {
+  let textEntry = "";
+  const textRef = React.createRef();
 
-  componentDidMount() {
+  useEffect(() => {
     var textAOIAction = {
       type: 'ADD_AOIS',
       aois: {
-        name: this.props.parentSet + '_' + this.props.task.displayText,
+        name: props.parentSet + '_' + props.task.displayText,
         boundingbox: [],
-        imageRef: this.textRef
+        imageRef: textRef
       }
     }
     store.dispatch(textAOIAction);
-  }
+  },[]);
+    
 
-  checkAnswer() {
-    if (this.props.task.correctResponses === undefined || this.props.task.correctResponses.length === 0) {
+  const checkAnswer = () => {
+    if (props.task.correctResponses === undefined || props.task.correctResponses.length === 0) {
       return "notApplicable";
     }
 
-    for (var i = 0; i < this.props.task.correctResponses.length; i++) {
-      var item = this.props.task.correctResponses[i];
-      if (this.textEntry.toLowerCase() === item.toLowerCase()) {
+    for (var i = 0; i < props.task.correctResponses.length; i++) {
+      var item = props.task.correctResponses[i];
+      if (textEntry.toLowerCase() === item.toLowerCase()) {
         return "correct";
       }
     }
     return "incorrect";
   }
 
-  onAnswer(e) {
-    this.textEntry = e.target.value;
-    this.textEntry = this.textEntry.replace(/\s\s+/g, ' ');
-    var answerObj = {
-      responses: [this.textEntry],
-      correctlyAnswered: this.checkAnswer(),
+  const onAnswer = (e) => {
+    textEntry = e.target.value.replace(/\s\s+/g, ' ');
+    let answerObj = {
+      responses: [textEntry],
+      correctlyAnswered: checkAnswer(),
       //taskID: this.props.task._id,
-      mapID: this.props.mapID,
+      mapID: props.mapID,
     }
-    this.props.answerCallback(answerObj);
+    //TODO: logging if possible
   }
 
-  render() {
-    return (
-      <div className={this.props.className} style={{display:'flex', position:'relative',
-        flexDirection:'column', width:'100%', flexGrow:0,flexShrink:0}}>
-        <Typography ref={this.textRef} variant="h3" align="center" style={{whiteSpace:"pre-line", width:'100%'}} color="textPrimary">
-          {this.props.task.displayText}
-        </Typography>
-        <TextField
-          id="outlined-name"
-          className="textField"
-          inputProps={{style: { overflowX:'hidden'}}}
-          variant="outlined"
-          value={this.textEntry}
-          fullWidth
-          margin='dense'
-          multiline
-          rows={3}
-          rowsMax={10}
-          onChange={(e) => this.onAnswer(e)}
-        />
-      </div>
-    );
-  }
+  return (
+    <div className={props.className} style={{display:'flex', position:'relative',
+      flexDirection:'column', width:'100%', flexGrow:0,flexShrink:0}}>
+      <Typography ref={textRef} variant="h3" align="center" style={{whiteSpace:"pre-line", width:'100%'}} color="textPrimary">
+        {props.task.displayText}
+      </Typography>
+      <TextField
+        id="outlined-name"
+        className="textField"
+        inputProps={{style: { overflowX:'hidden'}}}
+        variant="outlined"
+        fullWidth
+        margin='dense'
+        multiline
+        rows={3}
+        rowsMax={10}
+        onChange={(e) => onAnswer(e)}
+      />
+    </div>
+  );
 }
 
-export default TextEntryComponent;
+export default textEntryComponent;
