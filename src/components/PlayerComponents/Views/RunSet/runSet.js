@@ -42,7 +42,6 @@ const runSet = props => {
       setTask(getTask(task[1]))
     } else {
       props.onFinished()
-      return null
     }
   }
 
