@@ -9,9 +9,10 @@ import eventStore from '../core/eventStore';
 import mqtt from '../core/mqtt'
 import * as db_objects from '../core/db_objects.js';
 import {AppModes} from '../core/sharedObjects';
-import PlayableSetList from './PlayableSet/PlayableSetList';
 
 import './PlayMode.css';
+import PlayableSet from './PlayableSet/PlayableSet';
+import * as listUtils from '../core/db_objects_utility_functions';
 
 const PlayMode = props => {
   const [taskSets, setTaskSets] = useState ([]);
@@ -136,6 +137,25 @@ const PlayMode = props => {
   let theme = props.theme;
   let viewerBG = theme.palette.type === "light" ? theme.palette.primary.main : theme.palette.primary.dark;
 
+  let playableSetList = (
+    taskSets.map( (taskSet,index) => {
+      const content = listUtils.getTaskContent(taskSet);
+      return (
+        <div key={index}>
+            <PlayableSet 
+                task=           { taskSet }
+                runSetCallback= { onPlayButtonClick }
+                getLinkCallback={ onGetLinkCallback }
+                editSetCallback={ onEditButtonClick }
+                content=        { content }
+                showEditButton= { true }>
+
+            </PlayableSet>
+        </div>
+      )
+    })
+  );
+
   return(
     <div className="introductionScreenContainer">
       <div className="experimentsHeader" style={{backgroundColor:viewerBG}}>
@@ -146,11 +166,7 @@ const PlayMode = props => {
       <div style={{backgroundColor:viewerBG}} className="IntroViewer">
         <div className="PlayerViewerContent">
           <div className="TaskSetContainer">
-            < PlayableSetList taskList={ taskSets }
-                    runSetCallback={ onPlayButtonClick }
-                    getLinkCallback={ onGetLinkCallback }
-                    editSetCallback={ onEditButtonClick }
-                    showEditButton={true}/>
+            {playableSetList}
           </div>
         </div>
       </div>
