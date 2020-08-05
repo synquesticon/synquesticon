@@ -57,19 +57,17 @@ const runSet = props => {
       onFinished={startNextTask}
     />
   } else {
-    return (
-      <div className="page" key={uuid()}>
-        <div className="mainDisplay">
-          <ShowTask key={uuid()}
-            setID={props.taskSet._id}
-            familyTree={props.familyTree}
-            task={task[0]}
-            parentSet={props.familyTree[props.familyTree.length - 1]}
-            renderKey={task._id + "_" + task}
-            nextPressed={nextPressed} />
-        </div>
+    return <div className="page" key={uuid()}>
+      <div className="mainDisplay">
+        <ShowTask key={uuid()}
+          setID={props.taskSet._id}
+          familyTree={props.familyTree}
+          task={task[0]}
+          parentSet={props.familyTree[props.familyTree.length - 1]}
+          renderKey={task._id + "_" + task}
+          nextPressed={nextPressed} />
       </div>
-    )
+    </div>
   }
 }
 
