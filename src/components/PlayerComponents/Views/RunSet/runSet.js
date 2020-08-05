@@ -39,9 +39,7 @@ const runSet = props => {
 
   const startNextTask = () => {
     if (task[1].length > 0) {
-      let currentArray = task[1]
-      let currentTask = currentArray.splice(0, 1)
-      setTask([currentTask[0], currentArray])
+      setTask(getTask(task[1]))
     } else {
       props.onFinished()
       return null
