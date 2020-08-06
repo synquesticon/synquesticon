@@ -4,11 +4,11 @@ import store from '../../../../core/store'
 import * as dbObjects from '../../../../core/db_objects'
 import './showTask.css'
 
-const InstructionViewComponent = React.lazy(() => import('../InstructionViewComponent'))
-const TextEntryComponent = React.lazy(() => import('../TextEntryComponent'))
-const NumpadComponent = React.lazy(() => import('../NumpadComponent'))
+const InstructionViewComponent = React.lazy(() => import('../Instruction'))
+const TextEntryComponent = React.lazy(() => import('../Text'))
+const NumpadComponent = React.lazy(() => import('../Number'))
 const ButtonComponent = React.lazy(() => import('../ButtonComponent'))
-const ImageViewComponent = React.lazy(() => import('../ImageViewComponent'))
+const ImageViewComponent = React.lazy(() => import('../Image'))
 
 const ShowTask = props => {
   const getDisplayedContent = (taskList, _id, mapIndex) => {

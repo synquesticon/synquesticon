@@ -4,7 +4,7 @@ import { Typography, TextField } from '@material-ui/core';
 
 import store from '../../../core/store';
 
-import './TextEntryComponent.css';
+import './Text.css';
 
 const textEntryComponent = (props) => {
   let textEntry = "";

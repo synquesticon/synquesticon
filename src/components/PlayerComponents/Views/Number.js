@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Typography } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
 import store from '../../../core/store'
-import './TextEntryComponent.css'
+import './Text.css'
 
 const first_line_keyboard = [1, 2, 3]
 const second_line_keyboard = [4, 5, 6]
