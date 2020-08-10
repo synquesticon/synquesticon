@@ -1,18 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'
 
-import GazeCursor from './GazeCursor';
+import Button from '@material-ui/core/Button'
+import PauseIcon from '@material-ui/icons/PauseCircleOutline'
+import PlayIcon from '@material-ui/icons/PlayCircleOutline'
 
-import Button from '@material-ui/core/Button';
-import PauseIcon from '@material-ui/icons/PauseCircleOutline';
-import PlayIcon from '@material-ui/icons/PlayCircleOutline';
 
-import { withTheme } from '@material-ui/styles';
+import { withTheme } from '@material-ui/styles'
 
-import mqtt from '../core/mqtt';
-import eventStore from '../core/eventStore';
-import store from '../core/store';
+import mqtt from '../core/mqtt'
+import eventStore from '../core/eventStore'
+import store from '../core/store'
+import ObserverTab from './ObserverMessages/ObserverTab'
+import MessageBoard from './ObserverMessages/MessageBoard'
 
-import './ObserverMode.css';
+
+import './ObserverMode.css'
 
 const observerMode = (props) => {
     const [participants, setParticipants] = useState([])
@@ -102,26 +104,17 @@ const observerMode = (props) => {
 
     let tmpParticipants = [...participants]
 
-    participants.forEach((participant, participantIndex) => {
-      if (participant.id === args.participantId) {
+    let participantIndex = participants.indexOf((participant) => participant.id === args.participantId)
+    let participant = tmpParticipants[participantIndex]
 
-        if(args.eventType==="FINISHED" && !participant.hasReceivedFinish){
-          
-          tmpParticipant[participantIndex].hasReceivedFinish = true
-
-          pairMessage(participant.messages, args);
-          exists = true;
-        } else if(args.eventType!=="FINISHED"){
-          pairMessage(participant.messages, args);
-          exists = true;
-          break;
-        } else{
-          //The id did exist so we do not want to create a new participant
-          exists = true;
-          break;
-        }
-      }
-    })
+    if(args.eventType==="FINISHED" && !participant.hasReceivedFinish){          
+      tmpParticipants[participantIndex].hasReceivedFinish = true
+      pairMessage(participant.messages, args);
+      exists = true;
+    } else if(args.eventType!=="FINISHED"){
+      pairMessage(participant.messages, args);
+      exists = true;
+    }
 
     setParticipants(tmpParticipants)
     
