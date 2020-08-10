@@ -1,4 +1,4 @@
-import React, { Component, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import GazeCursor from './GazeCursor';
 
@@ -99,22 +99,15 @@ const observerMode = (props) => {
  
 
     let exists = false;
+
+    let tmpParticipants = [...participants]
+
     participants.forEach((participant, participantIndex) => {
       if (participant.id === args.participantId) {
 
         if(args.eventType==="FINISHED" && !participant.hasReceivedFinish){
-          this.setState(state => {
-            let participants = state.participants;
-            participant.hasReceivedFinish = true;
-            participant = participantData;
-
-            return {
-              participants
-            };
-          });
-
-          let tmpParticipants = [...participants]
-          part
+          
+          tmpParticipant[participantIndex].hasReceivedFinish = true
 
           pairMessage(participant.messages, args);
           exists = true;
@@ -129,6 +122,8 @@ const observerMode = (props) => {
         }
       }
     })
+
+    setParticipants(tmpParticipants)
     
     //If the participant id did not exist we create a new participant
     if (!exists) {
