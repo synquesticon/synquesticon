@@ -11,19 +11,9 @@ import { Typography } from '@material-ui/core';
 import { withTheme } from '@material-ui/styles';
 
 const ObserverTab = props => {
-  const [forcedPause] = useState(props.shouldPause);
-  const [isPaused, setIsPaused] = useState(false);
+  const [allPaused] = useState(props.participantObject.allPaused);
+  const [isParticipantPaused, setIsParticipantPaused] = useState(false);
 
-/*
-  static getDerivedStateFromProps(props, state) {
-    if(props.shouldPause !== state.forcedPause){
-      return {forcedPause: props.shouldPause,
-              isPaused: props.shouldPause};
-    }
-
-    return null;
-  }
-*/
 
   const onTabPressed = evt => {
     evt.stopPropagation();
@@ -37,12 +27,12 @@ const ObserverTab = props => {
     evt.preventDefault();
 
     mqtt.broadcastCommands(JSON.stringify({
-                            commandType: !isPaused ? "PAUSE" : "RESUME",
-                            participantId: props.participantId
+                            commandType: !isParticipantPaused ? "PAUSE" : "RESUME",
+                            participantId: props.participantObject.participantID
                           }));
 
-    if(!forcedPause){
-      setIsPaused(!isPaused);
+    if(!allPaused){
+      setIsParticipantPaused(!isParticipantPaused);
     }
 
     return false;
@@ -54,7 +44,7 @@ const ObserverTab = props => {
   const activeUnderlineStyle = {boxShadow:'0 0 8px -6px' + props.isActive ? theme.palette.secondary.main : 'grey'}
   const shouldHighlight = window.matchMedia("(any-pointer: coarse)").matches ? activeUnderlineStyle : {};
 
-  if (isPaused || forcedPause) {
+  if (isParticipantPaused || allPaused) {
     buttonIcon = <PauseIcon style={{display:'flex', position: 'absolute', height: '100%', width: 'auto', maxWidth: '100%', flexGrow: 1}} />;
   } else {
     buttonIcon = <PlayIcon style={{display:'flex', position: 'absolute', height: '100%', width: 'auto', maxWidth: '100%', flexGrow: 1}} />;
@@ -73,9 +63,9 @@ const ObserverTab = props => {
         {buttonIcon}
       </Button>
       <div style={{display:'flex', position: 'relative', flexDirection:'column', flexGrow: 1 }}>
-        <div style={{display:'flex', width:'100%', height:10, marginBottom:3, justifyContent:'center', alignItems:'center'}}>
+        {<div style={{display:'flex', width:'100%', height:10, marginBottom:3, justifyContent:'center', alignItems:'center'}}>
           <Typography color="textPrimary"> {props.completedTasks} / {props.totalTasks} </Typography>
-        </div>
+        </div>}
         <LinearProgress color="secondary" style={{display:'flex', width:'100%', height:10}} variant="determinate" value={(props.completedTasks/props.totalTasks)*100}/>
       </div>
     </div>;
@@ -93,8 +83,8 @@ const ObserverTab = props => {
           <div onClick={onTabPressed} style={{display:'flex', flexDirection:'column', position:'relative', width:"100%", height:"60%"}}>
             <div style={{...activeTextStyle, ...{display:'flex', flexDirection:'row', position: 'relative', width:'100%',height:'100%'}, ...dotText}}>
               {participantSmallScreen}<div style={{...{display:'flex', flexDirection:'column', position:'relative', width:"100%", height:"100%"}}}>
-                  <p style={{textAlign:'center',margin:0, padding:0,width:'100%'}}>{props.label}</p>
-                  <p style={{textAlign:'center',margin:0, padding:0,width:'100%'}}>{props.startTimestamp}</p>
+                  <p style={{textAlign:'center',margin:0, padding:0,width:'100%'}}>{props.participantObject.participantLabel}</p>
+                  <p style={{textAlign:'center',margin:0, padding:0,width:'100%'}}>{props.participantObject.sessionStartTime}</p>
                 </div>
             </div>
             {participantBigScreen}

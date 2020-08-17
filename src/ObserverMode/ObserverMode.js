@@ -5,6 +5,7 @@ import PauseIcon from '@material-ui/icons/PauseCircleOutline'
 import PlayIcon from '@material-ui/icons/PlayCircleOutline'
 
 
+import * as constants from '../SynquesticonStateConstants'
 import { withTheme } from '@material-ui/styles'
 
 import mqtt from '../core/mqtt'
@@ -15,11 +16,12 @@ import MessageBoard from './ObserverMessages/MessageBoard'
 
 
 import './ObserverMode.css'
+import { MqttClient } from 'mqtt'
 
 const observerMode = (props) => {
     const [participants, setParticipants] = useState([])
-    const [currentParticipant, setCurrentParticipant] = useState(-1)
-    const [isParticipantsPaused, setIsParticipantsPaused] = useState(false)
+    const [currentParticipant, setCurrentParticipant] = useState(0)
+    const [allPaused, setAllPaused] = useState(false)
     
     const completedTasks = {};
     const totalTasks = {};
@@ -32,116 +34,52 @@ const observerMode = (props) => {
     }
 
   }, []);
-  
+
   
   const onPausePlayPressed = () => {
     mqtt.broadcastCommands(JSON.stringify({
-                            commandType: !isParticipantsPaused ? "PAUSE" : "RESUME",
+                            commandType: allPaused ? "PAUSE" : "RESUME",
                             participantId: -1
                            }));
 
-    setIsParticipantsPaused(prevIsPaused => !prevIsPaused);
+    setAllPaused(prevAllPaused => !prevAllPaused);
   }
 
-  const isSameIdentifier = (pair, msg) => {
-    if(pair.lineOfData){
-      return (pair.lineOfData.startTimestamp === msg.lineOfData.startTimestamp
-              && pair.lineOfData.taskContent === msg.lineOfData.taskContent);
-    }
-    else{
-      console.log("missing data line", msg);
-      return false;
-    }
-  }
 
-  const pairMessage = (msgArray, msg) => {
-    for (let i = 0; i < msgArray.length; i++) {
-      let pair = msgArray[i];
-      if (msg.eventType === "ANSWERED" || msg.eventType === "SKIPPED") {
-        if (pair.length < 2 //if hasn't had matched message
-            && isSameIdentifier(pair[0], msg)) { //match id with first message
-              //pair them together
-              pair.push(msg);
-              return msgArray;
-        }
-      }
-      else if (msg.eventType === "RESETANSWER") {
-        if (isSameIdentifier(pair[0], msg)) {
-          // msg.eventType = "ANSWERED"; //we cheat so we don't have to handle new case
-          pair.push(msg);
-          return msgArray;
-        }
-      }
-    }
-    if (msg.eventType !== "PROGRESSCOUNT") {
-      msgArray.push([msg]);
-    }
-
-    return msgArray;
-  }
-
-  // Called when a new mqtt event has been received
-  // Updates the information displayed in the observer
   const onNewEvent = () => {
-    let args = JSON.parse(eventStore.getCurrentMessage());
+    let mqttMessage = JSON.parse(eventStore.getCurrentMessage());
 
-    //set up a new participant
-    if (store.getState().participants[args.participantId] === undefined) {
-      let action = {
-        type: 'ADD_PARTICIPANT',
-        participant: args.participantId,
-        tracker: args.selectedTracker
-      }
-      store.dispatch(action);
+    switch (mqttMessage.eventType) {
+      // session start
+      case constants.SESSION_START:
+        let checkExistedParticipant = participants.filter(participant => participant.participantId === mqttMessage.participantId)
+        if (checkExistedParticipant.length !== 1) { //there must be no existing participant
+          const newParticipant = {
+            participantId: mqttMessage.participantId,
+            participantLabel: mqttMessage.participantLabel,
+            sessionStartTime: mqttMessage.sessionStartTime,
+            isPaused: mqttMessage.isPaused,
+            messagesQueue: [mqttMessage]
+          }
+          participants.push(newParticipant);
+          const updatedParticipants = participants.slice();
+          setParticipants(updatedParticipants);
+        } else {
+          console.log('There is at least one existed participant', checkExistedParticipant)
+        }
+        break;
+
+      case constants.SESSION_END:
+        const updatedParticipants = participants.slice()
+        const participant = participants.find(participant => participant.participantId === mqttMessage.participantId)
+        participant.messagesQueue.push(mqttMessage)
+        setParticipants(updatedParticipants)
+        break;
+      default:
+
+        break;
     }
-
-    if (args.taskSetCount) {
-      totalTasks[args.participantId] = args.taskSetCount;
-    }
- 
-
-    let exists = false;
-
-    let tmpParticipants = [...participants]
-
-    let participantIndex = participants.indexOf((participant) => participant.id === args.participantId)
-    let participant = tmpParticipants[participantIndex]
-
-    if(args.eventType==="FINISHED" && !participant.hasReceivedFinish){          
-      tmpParticipants[participantIndex].hasReceivedFinish = true
-      pairMessage(participant.messages, args);
-      exists = true;
-    } else if(args.eventType!=="FINISHED"){
-      pairMessage(participant.messages, args);
-      exists = true;
-    }
-
-    setParticipants(tmpParticipants)
     
-    //If the participant id did not exist we create a new participant
-    if (!exists) {
-      let label = (!args.participantLabel || args.participantLabel === "") ? "" : args.participantLabel;
-      
-      const tmpParticipants = participants.concat({
-        id: args.participantId,
-        name: label,
-        timestamp: args.startTimestamp,
-        tracker: args.selectedTracker,
-        messages: [[args]]
-      });
-
-      setIsParticipantsPaused(tmpParticipants);
-
-      return {
-        participants,
-      };
-
-    }
-
-    if (currentParticipant < 0) {
-      setCurrentParticipant(0);
-    }
-    // this.forceUpdate();
   }
 
 const onClickedTab = (newValue) => {
@@ -151,7 +89,7 @@ const onClickedTab = (newValue) => {
 const getPlayPauseButton = () => {
     let buttonIcon = null;
     let buttonLabel = "";
-    if(!isParticipantsPaused){
+    if(allPaused){
       buttonIcon = <PauseIcon fontSize="large" />;
       buttonLabel = "Pause all participants";
     }
@@ -173,30 +111,40 @@ const getPlayPauseButton = () => {
     let theme = props.theme;
     let observerBgColor = theme.palette.type === "light" ? theme.palette.primary.main : theme.palette.primary.dark;
 
-    let messages = [];
-    if (currentParticipant >= 0) {
-      messages = participants[currentParticipant].messages;
+    
+
+
+    const playPauseButton = getPlayPauseButton()
+    
+    let messagesQueue = []
+    if (participants.length > 0){
+      messagesQueue = participants[currentParticipant].messagesQueue
     }
+    
 
     return (
       <div className="ObserverViewerContent" style={{backgroundColor:observerBgColor}}>
         <div className="ObserverHeader">
           <div className="ObserverPlayPauseContainer">
-            {getPlayPauseButton}
+            {playPauseButton}
           </div>
           <div className="ObserverTabsWrapper">
             <div className={"ObserverTabContainer"}>
               {
-                participants.map((p, index) => {
-                  return <ObserverTab key={index} label={p.name} startTimestamp={p.timestamp} index={index} tabPressedCallback={onClickedTab} participantId={p.id}
-                          isActive={currentParticipant===index} completedTasks={completedTasks[p.id]} totalTasks={totalTasks[p.id]} shouldPause={isParticipantsPaused}/>
+                participants.map((mqttMessage, index) => {
+                  return <ObserverTab 
+                  key={index} 
+                  participantObject={mqttMessage}
+                  tabPressedCallback={onClickedTab} 
+                  allPaused={allPaused}
+                  />
                 })
               }
             </div>
           </div>
         </div>
         <div className="ObserverMessageLog">
-          <MessageBoard messages={messages}/>
+          <MessageBoard messages={messagesQueue}/>
         </div>
       </div>
       );

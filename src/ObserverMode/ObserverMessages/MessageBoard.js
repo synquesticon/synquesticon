@@ -54,7 +54,7 @@ const MessageBoard = (props) => {
     }));
   }
 
-  var displayMessages = props.messages.slice();
+  var displayMessages = props.messages;
 
   return (
     <div className="messageBoard">
@@ -62,10 +62,8 @@ const MessageBoard = (props) => {
        <Typography color="textPrimary" variant="h6">Messaging Log</Typography>
       </div>
       <div className="messages">
-        {displayMessages.reverse().map((pair, pindex) => {
-          return pair.map((item, iindex) => {
-            return <ObserverMessage message={item} key={iindex+item.lineOfData} commentCallback={onCommentPressed} />
-          })
+        {displayMessages.reverse().map((item, pindex) => {
+            return <ObserverMessage message={item} key={pindex} onCommentButtonPressed={onCommentPressed} />
         })}
       </div>
 

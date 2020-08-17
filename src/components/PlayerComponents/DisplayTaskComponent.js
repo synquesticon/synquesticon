@@ -9,6 +9,7 @@ import store from '../../core/store'
 import db_helper from '../../core/db_helper'
 import * as dbObjects from '../../core/db_objects'
 import * as playerUtils from '../../core/player_utility_functions'
+import { SESSION_START, SESSION_END } from '../../SynquesticonStateConstants'
 import queryString from 'query-string'
 import './Play.css'
 import '../../core/utility.css'
@@ -76,6 +77,17 @@ const play = props => {
               }
             }
             store.dispatch(action)
+
+            mqtt.broadcastEvents(JSON.stringify({
+              eventType: SESSION_START,
+              participantId: returnedIdFromDB,
+              participantLabel: playerUtils.getDeviceName(),
+              sessionName: mainTaskSetName,
+              sessionStartTime: playerUtils.getFormattedCurrentTime(),
+              isPaused: isPaused
+            }))
+
+            
           })
       } else {
         let action = {
@@ -92,9 +104,21 @@ const play = props => {
           }
         }
         store.dispatch(action)
+
+        mqtt.broadcastEvents(JSON.stringify({
+          eventType: SESSION_START,
+          participantId: store.getState().experimentInfo.participantId,
+          participantLabel: playerUtils.getDeviceName(),
+          sessionName: mainTaskSetName,
+          sessionStartTime: playerUtils.getFormattedCurrentTime(),
+          isPaused: isPaused
+        }))
       }
     })
     eventStore.addNewCommandListener(onNewCommandEvent)
+
+    
+  
 
     if (store.getState().experimentInfo && (store.getState().experimentInfo.selectedTracker !== "")) {
       gazeDataArray = []
@@ -199,19 +223,12 @@ const play = props => {
   }
 
   const onFinished = () => {
-    const timestamp = new Date().toUTCString()
     let eventObject = {
-      eventType: "FINISHED",
+      eventType: SESSION_END,
       participantId: store.getState().experimentInfo.participantId,
-      participantLabel: store.getState().experimentInfo.participantLabel,
-      startTimestamp: store.getState().experimentInfo.startTimestamp,
-      selectedTracker: store.getState().experimentInfo.selectedTracker,
-      mainTaskSetId: store.getState().experimentInfo.mainTaskSetId,
-      lineOfData: {
-        startTaskTime: timestamp
-      },
-      timestamp: timestamp
+      sessionName: store.getState().experimentInfo.mainTaskSetId,
     }
+    console.log(eventObject)
     mqtt.broadcastEvents(JSON.stringify(eventObject))
     props.history.goBack()
   }
