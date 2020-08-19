@@ -47,40 +47,32 @@ const observerMode = (props) => {
 
 
   const onNewEvent = () => {
-    let mqttMessage = JSON.parse(eventStore.getCurrentMessage());
+    const  mqttMessage = JSON.parse(eventStore.getCurrentMessage());
+    console.log('Received event', mqttMessage)
 
-    switch (mqttMessage.eventType) {
-      // when a session start
-      case constants.SESSION_START:
-        let checkExistedParticipant = participants.filter(participant => participant.participantId === mqttMessage.participantId)
-        if (checkExistedParticipant.length !== 1) { //there must be no existing participant
-          const newParticipant = {
-            participantId: mqttMessage.participantId,
-            participantLabel: mqttMessage.participantLabel,
-            sessionStartTime: mqttMessage.sessionStartTime,
-            isPaused: mqttMessage.isPaused,
-            messagesQueue: [mqttMessage]
-          }
-          participants.push(newParticipant);
-          const updatedParticipants = participants.slice();
-          setParticipants(updatedParticipants);
-        } else {
-          console.log('There is at least one existed participant', checkExistedParticipant)
-        }
-        break;
-
-      default:
-        console.log(mqttMessage)
-        const updatedParticipants = participants.slice()
-        const participant = participants.find(participant => participant.participantId === mqttMessage.participantId)
-        participant.messagesQueue.push(mqttMessage)
-        setParticipants(updatedParticipants)
-
-        break;
-    }
+    const checkExistedParticipant = participants.filter(participant => participant.participantId === mqttMessage.participantId)
     
-  }
+    if (checkExistedParticipant.length !== 1) { //there must be no existing participant
+      const newParticipant = {
+        participantId: mqttMessage.participantId,
+        participantLabel: mqttMessage.participantLabel,
+        sessionStartTime: mqttMessage.sessionStartTime,
+        isPaused: mqttMessage.isPaused,
+        messagesQueue: [mqttMessage]
+      }
+      participants.push(newParticipant);
+      const updatedParticipants = participants.slice();
+      setParticipants(updatedParticipants);
+    } else {
+      console.log('There is at least one existed participant', checkExistedParticipant)
+      const updatedParticipants = participants.slice()
+      const participant = participants.find(participant => participant.participantId === mqttMessage.participantId)
+      participant.messagesQueue.push(mqttMessage)
+      setParticipants(updatedParticipants)
 
+    }  
+
+  }
 const onClickedTab = (newValue) => {
    setCurrentParticipant(newValue)
 }

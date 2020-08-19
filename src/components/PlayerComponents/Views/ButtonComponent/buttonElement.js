@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import Button from '@material-ui/core/Button';
 import mqtt from '../../../../core/mqtt'
-import * as constants from '../../../../SynquesticonStateConstants'
-import store from '../../../../core/store'
-import * as playerUtils from '../../../../core/player_utility_functions'
+import loggingUtils from '../../../../messageUtils';
+import { BUTTON_CLICK } from '../../../../SynquesticonStateConstants';
 
 const buttonElement = (props) => {
     //console.log(props)
@@ -21,7 +20,6 @@ const buttonElement = (props) => {
     }, [props.clickedButton])
 
     const onButtonPressed = () => {
-        console.log(props.clickedButton)
         if (props.reset) {                      //Auto-reset buttons
             if (!isClicked){
                 setIsClicked(true)
@@ -37,13 +35,8 @@ const buttonElement = (props) => {
                 props.logElementData(props.id, true, props.content)
             }
 
-            const button = {
-                participantId: store.getState().experimentInfo.participantId,
-                eventType: constants.BUTTON_CLICK,
-                clickedContent: props.content,
-                timeClicked: playerUtils.getFormattedCurrentTime()
-            }
-            mqtt.broadcastEvents(JSON.stringify(button))
+            const buttonObject = loggingUtils(BUTTON_CLICK, {content: props.content})
+            mqtt.broadcastEvents(buttonObject)
 
 
         } else {                                //Multiple-choice buttons

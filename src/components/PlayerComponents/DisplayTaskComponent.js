@@ -13,6 +13,7 @@ import { SESSION_START, SESSION_END } from '../../SynquesticonStateConstants'
 import queryString from 'query-string'
 import './Play.css'
 import '../../core/utility.css'
+import loggingUtils from '../../messageUtils'
 
 const play = props => {
   const [isPaused, setIsPaused] = useState(false)
@@ -77,16 +78,6 @@ const play = props => {
               }
             }
             store.dispatch(action)
-
-            mqtt.broadcastEvents(JSON.stringify({
-              eventType: SESSION_START,
-              participantId: returnedIdFromDB,
-              participantLabel: playerUtils.getDeviceName(),
-              sessionName: mainTaskSetName,
-              sessionStartTime: playerUtils.getFormattedCurrentTime(),
-              isPaused: isPaused
-            }))
-
             
           })
       } else {
@@ -105,17 +96,8 @@ const play = props => {
         }
         store.dispatch(action)
 
-        mqtt.broadcastEvents(JSON.stringify({
-          eventType: SESSION_START,
-          participantId: store.getState().experimentInfo.participantId,
-          participantLabel: playerUtils.getDeviceName(),
-          sessionName: mainTaskSetName,
-          sessionStartTime: playerUtils.getFormattedCurrentTime(),
-          isPaused: isPaused
-        }))
       }
     })
-    eventStore.addNewCommandListener(onNewCommandEvent)
 
     
   
@@ -223,17 +205,22 @@ const play = props => {
   }
 
   const onFinished = () => {
-    let eventObject = {
-      eventType: SESSION_END,
-      participantId: store.getState().experimentInfo.participantId,
-      sessionName: store.getState().experimentInfo.mainTaskSetId,
-    }
-    console.log(eventObject)
-    mqtt.broadcastEvents(JSON.stringify(eventObject))
+    const sessionEndObject = loggingUtils(SESSION_END)
+    mqtt.broadcastEvents(sessionEndObject)
+
     props.history.goBack()
   }
 
+
   if (taskSet !== null) {
+
+    if(store.getState().experimentInfo.participantId){
+      const sessionObject = loggingUtils(SESSION_START, {isPaused: isPaused})
+      mqtt.broadcastEvents(sessionObject) 
+    }
+    
+
+    eventStore.addNewCommandListener(onNewCommandEvent)
     let theme = props.theme
     let rightBG = theme.palette.type === "light" ? theme.palette.primary.main : theme.palette.primary.dark
     var renderObj =
