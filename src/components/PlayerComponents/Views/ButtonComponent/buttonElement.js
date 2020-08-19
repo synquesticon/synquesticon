@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import Button from '@material-ui/core/Button';
+import mqtt from '../../../../core/mqtt'
+import * as constants from '../../../../SynquesticonStateConstants'
+import store from '../../../../core/store'
+import * as playerUtils from '../../../../core/player_utility_functions'
 
 const buttonElement = (props) => {
     //console.log(props)
@@ -32,6 +36,16 @@ const buttonElement = (props) => {
             } else {
                 props.logElementData(props.id, true, props.content)
             }
+
+            const button = {
+                participantId: store.getState().experimentInfo.participantId,
+                eventType: constants.BUTTON_CLICK,
+                clickedContent: props.content,
+                timeClicked: playerUtils.getFormattedCurrentTime()
+            }
+            mqtt.broadcastEvents(JSON.stringify(button))
+
+
         } else {                                //Multiple-choice buttons
             if (isClicked) {
                 setIsClicked(false)

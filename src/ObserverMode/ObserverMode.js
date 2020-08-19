@@ -50,7 +50,7 @@ const observerMode = (props) => {
     let mqttMessage = JSON.parse(eventStore.getCurrentMessage());
 
     switch (mqttMessage.eventType) {
-      // session start
+      // when a session start
       case constants.SESSION_START:
         let checkExistedParticipant = participants.filter(participant => participant.participantId === mqttMessage.participantId)
         if (checkExistedParticipant.length !== 1) { //there must be no existing participant
@@ -69,13 +69,12 @@ const observerMode = (props) => {
         }
         break;
 
-      case constants.SESSION_END:
+      default:
+        console.log(mqttMessage)
         const updatedParticipants = participants.slice()
         const participant = participants.find(participant => participant.participantId === mqttMessage.participantId)
         participant.messagesQueue.push(mqttMessage)
         setParticipants(updatedParticipants)
-        break;
-      default:
 
         break;
     }
@@ -134,6 +133,7 @@ const getPlayPauseButton = () => {
                 participants.map((mqttMessage, index) => {
                   return <ObserverTab 
                   key={index} 
+                  index={index}
                   participantObject={mqttMessage}
                   tabPressedCallback={onClickedTab} 
                   allPaused={allPaused}

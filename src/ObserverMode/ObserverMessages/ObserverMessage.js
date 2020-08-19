@@ -62,6 +62,15 @@ const observerMessage = (props) => {
       
       case constants.TASK_START:
 
+      case constants.BUTTON_CLICK:
+        displayText = <Typography display="inline" variant="body1" color="textPrimary">
+                        {message.clickedContent} clicked at
+                        <i>{message.timeClicked}</i>
+                      </Typography>;
+        showCommentButton = false;
+        marginTop = true;
+        break;
+
       // case "COMMENT":
       //   //var commentTime = new Date(args.timestamp);
       //   displayText = <Typography display="inline" variant="body1" color="textPrimary">

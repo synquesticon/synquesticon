@@ -13,7 +13,7 @@ export const TASK_END = 'TASK_END'
 
 // componet
 // Button
-
+export const BUTTON_CLICK = 'BUTTON_CLICK'
 // Text
 
 // Number

@@ -62,7 +62,7 @@ const MessageBoard = (props) => {
        <Typography color="textPrimary" variant="h6">Messaging Log</Typography>
       </div>
       <div className="messages">
-        {displayMessages.reverse().map((item, pindex) => {
+        {[...displayMessages].reverse().map((item, pindex) => {
             return <ObserverMessage message={item} key={pindex} onCommentButtonPressed={onCommentPressed} />
         })}
       </div>
