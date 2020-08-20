@@ -16,6 +16,7 @@ const runSet = props => {
   const [task, setTask] = useState(() => getTask(props.set.data))
 
   useEffect(() => {
+    
     eventStore.addControlMsgListener(onControlMsg)
     return () => {
       eventStore.removeControlMsgListener(onControlMsg)

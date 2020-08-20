@@ -26,17 +26,6 @@ const buttonList = (props) => {
     store.dispatch(textAOIAction);
     return () => {      
 
-      // // 
-      // const buttonObject = {
-      //   participantId: store.getState().experimentInfo.participantId,
-      //   eventType: 'ButtonNextPressed',
-      //   responsesArray: responsesArray,
-      //   responseCountArray: responseCountArray
-
-      // }
-      // mqtt.broadcastEvents(JSON.stringify(buttonObject))
-
-
       // allow user to set screens ID based on button component
       if (props.tags.length > 0 && props.tags.includes("setScreenID")) {
         // If the answer has a response we set multiple screens to true and set the
@@ -55,19 +44,6 @@ const buttonList = (props) => {
           
       }
 
-      // If there is a global var we save it
-      // if (line.isGlobalVariable !== undefined) {
-      //   saveGlobalVariable(store.getState().experimentInfo.participantId,
-      //     line.label, line.responses);
-      // }
-      // const saveGlobalVariable = (participantId, label, value) => {
-      //   var globalVariableObj = {
-      //     label: label,
-      //     value: value
-      //   };
-      //   if (store.getState().experimentInfo.shouldSave) {
-      //     db_helper.addNewGlobalVariableToParticipantDB(participantId, JSON.stringify(globalVariableObj));
-      //   }
     }
   }, [])
 

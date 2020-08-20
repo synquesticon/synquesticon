@@ -213,8 +213,8 @@ const play = props => {
 
 
   if (taskSet !== null) {
-
     if(store.getState().experimentInfo.participantId){
+      console.log('Participant in session',store.getState().experimentInfo.participantId)
       const sessionObject = loggingUtils(SESSION_START, {isPaused: isPaused})
       mqtt.broadcastEvents(sessionObject) 
     }
