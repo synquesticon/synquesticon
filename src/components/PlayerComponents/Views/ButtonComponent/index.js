@@ -68,9 +68,24 @@ const buttonList = (props) => {
           
       }
 
-      const buttonComponentObject = loggingUtils(taskObject, componentObject)
+      componentObject.isCorrect = checkAnswer();
+      
+      let observerMessageString = ''
+      if (componentObject.isCorrect !== 'notApplicable'){
+        observerMessageString = componentObject.isCorrect.toUpperCase() + ' Final answer: ' + responsesArray.toString() + ' (' + componentObject.text  + 'Answer ' + props.task.correctResponses.toString() + ')'
+      } else {
+        observerMessageString = 'Final answer: ' + responsesArray.toString() + ' (' + componentObject.text  + ')'
+        
+      }
+      const eventObject = {
+        observerMessage: observerMessageString
+      }
 
-      console.log('Happen when button component is unmounted', buttonComponentObject)
+      const buttonComponentObject = loggingUtils(taskObject, componentObject, eventObject)
+
+      console.log('Happen when button component is unmounted', JSON.parse(buttonComponentObject))
+
+      mqtt.broadcastEvents(buttonComponentObject)
 
 
 
@@ -99,27 +114,11 @@ const buttonList = (props) => {
       }
     }
 
-    const taskObject = {
-      uid: props.taskID,
-      name: props.parentSet,
-      tags: props.tags
-    }
-
-    const componentObject = {
-      uid: props.key,
-      type: "BUTTON",
-      variant: buttonVariant,
-      text: props.displayText,
-      correctResponses: props.correctResponses
-
-    }
-
     const eventObject = {
       source: "BUTTON_CLICK",
-      timestamp: playerUtils.getFormattedCurrentTime(),
+      timestamp: playerUtils.getCurrentTime(),
       content: content,
-      observerMessage: content+" ("+componentObject.text+")"
-      
+      observerMessage: content+" ("+componentObject.text+")"      
     }
 
     
@@ -149,6 +148,14 @@ const buttonList = (props) => {
       Array.isArray(b) &&
       a.length === b.length &&
       a.every((val, index) => val.toUpperCase() === b[index].toUpperCase());
+  }
+
+  const checkAnswer = () => {
+    let isCorrect = "notApplicable";
+    if(props.task.correctResponses && props.task.correctResponses.length !==0){
+      isCorrect = arrayEquals(props.task.correctResponses, responsesArray)?"correct":"incorrect"
+    }
+    return isCorrect
   }
 
   return (

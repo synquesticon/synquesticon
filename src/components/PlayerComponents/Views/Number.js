@@ -4,6 +4,7 @@ import Button from '@material-ui/core/Button'
 import store from '../../../core/store'
 import './Text.css'
 import loggingUtils from '../../../makeLogObject'
+import mqtt from '../../../core/mqtt'
 
 const first_line_keyboard = [1, 2, 3]
 const second_line_keyboard = [4, 5, 6]
@@ -11,9 +12,15 @@ const third_line_keyboard = [7, 8, 9]
 const fourth_line_keyboard = [0, '.', "<"]
 
 const NumpadComponent = props => {
-  const [numpadEntry, setNumpadEntry] = useState('')
+  const [numpadEntry, setNumpadEntry, getNumpadEntry] = useState('')
   const [decimalWasPressed, setdecimalWasPressed] = useState(false)
+  const numpadRef = React.useRef()
   const [textRef] = useState(React.createRef())
+
+  useEffect(() => {
+    console.log('Number changed', numpadEntry)
+    numpadRef.current = numpadEntry
+  }, [numpadEntry])
 
   useEffect(() => {
     const textAOIAction = {
@@ -38,11 +45,24 @@ const NumpadComponent = props => {
         type: "NUMBER",
         text: props.task.displayText,
         correctResponses: props.task.correctResponses,
-        responseOptions: numpadEntry
+        responseOptions: numpadRef.current,
+        isCorrect: checkAnswer(),
       }
 
-      const numberComponentObject = loggingUtils(taskObject, componentObject)
-      console.log('Number component', numberComponentObject)
+      let observerMessageString = ''
+      if(componentObject.isCorrect !== 'notApplicable') {
+        observerMessageString = componentObject.isCorrect.toUpperCase() + ' Final answer: ' + numpadRef.current + ' (' + componentObject.text  + 'Answer' + props.task.correctResponses[0] + '+-' + props.task.correctResponses[1] + ')'
+      } else {
+        observerMessageString = 'Final answer: ' + numpadRef.current + ' (' + componentObject.text  + ')'
+      }
+      const eventObject = {
+        observerMessage: observerMessageString
+      }
+
+      const numberComponentObject = loggingUtils(taskObject, componentObject, eventObject)
+      console.log('Number component', JSON.parse(numberComponentObject))
+      
+      mqtt.broadcastEvents(numberComponentObject)
       
     }
   }, [])
@@ -58,11 +78,13 @@ const NumpadComponent = props => {
       setNumpadEntry(prevNumpadEntry => prevNumpadEntry.substring(0, prevNumpadEntry.length - 1))
     } else if (key === '.') {
       if (!decimalWasPressed) {
-        setNumpadEntry(prevNumpadEntry => prevNumpadEntry + key)
+        const newNumpadEntry = numpadEntry.concat(key)
+        setNumpadEntry(newNumpadEntry)
         setdecimalWasPressed(true)
       }
     } else {
-      setNumpadEntry(prevNumpadEntry => prevNumpadEntry + key)
+      const newNumpadEntry = numpadEntry.concat(key)
+      setNumpadEntry(newNumpadEntry)
     }
   }
 
@@ -73,7 +95,7 @@ const NumpadComponent = props => {
 
     //If the response has two values then we treat the second as how much the answer can differ and still be valid
     if (props.task.correctResponses.length > 1) {
-      let answer = parseFloat(numpadEntry)
+      let answer = parseFloat(numpadRef.current)
       let correctAnswer = parseFloat(props.task.correctResponses[0])
       let threshold = parseFloat(props.task.correctResponses[1])
       if (answer >= correctAnswer - threshold && answer <= correctAnswer + threshold) {

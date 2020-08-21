@@ -68,7 +68,7 @@ const play = props => {
                 participantLabel: playerUtils.getDeviceName(),
                 participantId: returnedIdFromDB,
                 shouldSave: true,
-                startTimestamp: playerUtils.getFormattedCurrentTime(),
+                startTimestamp: playerUtils.getCurrentTime(),
                 mainTaskSetId: mainTaskSetName,
                 taskSet: dbQueryResult,
                 taskSetCount: count,
@@ -85,7 +85,7 @@ const play = props => {
             participantLabel: playerUtils.getDeviceName(),
             participantId: store.getState().experimentInfo.participantId,
             shouldSave: true,
-            startTimestamp: playerUtils.getFormattedCurrentTime(),
+            startTimestamp: playerUtils.getCurrentTime(),
             mainTaskSetId: mainTaskSetName,
             taskSet: dbQueryResult,
             taskSetCount: count,
@@ -122,7 +122,7 @@ const play = props => {
       var resetExperimentAction = {
         type: 'RESET_EXPERIMENT'
       }
-      store.dispatch(resetExperimentAction)
+      // store.dispatch(resetExperimentAction)
     }
   }, [])
 
