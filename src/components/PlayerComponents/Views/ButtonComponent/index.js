@@ -5,7 +5,7 @@ import Button from './buttonElement'
 import store from '../../../../core/store'
 import * as dbObjects from '../../../../core/db_objects'
 import * as playerUtils from '../../../../core/player_utility_functions'
-import * as constants from '../../../../SynquesticonStateConstants'
+import loggingUtils from '../../../../makeLogObject';
 
 const buttonList = (props) => {
   //console.log("Props from ButtonComponent" + JSON.stringify(props))
@@ -13,6 +13,30 @@ const buttonList = (props) => {
   let [clickedButton, setClickedButton] = useState(null)
   let [responseCountArray, setResponseCountArray] = useState(new Array(props.task.responses.length).fill(0))
   let [responsesArray, setResponsesArray] = useState(new Array(props.task.responses.length).fill(null))
+
+  let buttonVariant = null;
+  if (props.task.resetResponses){
+    buttonVariant = "RESET_BUTTON"
+  } else if(props.task.singleChoice){
+    buttonVariant = "SINGLE_CHOICE"
+  } else {
+    buttonVariant = "MULTIPLE_CHOICE"
+  }
+
+  const taskObject = {
+    uid: props.taskID,
+    name: props.parentSet,
+    tags: props.tags
+  }
+
+  const componentObject = {
+    uid: props.key,
+    type: "BUTTON",
+    variant: buttonVariant,
+    text: props.displayText,
+    correctResponses: props.correctResponses,
+    responseOptions: props.task.responses
+  }
 
   useEffect(() => {
     var textAOIAction = {
@@ -44,6 +68,12 @@ const buttonList = (props) => {
           
       }
 
+      const buttonComponentObject = loggingUtils(taskObject, componentObject)
+
+      console.log('Happen when button component is unmounted', buttonComponentObject)
+
+
+
     }
   }, [])
 
@@ -68,6 +98,36 @@ const buttonList = (props) => {
         setClickedButton(null)
       }
     }
+
+    const taskObject = {
+      uid: props.taskID,
+      name: props.parentSet,
+      tags: props.tags
+    }
+
+    const componentObject = {
+      uid: props.key,
+      type: "BUTTON",
+      variant: buttonVariant,
+      text: props.displayText,
+      correctResponses: props.correctResponses
+
+    }
+
+    const eventObject = {
+      source: "BUTTON_CLICK",
+      timestamp: playerUtils.getFormattedCurrentTime(),
+      content: content,
+      observerMessage: content+" ("+componentObject.text+")"
+      
+    }
+
+    
+    const buttonClickEventObject = loggingUtils(taskObject, componentObject, eventObject)
+
+    console.log('Button clicked logging objects', buttonClickEventObject)
+
+    mqtt.broadcastEvents(buttonClickEventObject)
 
     
 

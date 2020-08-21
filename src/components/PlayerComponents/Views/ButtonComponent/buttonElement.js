@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import Button from '@material-ui/core/Button';
-import mqtt from '../../../../core/mqtt'
-import loggingUtils from '../../../../messageUtils';
-import { BUTTON_CLICK } from '../../../../SynquesticonStateConstants';
 
 const buttonElement = (props) => {
     //console.log(props)
@@ -35,9 +32,6 @@ const buttonElement = (props) => {
                 props.logElementData(props.id, true, props.content)
             }
 
-            const buttonObject = loggingUtils(BUTTON_CLICK, {content: props.content})
-            mqtt.broadcastEvents(buttonObject)
-
 
         } else {                                //Multiple-choice buttons
             if (isClicked) {
@@ -49,6 +43,9 @@ const buttonElement = (props) => {
             }
 
         }
+
+        
+        
     }
 
     return (

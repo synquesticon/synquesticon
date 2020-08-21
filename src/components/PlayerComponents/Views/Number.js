@@ -3,6 +3,7 @@ import { Typography } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
 import store from '../../../core/store'
 import './Text.css'
+import loggingUtils from '../../../makeLogObject'
 
 const first_line_keyboard = [1, 2, 3]
 const second_line_keyboard = [4, 5, 6]
@@ -24,11 +25,29 @@ const NumpadComponent = props => {
       }
     }
     store.dispatch(textAOIAction)
+
+    return () => {
+      const taskObject = {
+        uid: props.task._id,
+        name: props.parentSet,
+        tags: props.tags
+      }
+    
+      const componentObject = {
+        uid: props.key,
+        type: "NUMBER",
+        text: props.task.displayText,
+        correctResponses: props.task.correctResponses,
+        responseOptions: numpadEntry
+      }
+
+      const numberComponentObject = loggingUtils(taskObject, componentObject)
+      console.log('Number component', numberComponentObject)
+      
+    }
   }, [])
 
-  useEffect(() => {
-    onAnswer()
-  }, [numpadEntry])
+
 
   const onMyKeyboardPressed = key => {
     if (key === "<") {
@@ -69,9 +88,6 @@ const NumpadComponent = props => {
     return "incorrect"
   }
 
-  const onAnswer = () => {
-    console.log(numpadEntry)
-  }
 
   const getKeyboardLine = (keyboard, css) => {
     return (<div className={css}>

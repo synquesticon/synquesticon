@@ -23,15 +23,7 @@ const runSet = props => {
     }
   }, [])
 
-  const nextPressed = (setID, set) => {
-    mqtt.broadcastMultipleScreen(JSON.stringify({
-      type: "nextTask",
-      setID: setID,
-      set: set,
-      deviceID: window.localStorage.getItem('deviceID'),
-      screenID: store.getState().screenID
-    }))
-  }
+  
 
   const onControlMsg = payload => {
     if (payload.type === 'nextTask' && payload.setID === props.set._id) {
@@ -47,10 +39,28 @@ const runSet = props => {
     }
   }
 
-  let familyTree = props.familyTree.slice()
-  familyTree.push(task[0].name)
+  const nextPressed = (setID, set) => {
+    mqtt.broadcastMultipleScreen(JSON.stringify({
+      type: "nextTask",
+      setID: setID,
+      set: set,
+      deviceID: window.localStorage.getItem('deviceID'),
+      screenID: store.getState().screenID
+    })) 
+  }
+
+
+
+
+
+
+
+  
 
   if (task[0].objType === dbObjects.ObjectTypes.SET) {
+    
+    let familyTree = props.familyTree.slice()
+    familyTree.push(task[0].name)
     return <RunSet
       key={uuid()}
       familyTree={familyTree}

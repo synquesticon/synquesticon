@@ -5,7 +5,6 @@ import PauseIcon from '@material-ui/icons/PauseCircleOutline'
 import PlayIcon from '@material-ui/icons/PlayCircleOutline'
 
 
-import * as constants from '../SynquesticonStateConstants'
 import { withTheme } from '@material-ui/styles'
 
 import mqtt from '../core/mqtt'
@@ -50,15 +49,23 @@ const observerMode = (props) => {
     const  mqttMessage = JSON.parse(eventStore.getCurrentMessage());
     console.log('Received event', mqttMessage)
 
-    const checkExistedParticipant = participants.filter(participant => participant.participantId === mqttMessage.participantId)
+    // const checkExistedParticipant = participants.filter(participant => participant.participantId === mqttMessage.participantId)
+    const checkExistedParticipant = participants.filter(participant => participant.participantId === mqttMessage.session.uid)
     
     if (checkExistedParticipant.length !== 1) { //there must be no existing participant
+      // const newParticipant = {
+      //   participantId: mqttMessage.participantId,
+      //   participantLabel: mqttMessage.participantLabel,
+      //   sessionStartTime: mqttMessage.sessionStartTime,
+      //   isPaused: mqttMessage.isPaused,
+      //   messagesQueue: [mqttMessage]
+      // }
       const newParticipant = {
-        participantId: mqttMessage.participantId,
-        participantLabel: mqttMessage.participantLabel,
-        sessionStartTime: mqttMessage.sessionStartTime,
+        participantId: mqttMessage.session.uid,
+        participantLabel: mqttMessage.user.name,
+        sessionStartTime: mqttMessage.session.startTime,
         isPaused: mqttMessage.isPaused,
-        messagesQueue: [mqttMessage]
+        messagesQueue: [mqttMessage.event.observerMessage]
       }
       participants.push(newParticipant);
       const updatedParticipants = participants.slice();
@@ -66,8 +73,10 @@ const observerMode = (props) => {
     } else {
       console.log('There is at least one existed participant', checkExistedParticipant)
       const updatedParticipants = participants.slice()
-      const participant = participants.find(participant => participant.participantId === mqttMessage.participantId)
-      participant.messagesQueue.push(mqttMessage)
+      // const participant = participants.find(participant => participant.participantId === mqttMessage.participantId)
+      const participant = participants.find(participant => participant.participantId === mqttMessage.session.uid)
+      // participant.messagesQueue.push(mqttMessage)
+      participant.messagesQueue.push(mqttMessage.event.observerMessage)
       setParticipants(updatedParticipants)
 
     }  

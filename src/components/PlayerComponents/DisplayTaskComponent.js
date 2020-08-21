@@ -9,11 +9,9 @@ import store from '../../core/store'
 import db_helper from '../../core/db_helper'
 import * as dbObjects from '../../core/db_objects'
 import * as playerUtils from '../../core/player_utility_functions'
-import { SESSION_START, SESSION_END } from '../../SynquesticonStateConstants'
 import queryString from 'query-string'
 import './Play.css'
 import '../../core/utility.css'
-import loggingUtils from '../../messageUtils'
 
 const play = props => {
   const [isPaused, setIsPaused] = useState(false)
@@ -205,20 +203,11 @@ const play = props => {
   }
 
   const onFinished = () => {
-    const sessionEndObject = loggingUtils(SESSION_END)
-    mqtt.broadcastEvents(sessionEndObject)
-
     props.history.goBack()
   }
 
 
-  if (taskSet !== null) {
-    if(store.getState().experimentInfo.participantId){
-      console.log('Participant in session',store.getState().experimentInfo.participantId)
-      const sessionObject = loggingUtils(SESSION_START, {isPaused: isPaused})
-      mqtt.broadcastEvents(sessionObject) 
-    }
-    
+  if (taskSet !== null) {  
 
     eventStore.addNewCommandListener(onNewCommandEvent)
     let theme = props.theme

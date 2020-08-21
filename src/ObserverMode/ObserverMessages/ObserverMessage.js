@@ -6,7 +6,6 @@ import { Typography } from '@material-ui/core';
 import { withTheme } from '@material-ui/styles';
 
 import * as playerUtils from '../../core/player_utility_functions';
-import * as constants from '../../SynquesticonStateConstants'
 
 import './ObserverMessage.css';
 
@@ -39,49 +38,49 @@ const observerMessage = (props) => {
     var greenColor = "#006B38";
     marginTop = false;
 
-    var displayText = null;
+    var displayText = message;
     var timeToCompletion = 0;
 
-    switch (message.eventType) {
-      case constants.SESSION_START:
-        displayText = <Typography display="inline" variant="body1" color="textPrimary">
-                        <b>New experiment - Task set: </b>
-                        <i>{message.sessionName} </i>
-                        started at {playerUtils.getFormattedTime(message.sessionStartTime)}
-                      </Typography>
-        showCommentButton = false;
-        break;
+    // switch (message.eventType) {
+    //   case constants.SESSION_START:
+    //     displayText = <Typography display="inline" variant="body1" color="textPrimary">
+    //                     <b>New experiment - Task set: </b>
+    //                     <i>{message.sessionName} </i>
+    //                     started at {playerUtils.getFormattedTime(message.sessionStartTime)}
+    //                   </Typography>
+    //     showCommentButton = false;
+    //     break;
 
-      case constants.SESSION_END:
-        displayText = <Typography display="inline" variant="body1" color="textPrimary">
-                        <b>Experiment {message.sessionName} finished! </b>
-                      </Typography>;
-        showCommentButton = false;
-        marginTop = true;
-        break;
+    //   case constants.SESSION_END:
+    //     displayText = <Typography display="inline" variant="body1" color="textPrimary">
+    //                     <b>Experiment {message.sessionName} finished! </b>
+    //                   </Typography>;
+    //     showCommentButton = false;
+    //     marginTop = true;
+    //     break;
       
-      case constants.TASK_START:
+    //   case constants.TASK_START:
 
-      case constants.BUTTON_CLICK:
-        displayText = <Typography display="inline" variant="body1" color="textPrimary">
-                        {message.clickedContent} clicked at
-                        <i>{message.timeClicked}</i>
-                      </Typography>;
-        showCommentButton = false;
-        marginTop = true;
-        break;
+    //   case constants.BUTTON_CLICK:
+    //     displayText = <Typography display="inline" variant="body1" color="textPrimary">
+    //                     {message.clickedContent} clicked at
+    //                     <i>{message.timeClicked}</i>
+    //                   </Typography>;
+    //     showCommentButton = false;
+    //     marginTop = true;
+    //     break;
 
-      // case "COMMENT":
-      //   //var commentTime = new Date(args.timestamp);
-      //   displayText = <Typography display="inline" variant="body1" color="textPrimary">
-      //                   <b>Comment from {args.observerName}: </b>
-      //                   {args.comment}
-      //                 </Typography>;
-      //   showCommentButton = false;
-      //   break;
-      default:
-        break;
-    }
+    //   // case "COMMENT":
+    //   //   //var commentTime = new Date(args.timestamp);
+    //   //   displayText = <Typography display="inline" variant="body1" color="textPrimary">
+    //   //                   <b>Comment from {args.observerName}: </b>
+    //   //                   {args.comment}
+    //   //                 </Typography>;
+    //   //   showCommentButton = false;
+    //   //   break;
+    //   default:
+    //     break;
+    // }
     return displayText;
   }
 
