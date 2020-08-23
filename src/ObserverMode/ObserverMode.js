@@ -9,21 +9,16 @@ import { withTheme } from '@material-ui/styles'
 
 import mqtt from '../core/mqtt'
 import eventStore from '../core/eventStore'
-import store from '../core/store'
 import ObserverTab from './ObserverMessages/ObserverTab'
 import MessageBoard from './ObserverMessages/MessageBoard'
 
 
 import './ObserverMode.css'
-import { MqttClient } from 'mqtt'
 
 const observerMode = (props) => {
     const [participants, setParticipants] = useState([])
     const [currentParticipant, setCurrentParticipant] = useState(0)
     const [allPaused, setAllPaused] = useState(false)
-    
-    const completedTasks = {};
-    const totalTasks = {};
 
   useEffect(() => {
     eventStore.addEventListener(onNewEvent);

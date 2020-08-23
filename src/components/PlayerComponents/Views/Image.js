@@ -1,4 +1,4 @@
-import React, { Component, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import AOIComponent from '../../../EditMode/Task/ImageType/AOIEditor/AOIComponent';
 
@@ -6,6 +6,8 @@ import store from '../../../core/store';
 import * as playerUtils from '../../../core/player_utility_functions';
 
 import './Image.css';
+import loggingUtils from '../../../makeLogObject';
+import uuid from 'react-uuid'
 
 let CLICK_RADIUS = "1";
 let OPACITY = "0.5";
@@ -13,7 +15,6 @@ let COLOR = "red";
 
 const image = (props) =>  {
     
-  const [imageSrc, setImageSrc] = useState('')
   const [imageWidth, setImageWidth] = useState(100)
   const [imageHeight, setImageHeight] = useState(100)
   const [imageElement, setImageElement] = useState(null)
@@ -21,8 +22,10 @@ const image = (props) =>  {
   let image = null;
   const imageRef = React.createRef();
   const [clicks, setClicks] = useState([]);
+  const clicksRef = React.useRef()
   
   useEffect(() => {
+    clicksRef.current = [...clicks]
     image = new Image();
     image.src = "/Images/" + props.task.image;
     image.ref = imageRef;
@@ -43,15 +46,37 @@ const image = (props) =>  {
       store.dispatch(action);
     }
     return () => {
+      if(props.task.recordClicks){
+        const taskObject = {
+          uid: props.taskID,
+          name: props.parentSet,
+          tags: props.tags
+        }
+      
+        const componentObject = {
+          uid: uuid(),
+          type: "IMAGE",
+          text: props.task.displayText,
+          correctResponses: props.task.correctResponses,
+          responseOptions: props.task.aios,
+          reponsesArray: clicksRef.current
+        }
+
+        const imageComponentObject = loggingUtils(taskObject, componentObject)
+        console.log('Image component', JSON.parse(imageComponentObject))
+
+
+
+      }
       window.removeEventListener("resize", handleImageLoaded);
     }
   }
   ,[])
 
-  const onReceivedImage = img => {
-    image = props.task.image;
-    setImageSrc(img);
-  }
+  useEffect(() => {
+    clicksRef.current = clicks.slice()
+  }, [clicks])
+
 
   const getMousePosition = e => {
     let imageRect = e.target.getBoundingClientRect();
@@ -110,18 +135,9 @@ const image = (props) =>  {
       aoi: checkHitAOI(e),
       x: mouseClick.x,
       y: mouseClick.y,
-      timeClicked: playerUtils.getCurrentTime()
     };
 
     setClicks([...clicks, click])
-
-    let answerObj = {
-      clickedPoints: clicks,
-      //taskID: props.task._id,
-      mapID: props.mapID,
-    };
-
-    // TODO: logging
   }
 
   const getClickableComponent = () => {

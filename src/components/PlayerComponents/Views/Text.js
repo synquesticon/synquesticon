@@ -1,16 +1,20 @@
-import React, { Component, useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 import { Typography, TextField } from '@material-ui/core';
 
 import store from '../../../core/store';
 
-import './Text.css';
+import './Text.css'
+
+import uuid from 'react-uuid'
+import loggingUtils from '../../../makeLogObject'
+import mqtt from '../../../core/mqtt'
 
 const textEntryComponent = (props) => {
-  let textEntry = "";
   const textRef = React.createRef();
 
   useEffect(() => {
+    textRef.current = ""
     var textAOIAction = {
       type: 'ADD_AOIS',
       aois: {
@@ -19,7 +23,40 @@ const textEntryComponent = (props) => {
         imageRef: textRef
       }
     }
-    store.dispatch(textAOIAction);
+    store.dispatch(textAOIAction)
+
+    return () => {
+      const taskObject = {
+        uid: props.taskID,
+        name: props.parentSet,
+        tags: props.tags
+      }
+    
+      const componentObject = {
+        uid: uuid(),
+        type: "TEXT",
+        text: props.task.displayText,
+        correctResponses: props.task.correctResponses,
+        responseOptions: textRef.value,
+        isCorrect: checkAnswer(),
+      }
+
+      let observerMessageString = ''
+      if(componentObject.isCorrect !== 'notApplicable') {
+        observerMessageString = componentObject.isCorrect.toUpperCase() + ' Final answer: ' + textRef.current + ' (' + componentObject.text  + ' Answer ' + props.task.correctResponses[0] + ')'
+      } else {
+        observerMessageString = 'Final answer: ' + textRef.current + ' (' + componentObject.text  + ')'
+      }
+      const eventObject = {
+        observerMessage: observerMessageString
+      }
+
+      const textComponentObject = loggingUtils(taskObject, componentObject, eventObject)
+      console.log('Text component', JSON.parse(textComponentObject))
+      
+      mqtt.broadcastEvents(textComponentObject)
+      
+    }
   },[]);
     
 
@@ -30,22 +67,15 @@ const textEntryComponent = (props) => {
 
     for (var i = 0; i < props.task.correctResponses.length; i++) {
       var item = props.task.correctResponses[i];
-      if (textEntry.toLowerCase() === item.toLowerCase()) {
+      if (textRef.current.toLowerCase() === item.toLowerCase()) {
         return "correct";
       }
     }
     return "incorrect";
   }
 
-  const onAnswer = (e) => {
-    textEntry = e.target.value.replace(/\s\s+/g, ' ');
-    let answerObj = {
-      responses: [textEntry],
-      correctlyAnswered: checkAnswer(),
-      //taskID: this.props.task._id,
-      mapID: props.mapID,
-    }
-    //TODO: logging if possible
+  const onChange = (e) => {
+    textRef.current = e.target.value
   }
 
   return (
@@ -64,7 +94,7 @@ const textEntryComponent = (props) => {
         multiline
         rows={3}
         rowsMax={10}
-        onChange={(e) => onAnswer(e)}
+        onChange={(e) => onChange(e)}
       />
     </div>
   );

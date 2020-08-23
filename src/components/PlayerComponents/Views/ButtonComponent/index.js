@@ -6,6 +6,7 @@ import store from '../../../../core/store'
 import * as dbObjects from '../../../../core/db_objects'
 import * as playerUtils from '../../../../core/player_utility_functions'
 import loggingUtils from '../../../../makeLogObject';
+import uuid from 'react-uuid'
 
 const buttonList = (props) => {
   //console.log("Props from ButtonComponent" + JSON.stringify(props))
@@ -30,7 +31,7 @@ const buttonList = (props) => {
   }
 
   const componentObject = {
-    uid: props.key,
+    uid: uuid(),
     type: "BUTTON",
     variant: buttonVariant,
     text: props.displayText,
@@ -68,13 +69,14 @@ const buttonList = (props) => {
           
       }
 
+      componentObject.responsesArray = responsesArray
       componentObject.isCorrect = checkAnswer();
       
       let observerMessageString = ''
       if (componentObject.isCorrect !== 'notApplicable'){
-        observerMessageString = componentObject.isCorrect.toUpperCase() + ' Final answer: ' + responsesArray.toString() + ' (' + componentObject.text  + 'Answer ' + props.task.correctResponses.toString() + ')'
+        observerMessageString = componentObject.isCorrect.toUpperCase() + ' Final answer: ' + responsesArray.filter(el => el!== null).toString() + ' (' + componentObject.text  + 'Answer ' + props.task.correctResponses.toString() + ')'
       } else {
-        observerMessageString = 'Final answer: ' + responsesArray.toString() + ' (' + componentObject.text  + ')'
+        observerMessageString = 'Final answer: ' + responsesArray.filter(el => el!== null).toString() + ' (' + componentObject.text  + ')'
         
       }
       const eventObject = {
@@ -83,7 +85,7 @@ const buttonList = (props) => {
 
       const buttonComponentObject = loggingUtils(taskObject, componentObject, eventObject)
 
-      console.log('Happen when button component is unmounted', JSON.parse(buttonComponentObject))
+      console.log('Button component', JSON.parse(buttonComponentObject))
 
       mqtt.broadcastEvents(buttonComponentObject)
 
@@ -103,7 +105,7 @@ const buttonList = (props) => {
 
   const logElementData = (id, isClicked, content) => {
     clickedButton = id
-    responseCountArray[id]++
+    responseCountArray[id] += 1
     if (props.task.singleChoice) {
       responsesArray.fill(null)
       if (isClicked) {
@@ -118,7 +120,7 @@ const buttonList = (props) => {
       source: "BUTTON_CLICK",
       timestamp: playerUtils.getCurrentTime(),
       content: content,
-      observerMessage: content+" ("+componentObject.text+")"      
+      observerMessage: responseCountArray[id] % 2 === 1 ? content+" ("+componentObject.text+")" : "Un-click " + content+" ("+componentObject.text+")"
     }
 
     

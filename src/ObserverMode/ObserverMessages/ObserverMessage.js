@@ -2,10 +2,8 @@ import React from 'react';
 
 import Button from '@material-ui/core/Button';
 import CommentIcon from '@material-ui/icons/ModeCommentOutlined';
-import { Typography } from '@material-ui/core';
 import { withTheme } from '@material-ui/styles';
 
-import * as playerUtils from '../../core/player_utility_functions';
 
 import './ObserverMessage.css';
 
@@ -14,32 +12,29 @@ const observerMessage = (props) => {
   let showCommentButton = true;
   let marginTop = false;
 
-  const convertHMS = (milliseconds) => {
-    var sec = milliseconds/1000;
-    if (sec < 60){
-      return sec+' secs';
-    }
-    var hours   = Math.floor(sec / 3600); // get hours
-    var minutes = Math.floor((sec - (hours * 3600)) / 60); // get minutes
-    var seconds = sec - (hours * 3600) - (minutes * 60); //  get seconds
-    // add 0 if value < 10
-    if (hours === 0){
-      return minutes+' mins: '+seconds+' secs'; // Return is MM : SS
-    }
-    if (hours   < 10) {hours   = "0"+hours;}
-    if (minutes < 10) {minutes = "0"+minutes;}
-    if (seconds < 10) {seconds = "0"+seconds;}
+  // const convertHMS = (milliseconds) => {
+  //   var sec = milliseconds/1000;
+  //   if (sec < 60){
+  //     return sec+' secs';
+  //   }
+  //   var hours   = Math.floor(sec / 3600); // get hours
+  //   var minutes = Math.floor((sec - (hours * 3600)) / 60); // get minutes
+  //   var seconds = sec - (hours * 3600) - (minutes * 60); //  get seconds
+  //   // add 0 if value < 10
+  //   if (hours === 0){
+  //     return minutes+' mins: '+seconds+' secs'; // Return is MM : SS
+  //   }
+  //   if (hours   < 10) {hours   = "0"+hours;}
+  //   if (minutes < 10) {minutes = "0"+minutes;}
+  //   if (seconds < 10) {seconds = "0"+seconds;}
 
-    return hours+' hours: '+minutes+' mins: '+seconds+' secs' // Return is HH : MM : SS
-  }
+  //   return hours+' hours: '+minutes+' mins: '+seconds+' secs' // Return is HH : MM : SS
+  // }
 
   const parseMessage = (message) => {
-    var redColor = "#E94B3C";
-    var greenColor = "#006B38";
     marginTop = false;
 
     var displayText = message;
-    var timeToCompletion = 0;
 
     // switch (message.eventType) {
     //   case constants.SESSION_START:

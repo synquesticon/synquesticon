@@ -28,7 +28,7 @@ const ShowTask = props => {
         }
         switch (item.objType) {
           case dbObjects.TaskTypes.MCHOICE.type:
-            return <Suspense fallback={<div></div>}><ButtonComponent className="itemContainer" 
+            return <Suspense key={uuid()} fallback={<div></div>}><ButtonComponent className="itemContainer" 
                                                                       // key={props.renderKey +dbObjects.TaskTypes.MCHOICE.type + i} 
                                                                       key={uuid()}
                                                                       task={item} 
@@ -43,16 +43,17 @@ const ShowTask = props => {
                                                       />
                     </Suspense>
           case dbObjects.TaskTypes.INSTRUCTION.type:
-            return <Suspense fallback={<div></div>}><InstructionViewComponent className="itemContainer" 
-                                                                              key={props.renderKey  + i} task={item} 
+            return <Suspense key={uuid()} fallback={<div></div>}><InstructionViewComponent className="itemContainer" 
+                                                                              task={item}
+                                                                              taskID={props.task._id} 
                                                                               parentSet={props.task.name} />
                     </Suspense>
           case dbObjects.TaskTypes.IMAGE.type:
-            return <Suspense fallback={<div></div>}><ImageViewComponent className="itemContainer" key={uuid()} task={item} tags={props.task.tags} parentSet={props.task.name} /></Suspense>;
+            return <Suspense key={uuid()} fallback={<div></div>}><ImageViewComponent className="itemContainer" task={item} taskID={props.task._id} tags={props.task.tags} parentSet={props.task.name} /></Suspense>;
           case dbObjects.TaskTypes.TEXTENTRY.type:
-            return <Suspense fallback={<div></div>}><TextEntryComponent className="itemContainer" key={uuid()} task={item} tags={props.task.tags} parentSet={props.task.name} /></Suspense>
+            return <Suspense key={uuid()} fallback={<div></div>}><TextEntryComponent className="itemContainer" task={item} taskID={props.task._id} tags={props.task.tags} parentSet={props.task.name} /></Suspense>
           case dbObjects.TaskTypes.NUMPAD.type:
-            return <Suspense fallback={<div></div>}><NumpadComponent className="itemContainer" key={uuid()} task={item} tags={props.task.tags} parentSet={props.task.name} /></Suspense>
+            return <Suspense key={uuid()} fallback={<div></div>}><NumpadComponent className="itemContainer" task={item} taskID={props.task._id} tags={props.task.tags} parentSet={props.task.name} /></Suspense>
           default:
             return null
         }
