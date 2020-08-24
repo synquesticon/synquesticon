@@ -9,7 +9,8 @@ const loggingUtils = (task = null, component =null, event = null) => {
     }
 
     const screen = {
-        id: store.getState().screenID
+        id: store.getState().screenID,
+        uuid: store.getState().screen_uuid
     }
 
     const user = {

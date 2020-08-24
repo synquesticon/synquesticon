@@ -3,6 +3,7 @@ import eventStore from './eventStore';
 
 import { createMuiTheme, responsiveFontSizes } from '@material-ui/core/styles';
 import darkSecondary from '@material-ui/core/colors/amber';
+import uuid from 'react-uuid';
 
 /*
 * The store is responsible for storing data that needs to be shared between different parts of the application.
@@ -109,6 +110,7 @@ let theme = prepareMUITheme(savedThemeType);
 
 const initialState = {
   screenID:'',
+  screen_uuid: uuid(),
   multipleScreens:false,
   participants: {},
   remoteEyeTrackers: [],
@@ -145,7 +147,7 @@ const store = createStore ((state = initialState, action) => {
       return state;
     }
     case 'SET_MULTISCREEN':{
-      return { ...state, multipleScreens:action.multipleScreens, screenID:action.screenID};
+      return { ...state, multipleScreens:action.multipleScreens, screenID:action.screenID, screen_uuid: action.screen_uuid};
     }
     case 'SET_SELECTED_EYETRACKER': {
       return { ...state, selectedEyeTracker:action.selectedEyeTracker};

@@ -9,6 +9,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 
 import TextField from '@material-ui/core/TextField';
 import { withTheme } from '@material-ui/styles';
+import uuid from 'react-uuid'
 
 import Button from '@material-ui/core/Button';
 
@@ -29,6 +30,7 @@ const DeviceIDDialog = props => {
     var storeAction = {
       type: 'SET_MULTISCREEN',
       screenID: screenID,
+      screen_uuid: uuid(),
       multipleScreens: multipleScreens,
     };
     store.dispatch(storeAction);
