@@ -35,14 +35,8 @@ const buttonElement = (props) => {
 
 
         } else {                                //Multiple-choice buttons
-            if (isClicked) {
-                setIsClicked(false)
-                props.logElementData(props.id, false, props.content)
-            } else {
-                setIsClicked(true)
-                props.logElementData(props.id, true, props.content)
-            }
-
+            props.logElementData(props.id, !isClicked, props.content)
+            setIsClicked(!isClicked)
         }
 
         

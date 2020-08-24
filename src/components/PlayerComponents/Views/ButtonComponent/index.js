@@ -69,16 +69,34 @@ const buttonList = (props) => {
           
       }
 
-      componentObject.responsesArray = responsesArray
-      componentObject.isCorrect = checkAnswer();
-      
       let observerMessageString = ''
-      if (componentObject.isCorrect !== 'notApplicable'){
-        observerMessageString = componentObject.isCorrect.toUpperCase() + ' Final answer: ' + responsesArray.filter(el => el!== null).toString() + ' (' + componentObject.text  + 'Answer ' + props.task.correctResponses.toString() + ')'
-      } else {
-        observerMessageString = 'Final answer: ' + responsesArray.filter(el => el!== null).toString() + ' (' + componentObject.text  + ')'
+      componentObject.responseCountArray = responseCountArray
+
+      if (!props.task.resetResponses) {
+        componentObject.responsesArray = responsesArray
+        componentObject.isCorrect = checkAnswer();
         
+        if (componentObject.isCorrect !== 'notApplicable'){
+          observerMessageString = componentObject.isCorrect.toUpperCase() + ' Final answer: ' + responsesArray.filter(el => el!== null).toString() + ' (' + componentObject.text  + 'Answer ' + props.task.correctResponses.toString() + ')'
+        } else {
+          observerMessageString = 'Final answer: ' + responsesArray.filter(el => el!== null).toString() + ' (' + componentObject.text  + ')'          
+        }
+      } else {
+        componentObject.responsesArray = undefined
+        componentObject.isCorrect = undefined
+
+        observerMessageString += 'Final answer '
+        
+        let stringObject = []
+        componentObject.responseOptions.map((opt, i) => {
+          if (!opt.includes('//') && !opt.includes('\\n')){
+              stringObject.push(' ' + componentObject.responseOptions[i] + ' : ' + componentObject.responseCountArray[i])
+            }
+        })
+        
+        observerMessageString += stringObject.toString() + ' (' + componentObject.text  + ')'
       }
+      
       const eventObject = {
         observerMessage: observerMessageString
       }
@@ -120,7 +138,7 @@ const buttonList = (props) => {
       source: "BUTTON_CLICK",
       timestamp: playerUtils.getCurrentTime(),
       content: content,
-      observerMessage: responseCountArray[id] % 2 === 1 ? content+" ("+componentObject.text+")" : "Un-click " + content+" ("+componentObject.text+")"
+      observerMessage: (responseCountArray[id] % 2 === 0 && !props.task.resetResponses) ? "Un-click " + content+" ("+componentObject.text+")" : content+" ("+componentObject.text+")" 
     }
 
     
@@ -182,7 +200,7 @@ const buttonList = (props) => {
                   align="center">{item}
                 </Typography>)
             } else if (item === "\\n") { //line break
-              return (<br></br>);
+              return (<br key={index}></br>);
             } else { //render as buttons
               return (
                 <span className="inputButton" key={index}>
