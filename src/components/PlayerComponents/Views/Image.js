@@ -64,7 +64,7 @@ const image = (props) =>  {
           AOICount[aoi.name] = 0
         })
 
-        AOICount['noAOI'] = 0
+        AOICount['Background '] = 0
 
         clicksRef.current.map(click => 
           click.hitAOIs.forEach(aoi => 
@@ -128,7 +128,7 @@ const image = (props) =>  {
     aois.map(a => {
       if(a.imageRef.current === null){
         console.log("null imageref");
-        return ["noAOI"];
+        return ["Background"];
       }
 
       let imageDivRect = imageRef.current.getBoundingClientRect();
@@ -155,7 +155,7 @@ const image = (props) =>  {
       return pointInsideAOIs;
     }
     else{
-      return ["noAOI"];
+      return ["Background"];
     }
   }
 
