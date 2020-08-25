@@ -8,6 +8,7 @@ import * as playerUtils from '../../../core/player_utility_functions';
 import './Image.css';
 import loggingUtils from '../../../makeLogObject';
 import uuid from 'react-uuid'
+import mqtt from '../../../core/mqtt'
 
 let CLICK_RADIUS = "1";
 let OPACITY = "0.5";
@@ -20,7 +21,7 @@ const image = (props) =>  {
   const [imageElement, setImageElement] = useState(null)
 
   let image = null;
-  const imageRef = React.createRef();
+  const imageRef = React.useRef();
   const [clicks, setClicks] = useState([]);
   const clicksRef = React.useRef()
   
@@ -29,10 +30,9 @@ const image = (props) =>  {
     image = new Image();
     image.src = "/Images/" + props.task.image;
     image.ref = imageRef;
-    window.addEventListener("resize", handleImageLoaded);
 
     if (props.task.aois.length > 0) {
-      const aois = props.task.aois.slice()
+      let aois = props.task.aois.slice()
 
       aois.forEach(aio => {
         aio.imageRef = imageRef;
@@ -44,8 +44,11 @@ const image = (props) =>  {
       }
 
       store.dispatch(action);
+    window.addEventListener("resize", handleImageLoaded);
+    
     }
     return () => {
+      
       if(props.task.recordClicks){
         const taskObject = {
           uid: props.taskID,
@@ -53,21 +56,49 @@ const image = (props) =>  {
           tags: props.tags
         }
       
+        
+        const aois = props.task.aois.slice()
+
+        const AOICount = {}
+        aois.forEach(aoi => {
+          AOICount[aoi.name] = 0
+        })
+
+        AOICount['noAOI'] = 0
+
+        clicksRef.current.map(click => 
+          click.hitAOIs.forEach(aoi => 
+            AOICount[aoi]++)
+            )
+
+
         const componentObject = {
           uid: uuid(),
           type: "IMAGE",
           text: props.task.displayText,
-          correctResponses: props.task.correctResponses,
-          responseOptions: props.task.aios,
-          reponsesArray: clicksRef.current
+          responsesArray: clicksRef.current,
+          AOICount: Object.keys(AOICount).map(aoiKey => [aoiKey, AOICount[aoiKey]])
+
         }
 
-        const imageComponentObject = loggingUtils(taskObject, componentObject)
+        let observerMessageString = 'Final answer '
+        componentObject.AOICount.map((count, i) => {
+            observerMessageString += count[0] + ': '+ count[1]
+            if (i === componentObject.AOICount.length - 1)
+              observerMessageString += ' '
+            else
+             observerMessageString += ', '
+          })
+        const eventObject = {
+          observerMessage: observerMessageString
+        }
+
+        const imageComponentObject = loggingUtils(taskObject, componentObject, eventObject)
         console.log('Image component', JSON.parse(imageComponentObject))
-
-
-
+        
+        mqtt.broadcastEvents(imageComponentObject)
       }
+
       window.removeEventListener("resize", handleImageLoaded);
     }
   }
@@ -91,11 +122,10 @@ const image = (props) =>  {
   }
 
   const checkHitAOI = click => {
-    let aois = store.getState().aois;
+    let aois = store.getState().aois
     let pointInsideAOIs = [];
 
-    aois.forEach(a => {
-
+    aois.map(a => {
       if(a.imageRef.current === null){
         console.log("null imageref");
         return ["noAOI"];
@@ -132,7 +162,7 @@ const image = (props) =>  {
   const onImageClicked = e => {
     let mouseClick = getMousePosition(e);
     let click = {
-      aoi: checkHitAOI(e),
+      hitAOIs: checkHitAOI(e),
       x: mouseClick.x,
       y: mouseClick.y,
     };
@@ -192,7 +222,6 @@ const image = (props) =>  {
       setImageHeight(image.height)
       setImageWidth(image.width)
       setImageElement(image)
-
       
     }
   }
