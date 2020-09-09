@@ -1,24 +1,23 @@
 import React, { useState, useEffect } from 'react'
-import { Typography } from '@material-ui/core';
+import { Typography } from '@material-ui/core'
 import mqtt from '../../../../core/mqtt'
 import Button from './buttonElement'
 import store from '../../../../core/store'
 import * as dbObjects from '../../../../core/db_objects'
 import * as playerUtils from '../../../../core/player_utility_functions'
-import loggingUtils from '../../../../makeLogObject';
+import makeLogObject from '../../../../makeLogObject'
 import uuid from 'react-uuid'
 
-const buttonList = (props) => {
-  //console.log("Props from ButtonComponent" + JSON.stringify(props))
-  const textRef = React.createRef();
+const buttonList = props => {
+  const textRef = React.createRef()
   let [clickedButton, setClickedButton] = useState(null)
   let [responseCountArray, setResponseCountArray] = useState(new Array(props.task.responses.length).fill(0))
   let [responsesArray, setResponsesArray] = useState(new Array(props.task.responses.length).fill(null))
 
   let buttonVariant = null;
-  if (props.task.resetResponses){
+  if (props.task.resetResponses) {
     buttonVariant = "RESET_BUTTON"
-  } else if(props.task.singleChoice){
+  } else if (props.task.singleChoice) {
     buttonVariant = "SINGLE_CHOICE"
   } else {
     buttonVariant = "MULTIPLE_CHOICE"
@@ -48,25 +47,21 @@ const buttonList = (props) => {
         imageRef: textRef
       }
     }
-    store.dispatch(textAOIAction);
-    return () => {      
+    store.dispatch(textAOIAction)
 
-      // allow user to set screens ID based on button component
+    return () => {
       if (props.tags.length > 0 && props.tags.includes("setScreenID")) {
-        // If the answer has a response we set multiple screens to true and set the
-        // screenID for this screen to the response
-        const screenIDs = responsesArray.filter(response => response !== null);
+        const screenIDs = responsesArray.filter(response => response !== null)
         if (screenIDs && screenIDs.length === 1) {
           //Update the local screenID
-          let screenID = screenIDs[0].toString();
+          let screenID = screenIDs[0].toString()
           let multipleScreensAction = {
             type: 'SET_MULTISCREEN',
             multipleScreens: true,
             screenID: screenID
           }
-          store.dispatch(multipleScreensAction);
+          store.dispatch(multipleScreensAction)
         }
-          
       }
 
       let observerMessageString = ''
@@ -74,41 +69,27 @@ const buttonList = (props) => {
 
       if (!props.task.resetResponses) {
         componentObject.responsesArray = responsesArray
-        componentObject.isCorrect = checkAnswer();
-        
-        if (componentObject.isCorrect !== 'notApplicable'){
-          observerMessageString = componentObject.isCorrect.toUpperCase() + ' Final answer: ' + responsesArray.filter(el => el!== null).toString() + ' (' + componentObject.text  + 'Answer ' + props.task.correctResponses.toString() + ')'
+        componentObject.isCorrect = checkAnswer()
+
+        if (componentObject.isCorrect !== 'notApplicable') {
+          observerMessageString = componentObject.isCorrect.toUpperCase() + ' Final answer: ' + responsesArray.filter(el => el !== null).toString() + ' (' + componentObject.text + 'Answer ' + props.task.correctResponses.toString() + ')'
         } else {
-          observerMessageString = 'Final answer: ' + responsesArray.filter(el => el!== null).toString() + ' (' + componentObject.text  + ')'          
+          observerMessageString = 'Final answer: ' + responsesArray.filter(el => el !== null).toString() + ' (' + componentObject.text + ')'
         }
       } else {
         componentObject.responsesArray = undefined
         componentObject.isCorrect = undefined
-
         observerMessageString += 'Final answer '
-        
+
         let stringObject = []
         componentObject.responseOptions.map((opt, i) => {
-          if (!opt.includes('//') && !opt.includes('\\n')){
-              stringObject.push(' ' + componentObject.responseOptions[i] + ' : ' + componentObject.responseCountArray[i])
-            }
+          if (!opt.includes('//') && !opt.includes('\\n')) {
+            stringObject.push(' ' + componentObject.responseOptions[i] + ' : ' + componentObject.responseCountArray[i])
+          }
         })
-        
-        observerMessageString += stringObject.toString() + ' (' + componentObject.text  + ')'
+        observerMessageString += stringObject.toString() + ' (' + componentObject.text + ')'
       }
-      
-      const eventObject = {
-        observerMessage: observerMessageString
-      }
-
-      const buttonComponentObject = loggingUtils(taskObject, componentObject, eventObject)
-
-      console.log('Button component', JSON.parse(buttonComponentObject))
-
-      mqtt.broadcastEvents(buttonComponentObject)
-
-
-
+      mqtt.broadcastEvents(makeLogObject(taskObject, componentObject, {observerMessage: observerMessageString}))
     }
   }, [])
 
@@ -118,7 +99,7 @@ const buttonList = (props) => {
       props.familyTree,
       props.objType === dbObjects.TaskTypes.IMAGE.type ? props.image : props.displayText,
       props.correctResponses,
-      props.objType);
+      props.objType)
   }, [])
 
   const logElementData = (id, isClicked, content) => {
@@ -127,7 +108,6 @@ const buttonList = (props) => {
     if (props.task.singleChoice) {
       responsesArray.fill(null)
       if (isClicked) {
-        console.log("single")
         setClickedButton(id)
       } else {
         setClickedButton(null)
@@ -138,26 +118,17 @@ const buttonList = (props) => {
       source: "BUTTON_CLICK",
       timestamp: playerUtils.getCurrentTime(),
       content: content,
-      observerMessage: (responseCountArray[id] % 2 === 0 && !props.task.resetResponses) ? "Un-click " + content+" ("+componentObject.text+")" : content+" ("+componentObject.text+")" 
+      observerMessage: (responseCountArray[id] % 2 === 0 && !props.task.resetResponses) ? "Un-click " + content + " (" + componentObject.text + ")" : content + " (" + componentObject.text + ")"
     }
 
-    
-    const buttonClickEventObject = loggingUtils(taskObject, componentObject, eventObject)
-
-    console.log('Button clicked logging objects', buttonClickEventObject)
-
-    mqtt.broadcastEvents(buttonClickEventObject)
-
-    
+    mqtt.broadcastEvents(makeLogObject(taskObject, componentObject, eventObject))
 
     if (isClicked) {
       responsesArray[id] = content
     } else {
       responsesArray[id] = null
     }
-    console.log("correct: " + props.task.correctResponses)
-    console.log(responsesArray)
-    console.log(responseCountArray)
+    console.log(props.task.correctResponses + " " + responsesArray + " " + responseCountArray)
     console.log("Total responses: " + responseCountArray.reduce((a, b) => { return a + b }, 0))
   }
 
@@ -172,8 +143,8 @@ const buttonList = (props) => {
 
   const checkAnswer = () => {
     let isCorrect = "notApplicable";
-    if(props.task.correctResponses && props.task.correctResponses.length !==0){
-      isCorrect = arrayEquals(props.task.correctResponses, responsesArray)?"correct":"incorrect"
+    if (props.task.correctResponses && props.task.correctResponses.length !== 0) {
+      isCorrect = arrayEquals(props.task.correctResponses, responsesArray) ? "correct" : "incorrect"
     }
     return isCorrect
   }
@@ -188,8 +159,8 @@ const buttonList = (props) => {
         {
           props.task.responses.map((item, index) => {
             if (item.includes("//")) {
-              item = item.replace(/\/\//g, "");  // Remove leading slashes
-              item = item.replace(/\\n/g, "\n"); // insert new-line characters
+              item = item.replace(/\/\//g, "")  // Remove leading slashes
+              item = item.replace(/\\n/g, "\n") // insert new-line characters
               return (
                 <Typography
                   variant="h5"
@@ -200,7 +171,7 @@ const buttonList = (props) => {
                   align="center">{item}
                 </Typography>)
             } else if (item === "\\n") { //line break
-              return (<br key={index}></br>);
+              return (<br key={index}></br>)
             } else { //render as buttons
               return (
                 <span className="inputButton" key={index}>
@@ -221,7 +192,7 @@ const buttonList = (props) => {
         }
       </div>
     </div>
-  );
+  )
 }
 
-export default buttonList;
+export default buttonList

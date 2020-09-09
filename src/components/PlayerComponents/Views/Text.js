@@ -1,17 +1,13 @@
-import React, { useEffect } from 'react';
-
-import { Typography, TextField } from '@material-ui/core';
-
-import store from '../../../core/store';
-
+import React, { useEffect } from 'react'
+import { Typography, TextField } from '@material-ui/core'
+import store from '../../../core/store'
 import './Text.css'
-
 import uuid from 'react-uuid'
-import loggingUtils from '../../../makeLogObject'
+import makeLogObject from '../../../makeLogObject'
 import mqtt from '../../../core/mqtt'
 
-const textEntryComponent = (props) => {
-  const textRef = React.createRef();
+const textEntryComponent = props => {
+  const textRef = React.createRef()
 
   useEffect(() => {
     textRef.current = ""
@@ -31,7 +27,7 @@ const textEntryComponent = (props) => {
         name: props.parentSet,
         tags: props.tags
       }
-    
+
       const componentObject = {
         uid: uuid(),
         type: "TEXT",
@@ -42,52 +38,46 @@ const textEntryComponent = (props) => {
       }
 
       let observerMessageString = ''
-      if(componentObject.isCorrect !== 'notApplicable') {
-        observerMessageString = componentObject.isCorrect.toUpperCase() + ' Final answer: ' + textRef.current + ' (' + componentObject.text  + ' Answer ' + props.task.correctResponses[0] + ')'
+      if (componentObject.isCorrect !== 'notApplicable') {
+        observerMessageString = componentObject.isCorrect.toUpperCase() + ' Final answer: ' + textRef.current + ' (' + componentObject.text + ' Answer ' + props.task.correctResponses[0] + ')'
       } else {
-        observerMessageString = 'Final answer: ' + textRef.current + ' (' + componentObject.text  + ')'
-      }
-      const eventObject = {
-        observerMessage: observerMessageString
+        observerMessageString = 'Final answer: ' + textRef.current + ' (' + componentObject.text + ')'
       }
 
-      const textComponentObject = loggingUtils(taskObject, componentObject, eventObject)
-      console.log('Text component', JSON.parse(textComponentObject))
-      
-      mqtt.broadcastEvents(textComponentObject)
-      
+      mqtt.broadcastEvents(makeLogObject(taskObject, componentObject, {observerMessage: observerMessageString}))
     }
-  },[]);
-    
+  }, []);
 
   const checkAnswer = () => {
     if (props.task.correctResponses === undefined || props.task.correctResponses.length === 0) {
-      return "notApplicable";
+      return "notApplicable"
     }
 
-    for (var i = 0; i < props.task.correctResponses.length; i++) {
-      var item = props.task.correctResponses[i];
+    props.task.correctResponses.forEach( item => {
       if (textRef.current.toLowerCase() === item.toLowerCase()) {
-        return "correct";
+        return "correct"
       }
-    }
-    return "incorrect";
+    })
+
+    return "incorrect"
   }
 
-  const onChange = (e) => {
+  const onChange = e => {
     textRef.current = e.target.value
   }
 
   return (
-    <div className={props.className} style={{display:'flex', position:'relative',
-      flexDirection:'column', width:'100%', flexGrow:0,flexShrink:0}}>
-      <Typography ref={textRef} variant="h3" align="center" style={{whiteSpace:"pre-line", width:'100%'}} color="textPrimary">
+    <div className={props.className} style={{
+      display: 'flex', position: 'relative',
+      flexDirection: 'column', width: '100%', flexGrow: 0, flexShrink: 0
+    }}>
+      <Typography ref={textRef} variant="h3" align="center" style={{ whiteSpace: "pre-line", width: '100%' }} color="textPrimary">
         {props.task.displayText}
       </Typography>
       <TextField
         id="outlined-name"
         className="textField"
-        inputProps={{style: { overflowX:'hidden'}}}
+        inputProps={{ style: { overflowX: 'hidden' } }}
         variant="outlined"
         fullWidth
         margin='dense'
@@ -97,7 +87,7 @@ const textEntryComponent = (props) => {
         onChange={(e) => onChange(e)}
       />
     </div>
-  );
+  )
 }
 
-export default textEntryComponent;
+export default textEntryComponent

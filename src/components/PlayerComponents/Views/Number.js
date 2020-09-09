@@ -3,7 +3,7 @@ import { Typography } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
 import store from '../../../core/store'
 import './Text.css'
-import loggingUtils from '../../../makeLogObject'
+import makeLogObject from '../../../makeLogObject'
 import mqtt from '../../../core/mqtt'
 import uuid from 'react-uuid'
 
@@ -13,9 +13,9 @@ const third_line_keyboard = [7, 8, 9]
 const fourth_line_keyboard = [0, '.', "<"]
 
 const NumpadComponent = props => {
+  const numpadRef = React.useRef()
   const [numpadEntry, setNumpadEntry] = useState('')
   const [decimalWasPressed, setdecimalWasPressed] = useState(false)
-  const numpadRef = React.useRef()
   const [textRef] = useState(React.createRef())
 
   useEffect(() => {
@@ -56,19 +56,10 @@ const NumpadComponent = props => {
       } else {
         observerMessageString = 'Final answer: ' + numpadRef.current + ' (' + componentObject.text  + ')'
       }
-      const eventObject = {
-        observerMessage: observerMessageString
-      }
 
-      const numberComponentObject = loggingUtils(taskObject, componentObject, eventObject)
-      console.log('Number component', JSON.parse(numberComponentObject))
-      
-      mqtt.broadcastEvents(numberComponentObject)
-      
+      mqtt.broadcastEvents(makeLogObject(taskObject, componentObject, {observerMessage: observerMessageString}))
     }
   }, [])
-
-
 
   const onMyKeyboardPressed = key => {
     if (key === "<") {
@@ -102,15 +93,13 @@ const NumpadComponent = props => {
       if (answer >= correctAnswer - threshold && answer <= correctAnswer + threshold) {
         return "correct"
       }
-    } //Otherwise we just check if it matches the correct response
-    else if (props.task.correctResponses.length === 1) {
+    } else if (props.task.correctResponses.length === 1) {  //Otherwise we just check if it matches the correct response
       if (parseFloat(props.task.correctResponses[0]) === parseFloat(numpadEntry)) {
         return "correct"
       }
     }
     return "incorrect"
   }
-
 
   const getKeyboardLine = (keyboard, css) => {
     return (<div className={css}>
