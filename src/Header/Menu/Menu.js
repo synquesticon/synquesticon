@@ -1,93 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'
+import store from '../../core/store'
+import db_helper from '../../core/db_helper'
+import DeviceIDDialog from './Dialogs/DeviceIDDialog'
+import MQTTDialog from './Dialogs/MQTTDialog'
+import EyeTrackerSelector from './EyeTrackerSelector'
+import Drawer from '@material-ui/core/Drawer'
+import List from '@material-ui/core/List'
+import Divider from '@material-ui/core/Divider'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemText from '@material-ui/core/ListItemText'
+import Switch from '@material-ui/core/Switch'
+import './Menu.css'
 
-import './Menu.css';
+var myStorage = window.localStorage
 
-import store from '../../core/store';
-import db_helper from '../../core/db_helper';
+const Menu = props => {
+  const [openDeviceIDSettings, setOpenDeviceIDSettings] = useState(false)
+  const [openMQTTSettings, setOpenMQTTSettings] = useState(false)
 
-import DeviceIDDialog from './Dialogs/DeviceIDDialog';
-import MQTTDialog from './Dialogs/MQTTDialog';
-import SpeechDialog from './Dialogs/SpeechDialog';
-import EyeTrackerSelector from './EyeTrackerSelector';
-
-import Drawer from '@material-ui/core/Drawer';
-import List from '@material-ui/core/List';
-import Divider from '@material-ui/core/Divider';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import Switch from '@material-ui/core/Switch';
-
-var myStorage = window.localStorage;
-
-const Menu = (props) => {
-//  const [showMenu, setShowMenu] = useState(true);
-  const [openDeviceIDSettings, setOpenDeviceIDSettings] = useState(false);
-  const [openSpeechSettings, setOpenSpeechSettings] = useState(false);
-  const [openMQTTSettings, setOpenMQTTSettings] = useState(false);
-
-  const onFullscreen = (e) => {
+  const onFullscreen = e => {
     if ((document.fullScreenElement && document.fullScreenElement !== null) ||
-     (!document.mozFullScreen && !document.webkitIsFullScreen)) {
+      (!document.mozFullScreen && !document.webkitIsFullScreen)) {
       if (document.documentElement.requestFullScreen) {
-        document.documentElement.requestFullScreen();
+        document.documentElement.requestFullScreen()
       } else if (document.documentElement.mozRequestFullScreen) {
-        document.documentElement.mozRequestFullScreen();
+        document.documentElement.mozRequestFullScreen()
       } else if (document.documentElement.webkitRequestFullScreen) {
         document.documentElement.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
       }
     } else {
       if (document.cancelFullScreen) {
-        document.cancelFullScreen();
+        document.cancelFullScreen()
       } else if (document.mozCancelFullScreen) {
-        document.mozCancelFullScreen();
+        document.mozCancelFullScreen()
       } else if (document.webkitCancelFullScreen) {
-        document.webkitCancelFullScreen();
+        document.webkitCancelFullScreen()
       }
     }
   }
-
-  //-----------Speech Settings------------
-  //TODO move this into a utility file or something
-  //var synth = window.speechSynthesis;
-  /*const speak = (synth, inputTxt) => {
-    if (synth.speaking) {
-        console.error('speechSynthesis.speaking');
-        return;
-    }
-    if (inputTxt !== '') {
-      var utterThis = new SpeechSynthesisUtterance(inputTxt);
-      utterThis.onend = function (event) {
-          console.log('SpeechSynthesisUtterance.onend');
-      }
-      utterThis.onerror = function (event) {
-          console.error('SpeechSynthesisUtterance.onerror');
-      }
-      synth.speak(utterThis);
-    }
-  }*/
 
   const onToggleThemeChange = () => {
-    var toggleThemeAction = {
-      type: 'TOGGLE_THEME_TYPE',
-    };
-    store.dispatch(toggleThemeAction);
+    store.dispatch({ type: 'TOGGLE_THEME_TYPE', })
   }
 
-
-  let speechSettings = props.showSpeechSettings ?
-    <ListItem button key="Speech Settings" onClick={() => setOpenSpeechSettings(true)}>
-      <ListItemText primary="Speech Settings" />
-    </ListItem> :
-    null;
-
-  return(
+  return (
     <span >
       <Drawer anchor="right" open={props.showMenu} onClose={props.closeSettingsMenu}>
         <div
           tabIndex={0}
           role="button"
           onClick={props.openSettingsMenu}
-          style={{minWidth: 200, height:'100%'}}
+          style={{ minWidth: 200, height: '100%' }}
         >
           <List >
             <ListItem button key="Device ID" onClick={() => setOpenDeviceIDSettings(true)}>
@@ -96,11 +59,10 @@ const Menu = (props) => {
             <ListItem button key="MQTT Settings" onClick={() => setOpenMQTTSettings(true)}>
               <ListItemText primary="MQTT Settings" />
             </ListItem>
-            {speechSettings}
           </List>
           <Divider />
           <List>
-            <div style={{display:'flex', flexDirection:'row', alignItems: 'center'}}>
+            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
               <ListItem key="ToggleTheme">
                 <ListItemText primary="Dark Theme" />
               </ListItem>
@@ -121,7 +83,7 @@ const Menu = (props) => {
             <ListItem key="Version">
               <ListItemText primary="Version 1.0" />
             </ListItem>
-           </List>
+          </List>
           <List>
             <ListItem button key="DummySet" onClick={() => db_helper.deleteAllTaskSetsFromDb()}>
               <ListItemText primary="Empty Sets" />
@@ -135,10 +97,8 @@ const Menu = (props) => {
       <DeviceIDDialog openDeviceIDSettings={openDeviceIDSettings}
         closeDeviceIDSettings={() => setOpenDeviceIDSettings(false)} myStorage={myStorage} />
       <MQTTDialog openMQTTSettings={openMQTTSettings}
-        closeMQTTSettings={() => setOpenMQTTSettings(false)} myStorage={myStorage}/>
-      <SpeechDialog openSpeechSettings={openSpeechSettings}
-        closeSpeechSettings={() => setOpenSpeechSettings(false)} myStorage={myStorage}/>
+        closeMQTTSettings={() => setOpenMQTTSettings(false)} myStorage={myStorage} />
     </span>
-  );
+  )
 }
-export default Menu;
+export default Menu

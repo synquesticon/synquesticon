@@ -15,98 +15,83 @@ import db_helper from '../core/db_helper'
 var GAZE_HEADER = "Timestamp(UTC),X,Y,Left pupil radius,Right pupil radius,Task,Target,database_id\n";
 
 function HEADER(seperator) {
-  var header = "global_vars" + seperator +
-               "content" + seperator +
-               "answer" + seperator +
-               "answered_correctly" + seperator +
-               "correct_answer" + seperator +
-               "accepted_margin" + seperator +
-               "time_to_first_response" + seperator +
-               "time_to_completion" + seperator +
-               "comments" + seperator +
-               "tags" + seperator +
-               "type" + seperator +
-               "set_names" + seperator +
-               "timestamp_start" + seperator +
-               "timestamp_first_response" + seperator +
-               //"clicked_points" + seperator +
-               "database_id\n"; //Note the \n in case more fields are added later
-   return header;
- }
+  return( "global_vars" + seperator +
+    "content" + seperator +
+    "answer" + seperator +
+    "answered_correctly" + seperator +
+    "correct_answer" + seperator +
+    "accepted_margin" + seperator +
+    "time_to_first_response" + seperator +
+    "time_to_completion" + seperator +
+    "comments" + seperator +
+    "tags" + seperator +
+    "type" + seperator +
+    "set_names" + seperator +
+    "timestamp_start" + seperator +
+    "timestamp_first_response" + seperator +
+    //"clicked_points" + seperator +
+    "database_id\n" //Note the \n in case more fields are added later
+  )
+}
 
 class Export extends Component {
-  constructor(props){
+  constructor(props) {
     super(props)
     this.state = {
       participants: [],
       delimiter: ',',
       combineFiles: false
     }
-    this.pickedParticipants = [];
+    this.pickedParticipants = []
   }
 
   componentWillMount() {
     db_helper.getAllParticipantsFromDb((ids) => {
-      this.setState({
-        participants: ids
-      });
-    });
-    /*db_helper.getAllObserverMessagesFromDb((msgs) => {
-      /*console.log("all comments", msgs);*/
-    //});
+      this.setState({ participants: ids })
+    })
   }
 
   componenWillUnmount() {
-    this.pickedParticipants = [];
+    this.pickedParticipants = []
   }
 
   onCombineFilesChange() {
-    this.setState({
-      combineFiles: !this.state.combineFiles
-    });
+    this.setState({ combineFiles: !this.state.combineFiles })
   }
 
   async handleDeleteSelected() {
-    if(this.pickedParticipants.length>0){
+    if (this.pickedParticipants.length > 0) {
       var snackbarAction = {
         type: 'TOAST_SNACKBAR_MESSAGE',
         snackbarOpen: true,
         snackbarMessage: "Deleting data sets"
-      };
-      store.dispatch(snackbarAction);
+      }
+      store.dispatch(snackbarAction)
 
-
-      //Delete each selection synchronously
-      for (var i = 0; i < this.pickedParticipants.length; i++) {
-        await db_helper.deleteParticipantFromDbPromise(this.pickedParticipants[i]._id);
+      for (var i = 0; i < this.pickedParticipants.length; i++) {         //Delete each selection synchronously
+        await db_helper.deleteParticipantFromDbPromise(this.pickedParticipants[i]._id)
       }
 
-      //Empty the user selection
-      this.pickedParticipants = [];
+      this.pickedParticipants = []        //Empty the user selection
 
-      //Update the list after the deletion have been completed
-      db_helper.getAllParticipantsFromDb((ids) => {
+      db_helper.getAllParticipantsFromDb((ids) => {        //Update the list after the deletion have been completed
         var snackbarAction = {
           type: 'TOAST_SNACKBAR_MESSAGE',
           snackbarOpen: true,
           snackbarMessage: "Deletion completed"
-        };
+        }
         store.dispatch(snackbarAction);
-        this.setState({
-          participants: ids
-        });
-      });
+        this.setState({ participants: ids })
+      })
     }
   }
 
   handleDeleteAll() {
     db_helper.deleteAllParticipantsFromDb(() => {
       db_helper.getAllParticipantsFromDb((ids) => {
-        this.setState({
-          participants: ids
-        });
+        this.setState({ participants: ids })
       })
-    });
+    })
   }
 
   handleClose() {
@@ -114,7 +99,7 @@ class Export extends Component {
   }
 
   async handleExport() {
-    if(this.pickedParticipants.length>0){
+    if (this.pickedParticipants.length > 0) {
       var snackbarAction = {
         type: 'TOAST_SNACKBAR_MESSAGE',
         snackbarOpen: true,
@@ -133,11 +118,10 @@ class Export extends Component {
         delimiter: this.state.delimiter
       };
 
-
-      var returnedValue = await db_helper.exportToCSV(data);
+      var returnedValue = await db_helper.exportToCSV(data)
       if (this.state.combineFiles) {
         if (!first_file) {
-          file_name = "combined_" + returnedValue.file_name;
+          file_name = "combined_" + returnedValue.file_name
           first_file = true;
         }
 
@@ -146,31 +130,29 @@ class Export extends Component {
         if (returnedValue.gaze_data !== undefined && returnedValue.gaze_data) {
           exported_gaze += returnedValue.gaze_data;
         }
-      }
-
-      else {
-        var blob = new Blob([HEADER(this.state.delimiter) + returnedValue.csv_string], {type: 'text/csv'});
-        FileSaver.saveAs(blob, returnedValue.file_name + '.csv');
+      } else {
+        var blob = new Blob([HEADER(this.state.delimiter) + returnedValue.csv_string], { type: 'text/csv' });
+        FileSaver.saveAs(blob, returnedValue.file_name + '.csv')
 
         if (returnedValue.gaze_data !== undefined && returnedValue.gaze_data) {
-          var gaze_blob = new Blob([GAZE_HEADER + returnedValue.gaze_data], {type: 'text/csv'});
-          FileSaver.saveAs(gaze_blob, returnedValue.file_name + '_gaze.csv');
+          var gaze_blob = new Blob([GAZE_HEADER + returnedValue.gaze_data], { type: 'text/csv' });
+          FileSaver.saveAs(gaze_blob, returnedValue.file_name + '_gaze.csv')
         }
       }
-      return 1;
-    }));
+      return 1
+    }))
 
     if (this.state.combineFiles) {
-      var blob = new Blob([HEADER(this.state.delimiter) + exported_csv], {type: 'text/csv'});
+      var blob = new Blob([HEADER(this.state.delimiter) + exported_csv], { type: 'text/csv' });
       FileSaver.saveAs(blob, file_name + '.csv');
 
       if (this.state.combineFiles && exported_gaze !== "") {
-        var gaze_blob = new Blob([GAZE_HEADER + exported_gaze], {type: 'text/csv'});
-        FileSaver.saveAs(gaze_blob, file_name + '_gaze.csv');
+        var gaze_blob = new Blob([GAZE_HEADER + exported_gaze], { type: 'text/csv' })
+        FileSaver.saveAs(gaze_blob, file_name + '_gaze.csv')
       }
     }
 
-    this.handleClose();
+    this.handleClose()
   }
 
   handleExportAll() {
@@ -178,8 +160,8 @@ class Export extends Component {
       type: 'TOAST_SNACKBAR_MESSAGE',
       snackbarOpen: true,
       snackbarMessage: "Exporting all data sets"
-    };
-    store.dispatch(snackbarAction);
+    }
+    store.dispatch(snackbarAction)
 
     if (this.state.combineFiles) {
       var data = {
@@ -188,35 +170,33 @@ class Export extends Component {
       }
 
       db_helper.exportManyToCSV(data, (res) => {
-        var blob = new Blob([res.data.csv_string], {type: 'text/csv'});
-        FileSaver.saveAs(blob, res.data.file_name + '.csv');
+        var blob = new Blob([res.data.csv_string], { type: 'text/csv' })
+        FileSaver.saveAs(blob, res.data.file_name + '.csv')
         if (res.data.gaze_data !== undefined) {
-          var gaze_blob = new Blob([res.data.gaze_data], {type: 'text/csv'});
-          FileSaver.saveAs(gaze_blob, res.data.file_name + '_gaze.csv');
+          var gaze_blob = new Blob([res.data.gaze_data], { type: 'text/csv' })
+          FileSaver.saveAs(gaze_blob, res.data.file_name + '_gaze.csv')
         }
-        this.handleClose();
-        return 1;
-      });
-    }
-
-    else {
+        this.handleClose()
+        return 1
+      })
+    } else {
       this.state.participants.map((p, ind) => {
         var data = {
           participant: p,
           delimiter: this.state.delimiter
-        };
+        }
         db_helper.exportToCSV(data, (res) => {
-          var blob = new Blob([res.data.csv_string], {type: 'text/csv'});
-          FileSaver.saveAs(blob, res.data.file_name + '.csv');
+          var blob = new Blob([res.data.csv_string], { type: 'text/csv' })
+          FileSaver.saveAs(blob, res.data.file_name + '.csv')
           if (res.data.gaze_data !== undefined) {
-            var gaze_blob = new Blob([res.data.gaze_data], {type: 'text/csv'});
-            FileSaver.saveAs(gaze_blob, res.data.file_name + '_gaze.csv');
+            var gaze_blob = new Blob([res.data.gaze_data], { type: 'text/csv' })
+            FileSaver.saveAs(gaze_blob, res.data.file_name + '_gaze.csv')
           }
-          this.handleClose();
-          return 1;
-        });
-        return 1;
-      });
+          this.handleClose()
+          return 1
+        })
+        return 1
+      })
     }
   }
 
@@ -225,81 +205,78 @@ class Export extends Component {
     var fillZero = (num) => {
       if (num < 10) {
         return '0' + num;
-      }
-      else {
-        return num;
+      } else {
+        return num
       }
     }
     var datestring = d.getFullYear() + '-' + fillZero(d.getMonth() + 1) + '-' + fillZero(d.getDate())
-                      + '_' + fillZero(d.getHours()) + ':' + fillZero(d.getMinutes());
-    return datestring;
+      + '_' + fillZero(d.getHours()) + ':' + fillZero(d.getMinutes());
+    return datestring
   }
 
   getParticipantName(p) {
     //If there is not data we set the name to "Empty"
     if (!p.linesOfData || p.linesOfData.length <= 0) {
-      return "Empty";
+      return "Empty"
     }
 
-    var file_name = "";
+    var file_name = ""
 
     // If there are lines of data avalaible we set the name to be the time of the first recorded data
-    if(p.linesOfData && p.linesOfData.length > 0){
-      file_name = this.formatDateTime(p.linesOfData[0].startTimestamp) + '_';
+    if (p.linesOfData && p.linesOfData.length > 0) {
+      file_name = this.formatDateTime(p.linesOfData[0].startTimestamp) + '_'
       file_name += p.linesOfData[0].tasksFamilyTree[0];
     }
 
     //If there are saved global variables we append them to the experiment name
     if (p.globalVariables.length > 0) {
-      p.globalVariables.sort((a, b) => a.label.localeCompare(b.label));
+      p.globalVariables.sort((a, b) => a.label.localeCompare(b.label))
 
       for (let i = 0; i < p.globalVariables.length; i++) {
         if (!p.globalVariables[i].label.toLowerCase().includes("record data")) {
-          file_name += '_' + p.globalVariables[i].label + '-' + p.globalVariables[i].value;
+          file_name += '_' + p.globalVariables[i].label + '-' + p.globalVariables[i].value
         }
       }
     }
 
-    return file_name;
+    return file_name
   }
 
-  render(){
-    let theme = this.props.theme;
-    let exportationBG = theme.palette.type === "light" ? theme.palette.primary.main : theme.palette.primary.dark;
-    var buttonHeight = 50;
+  render() {
+    let theme = this.props.theme
+    let exportationBG = theme.palette.type === "light" ? theme.palette.primary.main : theme.palette.primary.dark
+    var buttonHeight = 50
 
-    return(
-      <div className="ExportationModeContainer" style={{backgroundColor:exportationBG}}>
-        <List style={{display:'flex', flexDirection:'column', flexGrow:1, width:'100%', minHeight:100, maxHeight:'calc(100% - 100px)', overflowY:'auto', overflowX:'hidden'}}>
+    return (
+      <div className="ExportationModeContainer" style={{ backgroundColor: exportationBG }}>
+        <List style={{ display: 'flex', flexDirection: 'column', flexGrow: 1, width: '100%', minHeight: 100, maxHeight: 'calc(100% - 100px)', overflowY: 'auto', overflowX: 'hidden' }}>
           {this.state.participants.map((p, index) => {
-            if(this.pickedParticipants.includes(p)){
-              return(<ListItem style={{borderBottom:'grey solid 1px'}} selected button onClick={() => {
-                  if (this.pickedParticipants.includes(p)) {
-                    this.pickedParticipants.splice(this.pickedParticipants.indexOf(p),1);
-                  }
-                  else {
-                    this.pickedParticipants.push(p);
-                  }
-                  this.forceUpdate();
+            if (this.pickedParticipants.includes(p)) {
+              return (<ListItem style={{ borderBottom: 'grey solid 1px' }} selected button onClick={() => {
+                if (this.pickedParticipants.includes(p)) {
+                  this.pickedParticipants.splice(this.pickedParticipants.indexOf(p), 1);
+                } else {
+                  this.pickedParticipants.push(p);
+                }
+                this.forceUpdate();
 
-                }} key={index} >
+              }} key={index} >
                 <Typography color="textSecondary">{this.getParticipantName(p)}</Typography>
               </ListItem>);
-            }else{
-              return(
-                <ListItem style={{borderBottom:'grey solid 1px'}} button onClick={() => {
-                    if (this.pickedParticipants.includes(p)) {
-                      this.pickedParticipants.splice(this.pickedParticipants.indexOf(p),1);
-                    }
-                    else {
-                      this.pickedParticipants.push(p);
-                    }
-                    this.forceUpdate();
+            } else {
+              return (
+                <ListItem style={{ borderBottom: 'grey solid 1px' }} button onClick={() => {
+                  if (this.pickedParticipants.includes(p)) {
+                    this.pickedParticipants.splice(this.pickedParticipants.indexOf(p), 1);
+                  } else {
+                    this.pickedParticipants.push(p)
+                  }
+                  this.forceUpdate()
 
-                  }} key={index} >
+                }} key={index} >
                   <Typography color="textPrimary">{this.getParticipantName(p)}</Typography>
                 </ListItem>
-              );
+              )
             }
           })}
         </List>
@@ -312,28 +289,29 @@ class Export extends Component {
             control={<Checkbox color="secondary" />}
             onChange={this.onCombineFilesChange.bind(this)}
             labelPlacement="end"
-            style={{marginLeft:10}}
+            style={{ marginLeft: 10 }}
           />
           <TextField label="Delimiter"
             required
-            style={{width:100}}
+            style={{ width: 100 }}
             id="delim"
             defaultValue={this.state.delimiter}
             placeholder=","
             ref="delimiterRef"
             variant="filled"
-            onChange={(e)=>{this.setState({delimiter: e.target.value}) }} //state.delimiter = e.target.value
+            onChange={(e) => { this.setState({ delimiter: e.target.value }) }} //state.delimiter = e.target.value
           />
 
-          <Button style={{height:buttonHeight, marginLeft:20}} onClick={this.handleExport.bind(this)} variant="outlined">
+          <Button style={{ height: buttonHeight, marginLeft: 20 }} onClick={this.handleExport.bind(this)} variant="outlined">
             Export
           </Button>
 
-          <Button style={{height:buttonHeight, marginLeft:20}} onClick={this.handleDeleteSelected.bind(this)} variant="outlined">
+          <Button style={{ height: buttonHeight, marginLeft: 20 }} onClick={this.handleDeleteSelected.bind(this)} variant="outlined">
             Delete
           </Button>
         </div>
-      </div>)
-    }
+      </div>
+    )
+  }
 }
 export default withTheme(Export)

@@ -1,12 +1,9 @@
-import React from 'react';
-
-import Button from '@material-ui/core/Button';
-
-import RemoveLastPointIcon from '@material-ui/icons/UndoOutlined';
-import DoneIcon from '@material-ui/icons/DoneOutlined';
-import CancelIcon from '@material-ui/icons/ClearOutlined';
-
-import './AOIEditorComponent.css';
+import React from 'react'
+import Button from '@material-ui/core/Button'
+import RemoveLastPointIcon from '@material-ui/icons/UndoOutlined'
+import DoneIcon from '@material-ui/icons/DoneOutlined'
+import CancelIcon from '@material-ui/icons/ClearOutlined'
+import './AOIEditorComponent.css'
 
 const PolygonToolBox = props => {
   return (
@@ -24,7 +21,7 @@ const PolygonToolBox = props => {
         <CancelIcon />
       </Button>
     </div>
-  );
+  )
 }
 
-export default PolygonToolBox;
+export default PolygonToolBox

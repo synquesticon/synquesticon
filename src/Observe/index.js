@@ -31,9 +31,6 @@ const Observe = props => {
 
   const onNewEvent = () => {
     const mqttMessage = JSON.parse(eventStore.getCurrentMessage())
-    console.log('Received event', mqttMessage)
-
-    // const checkExistedParticipant = participants.filter(participant => participant.participantId === mqttMessage.participantId)
     const checkExistedParticipant = participants.filter(participant => participant.participantId === mqttMessage.session.uid)
 
     if (checkExistedParticipant.length !== 1) { 

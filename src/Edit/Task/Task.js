@@ -1,24 +1,18 @@
-import React, { Component } from 'react';
-
-import db_helper from '../../core/db_helper';
-import * as dbObjects from '../../core/db_objects';
-import * as db_utils from '../../core/db_objects_utility_functions';
-
-import store from '../../core/store';
-
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
-
-import TaskTypeList from './TypeList';
-import TaskComponentList from './ComponentList';
-
-import { Droppable, DragDropContext } from 'react-beautiful-dnd';
-
-import './Task.css';
+import React, { Component } from 'react'
+import db_helper from '../../core/db_helper'
+import * as dbObjects from '../../core/db_objects'
+import * as db_utils from '../../core/db_objects_utility_functions'
+import store from '../../core/store'
+import Button from '@material-ui/core/Button'
+import TextField from '@material-ui/core/TextField'
+import TaskTypeList from './TypeList'
+import TaskComponentList from './ComponentList'
+import { Droppable, DragDropContext } from 'react-beautiful-dnd'
+import './Task.css'
 
 class EditTask extends Component {
   constructor(props){
-    super(props);
+    super(props)
 
     //If we got a taskObject passed as a prop we use it, otherwise we init with a default constructed object
     //Clone the array via JSON. Otherwise we would operate directly on the original objects which we do not want
@@ -29,7 +23,7 @@ class EditTask extends Component {
 
     for(var i = 0; i < this.synquestitask.childObj.length; i++){
       this.synquestitask.childObj[i] = {...new dbObjects.SynquestitaskChildComponent(this.synquestitask.childObj[i].objType),...this.synquestitask.childObj[i]};
-      this.synquestitask.childObj[i].openState = true;
+      this.synquestitask.childObj[i].openState = true
     }
 
     //We keep these fields in the state as they affect how the component is rendered
@@ -37,20 +31,14 @@ class EditTask extends Component {
       taskComponents: this.synquestitask.childObj,
       //childOpenStatus: childOpenStatus,
       //globalVariable: this.synquestitask.globalVariable,
-    };
+    }
 
-    this.updateChildOpenStateCallback = this.updateChildOpenState.bind(this);
-
-    this.removeComponentCallback = this.removeComponent.bind(this);
-    this.moveComponentCallback = this.moveComponent.bind(this);
-
-    this.responseHandler = this.onResponsesChanged;
-    this.handleDBCallback = this.onDBCallback.bind(this);
-
-    //this.handleGlobalVariableChanged = this.onGlobalVariableChanged.bind(this);
-
-    //Used to determine if the object should be closed
-    this.shouldCloseAsset = false;
+    this.updateChildOpenStateCallback = this.updateChildOpenState.bind(this)
+    this.removeComponentCallback = this.removeComponent.bind(this)
+    this.moveComponentCallback = this.moveComponent.bind(this)
+    this.responseHandler = this.onResponsesChanged
+    this.handleDBCallback = this.onDBCallback.bind(this)
+    this.shouldCloseAsset = false       //Used to determine if the object should be closed
   }
 
   //Callback from the collapsable container when it's state is changed
@@ -58,69 +46,65 @@ class EditTask extends Component {
 
     var updatedComponents = this.state.taskComponents.slice();
     updatedComponents[childIndex].openState = newState;
-    this.setState({
-      taskComponents: updatedComponents
-    });
+    this.setState({ taskComponents: updatedComponents })
   }
 
   onDBCallback(synquestitaskID){
     if(this.shouldReopen){
-      this.shouldReopen = false;
+      this.shouldReopen = false
       var editSynquestitaskAction = {
         type: 'SET_SHOULD_EDIT',
         shouldEdit: true,
         objectToEdit:{...this.synquestitask,...{_id:synquestitaskID}},
         typeToEdit:dbObjects.ObjectTypes.TASK
-      };
-      store.dispatch(editSynquestitaskAction);
+      }
+      store.dispatch(editSynquestitaskAction)
     }
-
-    this.closeSetComponent(true, this.shouldCloseAsset);
+    this.closeSetComponent(true, this.shouldCloseAsset)
   }
 
-  onChangeTaskSettings(){
+  onChangeTaskSettings() {
     if(this.props.isEditing){
-      this.shouldCloseAsset = false;
+      this.shouldCloseAsset = false
       db_helper.updateTaskFromDb(this.synquestitask._id, this.synquestitask, this.handleDBCallback)
       let snackbarAction = {
         type: 'TOAST_SNACKBAR_MESSAGE',
         snackbarOpen: true,
         snackbarMessage: "Task saved"
-      };
-      store.dispatch(snackbarAction);
-    }
-    else{
-      this.shouldCloseAsset = true;
-      this.shouldReopen = true;
-      db_helper.addTaskToDb(this.synquestitask, this.handleDBCallback);
+      }
+      store.dispatch(snackbarAction)
+    } else {
+      this.shouldCloseAsset = true
+      this.shouldReopen = true
+      db_helper.addTaskToDb(this.synquestitask, this.handleDBCallback)
       let snackbarAction = {
         type: 'TOAST_SNACKBAR_MESSAGE',
         snackbarOpen: true,
         snackbarMessage: "Task created"
-      };
-      store.dispatch(snackbarAction);
+      }
+      store.dispatch(snackbarAction)
     }
   }
 
-  onResponsesChanged(e, response, target){
-    response = response.replace(/\s+/g, " ");
-    response = response.trim();
-    response = response.split(",");
-    response = response.map((value)=>{
-      return value.trim();
-    });
+  onResponsesChanged(e, response, target) {
+    response = response.replace(/\s+/g, " ")
+    response = response.trim()
+    response = response.split(",")
+    response = response.map( (value) => {
+      return value.trim()
+    })
     response = response.filter(Boolean); //Remove empty values
 
     if(target==="Tags"){
-      this.synquestitask.tags = response;
+      this.synquestitask.tags = response
     }
   }
 
   //Add a task to the list of tasks in the set
   addComponent(sourceIndex, destinationIndex){
-    var droppedType = Object.values(dbObjects.TaskTypes)[sourceIndex];
-    var newComponent = new dbObjects.SynquestitaskChildComponent(droppedType);
-    newComponent.openState = true;
+    var droppedType = Object.values(dbObjects.TaskTypes)[sourceIndex]
+    var newComponent = new dbObjects.SynquestitaskChildComponent(droppedType)
+    newComponent.openState = true
 
     if(newComponent){
       //Clone the array since we can't mutate the state directly
@@ -132,60 +116,45 @@ class EditTask extends Component {
         type: 'TOAST_SNACKBAR_MESSAGE',
         snackbarOpen: true,
         snackbarMessage: "Task component added successfully"
-      };
-      store.dispatch(snackbarAction);
-
-      this.setState({
-        taskComponents: updatedComponents,
-        //childOpenStatus: updatedChildStates
-      });
-
-      this.synquestitask.childObj = updatedComponents;
+      }
+      store.dispatch(snackbarAction)
+      this.setState({ taskComponents: updatedComponents, })
+      this.synquestitask.childObj = updatedComponents
     }
   }
 
   //Remove a task from the list of tasks in the set
   removeComponent(index){
-    var newObjectList = [...this.state.taskComponents];
-    newObjectList.splice(index, 1);
+    var newObjectList = [...this.state.taskComponents]
+    newObjectList.splice(index, 1)
 
     var snackbarAction = {
       type: 'TOAST_SNACKBAR_MESSAGE',
       snackbarOpen: true,
       snackbarMessage: "Component removed"
-    };
+    }
     store.dispatch(snackbarAction);
-
-    this.setState({
-      taskComponents: newObjectList,
-    });
-
-    this.synquestitask.childObj = newObjectList;
+    this.setState({ taskComponents: newObjectList, })
+    this.synquestitask.childObj = newObjectList
   }
 
   moveComponent(dragIndex, hoverIndex) {
-    var updatedObjectList = this.state.taskComponents.slice();
-    db_utils.arrayMove(updatedObjectList, dragIndex, hoverIndex);
+    var updatedObjectList = this.state.taskComponents.slice()
+    db_utils.arrayMove(updatedObjectList, dragIndex, hoverIndex)
 
-    this.setState({
-      taskComponents: updatedObjectList,
-    });
-
-    this.synquestitask.childObj = updatedObjectList;
+    this.setState({ taskComponents: updatedObjectList, })
+    this.synquestitask.childObj = updatedObjectList
   }
 
-  //Removes the selected task from the database
-  removeTask() {
+  removeTask() {     //Removes the selected task from the database
     this.shouldCloseAsset = true;
-
-    var snackbarAction = {
+    const snackbarAction = {
       type: 'TOAST_SNACKBAR_MESSAGE',
       snackbarOpen: true,
       snackbarMessage: "Task deleted"
-    };
-    store.dispatch(snackbarAction);
-
-    db_helper.deleteTaskFromDb(this.synquestitask._id, this.handleDBCallback);
+    }
+    store.dispatch(snackbarAction)
+    db_helper.deleteTaskFromDb(this.synquestitask._id, this.handleDBCallback)
   }
 
   //Calls the provided callback function that handles the closing of this component
@@ -196,7 +165,7 @@ class EditTask extends Component {
 
   //On drag end callback from ReactDND
   onDragEnd = result => {
-    const { source, destination } = result;
+    const { source, destination } = result
 
     // dropped outside the list
     if (!destination) {
@@ -209,7 +178,7 @@ class EditTask extends Component {
     } else { //Otherwise we add to the list at the desired location
         this.addComponent(source.index, destination.index);
     }
-  };
+  }
   /*
 ██████  ███████ ███    ██ ██████  ███████ ██████
 ██   ██ ██      ████   ██ ██   ██ ██      ██   ██
@@ -242,12 +211,12 @@ class EditTask extends Component {
           ref="tagsRef"
           onChange={(e)=> this.responseHandler(e, e.target.value, "Tags")}
         />
-      </div>;
+      </div>
 
     var taskTypes = <TaskTypeList dragEnabled={true} taskList={ Object.values(dbObjects.TaskTypes) }
       itemType={dbObjects.ObjectTypes.TASK} droppableId="synquestitasks"/>;
 
-    var deleteTaskBtn = null;
+    let deleteTaskBtn = null
     if(this.props.isEditing){
       deleteTaskBtn = <Button onClick={this.removeTask.bind(this)} variant="outlined">
                         Delete
@@ -287,8 +256,8 @@ class EditTask extends Component {
           </div>
         </div>
       </DragDropContext>
-    );
+    )
   }
 }
 
-export default EditTask;
+export default EditTask

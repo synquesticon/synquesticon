@@ -1,29 +1,27 @@
-import React from 'react';
-import Button from '@material-ui/core/Button';
-import DragIcon from '@material-ui/icons/ControlCamera';
-import DeleteIcon from '@material-ui/icons/Delete';
-import { withTheme } from '@material-ui/styles';
-import { Draggable } from 'react-beautiful-dnd';
-import * as dnd from '../../core/beautifulDND.js';
-import { Typography } from '@material-ui/core';
+import React from 'react'
+import Button from '@material-ui/core/Button'
+import DragIcon from '@material-ui/icons/ControlCamera'
+import DeleteIcon from '@material-ui/icons/Delete'
+import { withTheme } from '@material-ui/styles'
+import { Draggable } from 'react-beautiful-dnd'
+import * as dnd from '../../core/beautifulDND.js'
+import { Typography } from '@material-ui/core'
+import CollapsableContainer from '../Containers/CollapsableContainer'
+import TaskComponentItem from './ComponentItem'
+import './ComponentList.css'
 
-import CollapsableContainer from '../../components/Containers/CollapsableContainer';
-import TaskComponentItem from './ComponentItem';
-import './ComponentList.css';
-
-var _id = 0;
+let _id = 0
 
 const TaskComponentList = props => {
-  const {theme} = props;
-  let taskBgColor = theme.palette.type === "light" ? theme.palette.primary.main : theme.palette.primary.dark;
+  const {theme} = props
+  let taskBgColor = theme.palette.type === "light" ? theme.palette.primary.main : theme.palette.primary.dark
+  const headerHeight = 40
 
-  const headerHeight = 40;
-
-  if(props.taskComponents.length === 0){
+  if (props.taskComponents.length === 0) {
     return <Typography variant='h5' color='textPrimary' style={{opacity:0.5, padding:5, marginLeft:5}}>{props.displayIfEmpty?props.displayIfEmpty:''}</Typography>;
   }
-  const collapsableContent = props.taskComponents.map((comp, index) => {
 
+  const collapsableContent = props.taskComponents.map((comp, index) => {
     const dragSource =
     <div>
       <div className="editListItemDelBtnContainer">
@@ -38,9 +36,9 @@ const TaskComponentList = props => {
           <DragIcon className="dragBtnIcon"/>
         </Button>
       </div>
-    </div>;
+    </div>
 
-    _id++;
+    _id++
 
     return(
       <Draggable key={"synquestitskListId"+index} draggableId={"synquestitskListId"+index} index={index} shouldRespectForceTouch={false}>
@@ -58,10 +56,9 @@ const TaskComponentList = props => {
         </div>
       )}
       </Draggable>
-    );
-  });
-
+    )
+  })
   return <div style={{height:'100%', width:'100%', overflowY:'auto'}}>{collapsableContent}</div>;
 }
 
-export default withTheme(TaskComponentList);
+export default withTheme(TaskComponentList)

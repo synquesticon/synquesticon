@@ -39,28 +39,25 @@ const buttonList = props => {
   }
 
   useEffect(() => {
-    var textAOIAction = {
+    store.dispatch({
       type: 'ADD_AOIS',
       aois: {
         name: props.parentSet + '_' + props.task.displayText,
         boundingbox: [],
         imageRef: textRef
       }
-    }
-    store.dispatch(textAOIAction)
+    })
 
     return () => {
       if (props.tags.length > 0 && props.tags.includes("setScreenID")) {
         const screenIDs = responsesArray.filter(response => response !== null)
         if (screenIDs && screenIDs.length === 1) {
           //Update the local screenID
-          let screenID = screenIDs[0].toString()
-          let multipleScreensAction = {
+          store.dispatch({
             type: 'SET_MULTISCREEN',
             multipleScreens: true,
-            screenID: screenID
-          }
-          store.dispatch(multipleScreensAction)
+            screenID: screenIDs[0].toString()
+          })
         }
       }
 
@@ -89,7 +86,7 @@ const buttonList = props => {
         })
         observerMessageString += stringObject.toString() + ' (' + componentObject.text + ')'
       }
-      mqtt.broadcastEvents(makeLogObject(taskObject, componentObject, {observerMessage: observerMessageString}))
+      mqtt.broadcastEvents(makeLogObject(taskObject, componentObject, { observerMessage: observerMessageString }))
     }
   }, [])
 

@@ -16,7 +16,7 @@ import './css/Edit.css'
 
 class Edit extends Component {
   constructor(props) {
-    super(props);
+    super(props)
 
     this.state = {
       showMenu: false,
@@ -30,11 +30,11 @@ class Edit extends Component {
       openFilterDialog: false,
       filterQueryType: db_objects.ObjectTypes.TASK,
       filterStateMap: this.initFilterMap()
-    };
+    }
 
     //Database callbacks
-    this.dbSynquestitaskCallback = this.dbSynquestitaskCallbackFunction.bind(this);
-    this.dbTaskSetCallback = this.dbTaskSetCallbackFunction.bind(this);
+    this.dbSynquestitaskCallback = this.dbSynquestitaskCallbackFunction.bind(this)
+    this.dbTaskSetCallback = this.dbTaskSetCallbackFunction.bind(this)
 
     //Filter callback
     this.onFiltersChanged = this.filtersUpdated.bind(this);
@@ -64,7 +64,7 @@ class Edit extends Component {
         tagFilters: [],
         searchStrings: [],
         queryCombination: "OR"
-      });
+      })
     }
 
     return filterMap;
@@ -139,10 +139,9 @@ class Edit extends Component {
   //Callback after querying the database using the search fields
   onDatabaseSearched(queryType, result) {
     if (queryType === db_objects.ObjectTypes.SET) {
-      this.setState({ taskSetList: result.tasks });
-    }
-    else if (queryType === db_objects.ObjectTypes.TASK) {
-      this.setState({ synquestitaskList: result.tasks });
+      this.setState({ taskSetList: result.tasks })
+    } else if (queryType === db_objects.ObjectTypes.TASK) {
+      this.setState({ synquestitaskList: result.tasks })
     }
   }
 
@@ -152,7 +151,7 @@ class Edit extends Component {
   }
 
   selectSynquestitask(task) {
-    this.assetEditorCompKey += 1;
+    this.assetEditorCompKey += 1
 
     var assetObject = <EditTask isEditing={true} synquestitask={task}
       closeTaskCallback={this.assetEditorObjectClosed.bind(this)}
@@ -177,7 +176,7 @@ class Edit extends Component {
   //Callback from the asset editor object if an object has been changed that requires a refresh of the page
   assetEditorObjectClosed(dbChanged, shouldCloseAsset) {
     if (shouldCloseAsset) {
-      this.clearAssetEditorObject();
+      this.clearAssetEditorObject()
     }
 
     if (dbChanged) {
@@ -185,13 +184,12 @@ class Edit extends Component {
       db_helper.getAllTaskSetsFromDb(this.dbTaskSetCallback);
     }
 
-    let storeState = store.getState();
+    let storeState = store.getState()
     if (storeState.shouldEdit) {
       if (storeState.typeToEdit === db_objects.ObjectTypes.SET) {
-        this.selectTaskSet(storeState.objectToEdit);
-      }
-      else if (storeState.typeToEdit === db_objects.ObjectTypes.TASK) {
-        this.selectSynquestitask(storeState.objectToEdit);
+        this.selectTaskSet(storeState.objectToEdit)
+      } else if (storeState.typeToEdit === db_objects.ObjectTypes.TASK) {
+        this.selectSynquestitask(storeState.objectToEdit)
       }
 
       var setEditAction = {
@@ -199,17 +197,17 @@ class Edit extends Component {
         shouldEdit: false,
         typeToEdit: ''
       }
-      store.dispatch(setEditAction);
+      store.dispatch(setEditAction)
     }
   }
 
   //Closes the current objecy being viewed in the asset editor view
   clearAssetEditorObject() {
-    this.setState({ assetEditorContext: "empty", assetEditorObject: null, selectedTaskSet: null, selectedSynquestitask: null });
+    this.setState({ assetEditorContext: "empty", assetEditorObject: null, selectedTaskSet: null, selectedSynquestitask: null })
   }
 
   removeTaskSet(taskSet) {
-    db_helper.deleteTaskSetFromDb(taskSet._id);
+    db_helper.deleteTaskSetFromDb(taskSet._id)
   }
 
   //Adds escape characters in fornt of all common regex symbols
@@ -218,13 +216,13 @@ class Edit extends Component {
   }
 
   addSynquestitaskCallback() {
-    this.assetEditorCompKey += 1;
-    this.clearAssetEditorObject();
+    this.assetEditorCompKey += 1
+    this.clearAssetEditorObject()
     this.setState({
       assetEditorObject: <EditTask isEditing={false}
         closeTaskCallback={this.assetEditorObjectClosed.bind(this)}
         key={this.assetEditorCompKey} />
-    });
+    })
   }
 
   addSetCallback() {
@@ -253,25 +251,23 @@ class Edit extends Component {
     } else { //Otherwise we add to the list at the desired location
       var itemType;
       if (source.droppableId === "Sets") {
-        itemType = db_objects.ObjectTypes.SET;
-      }
-      else if (source.droppableId === "Tasks") {
-        itemType = db_objects.ObjectTypes.TASK;
-      }
-      else {
-        console.log("Unknown type dragged");
+        itemType = db_objects.ObjectTypes.SET
+      } else if (source.droppableId === "Tasks") {
+        itemType = db_objects.ObjectTypes.TASK
+      } else {
+        console.log("Unknown type dragged")
         return;
       }
 
-      let id = result.draggableId;
+      let id = result.draggableId
       if (id.includes('_')) {
-        id = result.draggableId.split('_')[0];
+        id = result.draggableId.split('_')[0]
       }
 
       var dragableItem = { objType: itemType, _id: id };
       this.editSetComponentRef.current.addTask(dragableItem, destination.index);
     }
-  };
+  }
 
   //Get the current asset editorObject
   getAssetEditorObject() {
@@ -283,7 +279,7 @@ class Edit extends Component {
         <div className="AssetEditorContent">
           {this.state.assetEditorObject}
         </div>
-      </div>;
+      </div>
 
     return assetEditorObject;
   }
@@ -291,43 +287,41 @@ class Edit extends Component {
   //Filter button callback, the type determines which collection we are filtering
   filterButtonPressed(type, e) {
 
-    this.filterDialogKey += 1;
+    this.filterDialogKey += 1
     this.setState({
       openFilterDialog: true,
       filterQueryType: type
-    });
+    })
   }
 
   //Callback when filters have been selected in the filters dialog
   filtersUpdated(type, filters, searchType) {
-
     let updatedMap = new Map(this.state.filterStateMap);
     let updatedObject = updatedMap.get(type);
     updatedObject.tagFilters = filters;
     updatedObject.queryCombination = searchType;
     updatedMap.set(type,
       updatedObject
-    );
+    )
 
     this.setState({
       openFilterDialog: false,
       filterStateMap: updatedMap
-    });
+    })
 
-    this.filterMap = updatedMap;
-
-    this.querySearchTasksFromDB(type);
+    this.filterMap = updatedMap
+    this.querySearchTasksFromDB(type)
   }
 
   //Callback close filter dialog
   onCloseFilterDialog() {
     this.setState({
       openFilterDialog: false
-    });
+    })
   }
 
   onSearchInputChanged(type, e) {
-    var searchString = "";
+    var searchString = ""
     if (typeof (e) === 'object') {
       searchString = e.target.value;
 
@@ -338,35 +332,26 @@ class Edit extends Component {
       if (searchString.includes(",")) {
         searchString = searchString.split(",");
         searchString = searchString.map((value) => {
-          return value.trim();
-        });
+          return value.trim()
+        })
         searchString = searchString.filter(Boolean); //Remove empty values
-      }
-      else {
-        searchString = [searchString];
+      } else {
+        searchString = [searchString]
       }
     }
 
-    let updatedMap = new Map(this.state.filterStateMap);
-    let updatedObject = updatedMap.get(type);
-    updatedObject.searchStrings = searchString;
-    updatedMap.set(type,
-      updatedObject
-    );
+    let updatedMap = new Map(this.state.filterStateMap)
+    let updatedObject = updatedMap.get(type)
+    updatedObject.searchStrings = searchString
+    updatedMap.set( type, updatedObject )
 
-    this.setState({
-      filterStateMap: updatedMap
-    });
-
-    this.filterMap = updatedMap;
-
-    this.querySearchTasksFromDB(type);
+    this.setState({ filterStateMap: updatedMap })
+    this.filterMap = updatedMap
+    this.querySearchTasksFromDB(type)
   }
 
   querySearchTasksFromDB(type) {
-
-    let filterObject = this.filterMap.get(type);
-
+    let filterObject = this.filterMap.get(type)
     let combinedSearch = filterObject.tagFilters.concat(filterObject.searchStrings);
     combinedSearch = combinedSearch.filter(Boolean); //Remove empty values
 
@@ -388,7 +373,7 @@ class Edit extends Component {
       filterButton = <Button style={{ position: "relative", width: '100%', height: '100%', minWidth: 0, minHeight: 0 }}
         className="collapsableHeaderBtns" size="small" onClick={filterCallback} >
         <FilterList color={activeFilters ? "secondary" : "inherit"} fontSize="large" />
-      </Button>;
+      </Button>
     }
 
     var collapsableTaskHeaderButtons =
@@ -400,7 +385,7 @@ class Edit extends Component {
             <AddCircleOutline fontSize="large" />
           </Button>
         </div>
-      </div>;
+      </div>
 
     return collapsableTaskHeaderButtons;
   }
@@ -422,46 +407,30 @@ class Edit extends Component {
       selectedTask = this.state.selectedSynquestitask;
       selectCallback = this.selectSynquestitask.bind(this);
       addCallback = this.addSynquestitaskCallback.bind(this);
-    }
-    else if (taskType === db_objects.ObjectTypes.SET) {
+    } else if (taskType === db_objects.ObjectTypes.SET) {
       selectedTask = this.state.selectedTaskSet;
-      selectCallback = this.selectTaskSet.bind(this);
-      addCallback = this.addSetCallback.bind(this);
-    }
-    else {
-      console.log("unknown task type: ", taskType);
-      return null;
+      selectCallback = this.selectTaskSet.bind(this)
+      addCallback = this.addSetCallback.bind(this)
+    } else {
+      console.log("unknown task type: ", taskType)
+      return null
     }
 
     let collapsableHeaderButtons = this.getCollapsableHeaderButtons(activeFilters, this.onSearchInputChanged.bind(this, taskType),
       addCallback, this.filterButtonPressed.bind(this, taskType), taskType + "SearchBar");
 
-    //let index = 0;
-    //Nested lists based on task groups
-    //let taskMap = this.groupTasksByTags(taskMap);
-    /*for (const [key, value] of taskMap.entries()) {
-      containerContent.push(<CollapsableContainer headerTitle={key} useMediaQuery={false}
-      hideHeaderComponents={true} open={true} key={key+index}>
-          < TaskListComponent dragEnabled={dragEnabled} taskList={ value }
-            selectTask={ selectCallback } selectedTask={selectedTask}
-            itemType={taskType} droppableId={taskType} idSuffix={key}/ >
-      </CollapsableContainer>);
-      index++;
-    }*/
-
     //No nested lists
     containerContent = < TaskList dragEnabled={dragEnabled} taskList={taskMap}
       selectTask={selectCallback} selectedTask={selectedTask}
-      itemType={taskType} droppableId={taskType} idSuffix={""} />;
-
+      itemType={taskType} droppableId={taskType} idSuffix={""} />
 
     let container =
       <CollapsableContainer headerTitle={taskType} useMediaQuery={true}
         headerComponents={collapsableHeaderButtons} hideHeaderComponents={true} open={true}>
         {containerContent}
-      </CollapsableContainer>;
+      </CollapsableContainer>
 
-    return container;
+    return container
   }
 
   /*
