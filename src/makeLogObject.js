@@ -1,4 +1,4 @@
-import store from "./core/store";
+import store from "./core/store"
 
 const makeLogObject = (task = null, component = null, event = null) => {
     const session = {
@@ -22,7 +22,7 @@ const makeLogObject = (task = null, component = null, event = null) => {
         tags: store.getState().experimentInfo.taskSet.tags
     }
 
-    return JSON.stringify({session, screen, user, set, task, component, event});
+    return JSON.stringify({ session, screen, user, set, task, component, event })
 }
 
 export default makeLogObject
