@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react'
-import AOIComponent from '../../../Edit/Task/ImageType/AOIEditor/AOIComponent'
-import store from '../../../core/store'
-import * as playerUtils from '../../../core/player_utility_functions'
-import './Image.css'
-import makeLogObject from '../../../makeLogObject'
+import mqtt from '../../core/mqtt'
+import store from '../../core/store'
+import * as playerUtils from '../../core/player_utility_functions'
+import AOIComponent from '../../Edit/Task/ImageType/AOIEditor/AOIComponent'
+import makeLogObject from '../../makeLogObject'
 import uuid from 'react-uuid'
-import mqtt from '../../../core/mqtt'
+import './css/Image.css'
 
 let CLICK_RADIUS = "1"
 let OPACITY = "0.5"
 let COLOR = "red"
 
-const image = props => {
+const Image = props => {
   const imageRef = React.useRef()
   const clicksRef = React.useRef()
   const [imageWidth, setImageWidth] = useState(100)
@@ -99,7 +99,7 @@ const image = props => {
   const normalizeBoundingBoxes = (boundingBox, imageDivRectangle, polygonList) => {
     let x = boundingBox[0] * imageDivRectangle.width / 100 + imageDivRectangle.x
     let y = boundingBox[1] * imageDivRectangle.height / 100 + imageDivRectangle.y
-    return [x, y];
+    return [x, y]
   }
 
   const checkHitAOI = click => {
@@ -216,4 +216,4 @@ const image = props => {
   )
 }
 
-export default image
+export default Image

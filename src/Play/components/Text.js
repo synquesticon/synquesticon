@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react'
 import { Typography, TextField } from '@material-ui/core'
-import store from '../../../core/store'
-import './Text.css'
+import store from '../../core/store'
+import mqtt from '../../core/mqtt'
 import uuid from 'react-uuid'
-import makeLogObject from '../../../makeLogObject'
-import mqtt from '../../../core/mqtt'
+import makeLogObject from '../../makeLogObject'
+import './css/Text.css'
 
 const textEntryComponent = props => {
   const textRef = React.createRef()
@@ -44,7 +44,7 @@ const textEntryComponent = props => {
         observerMessageString = 'Final answer: ' + textRef.current + ' (' + componentObject.text + ')'
       }
 
-      mqtt.broadcastEvents(makeLogObject(taskObject, componentObject, {observerMessage: observerMessageString}))
+      mqtt.broadcastEvents(makeLogObject(taskObject, componentObject, { observerMessage: observerMessageString }))
     }
   }, []);
 
@@ -53,7 +53,7 @@ const textEntryComponent = props => {
       return "notApplicable"
     }
 
-    props.task.correctResponses.forEach( item => {
+    props.task.correctResponses.forEach(item => {
       if (textRef.current.toLowerCase() === item.toLowerCase()) {
         return "correct"
       }

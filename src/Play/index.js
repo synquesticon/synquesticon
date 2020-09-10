@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import { Typography } from '@material-ui/core'
 import { withTheme } from '@material-ui/styles'
-import RunSet from './Views/RunSet/runSet'
-import PauseDialog from './PauseDialog'
-import eventStore from '../../core/eventStore'
-import store from '../../core/store'
-import db_helper from '../../core/db_helper'
-import * as dbObjects from '../../core/db_objects'
-import * as playerUtils from '../../core/player_utility_functions'
+import eventStore from '../core/eventStore'
+import store from '../core/store'
+import db_helper from '../core/db_helper'
+import * as dbObjects from '../core/db_objects'
+import * as playerUtils from '../core/player_utility_functions'
+import '../core/utility.css'
 import queryString from 'query-string'
+import RunSet from './runSet'
+import PauseDialog from './PauseDialog'
 import './Play.css'
-import '../../core/utility.css'
 
 const RecordData = props => {
   const [isPaused, setIsPaused] = useState(false)
@@ -27,7 +27,6 @@ const RecordData = props => {
       showHeader: false,
       showFooter: false
     }
-
     store.dispatch(layoutAction)
 
     let parsed = queryString.parse(props.location.search)
@@ -75,7 +74,6 @@ const RecordData = props => {
               }
             }
             store.dispatch(action)
-            
           })
       } else {
         let action = {
@@ -92,12 +90,8 @@ const RecordData = props => {
           }
         }
         store.dispatch(action)
-
       }
     })
-
-    
-  
 
     if (store.getState().experimentInfo && (store.getState().experimentInfo.selectedTracker !== "")) {
       gazeDataArray = []
@@ -114,14 +108,8 @@ const RecordData = props => {
         showHeader: true,
         showFooter: true
       }
-
       store.dispatch(layoutAction)
       eventStore.removeNewCommandListener(onNewCommandEvent)
-
-      var resetExperimentAction = {
-        type: 'RESET_EXPERIMENT'
-      }
-      // store.dispatch(resetExperimentAction)
     }
   }, [])
 
@@ -142,7 +130,6 @@ const RecordData = props => {
       if (frameDiv) {
         var cursorX = (gazeLoc.locX * frameDiv.current.offsetWidth - cursorRadius)
         var cursorY = (gazeLoc.locY * frameDiv.current.offsetHeight - cursorRadius)
-
         var aois = store.getState().aois
 
         for (var i = 0; i < aois.length; i++) {
@@ -156,8 +143,7 @@ const RecordData = props => {
               var y = boundingbox[1] * imageDivRect.height / 100 + imageDivRect.y
               polygon.push([x, y])
             }
-          }
-          else {
+          } else {
             polygon.push([imageDivRect.x, imageDivRect.y])
             polygon.push([imageDivRect.x + imageDivRect.width, imageDivRect.y])
             polygon.push([imageDivRect.x + imageDivRect.width, imageDivRect.y + imageDivRect.height])
@@ -169,7 +155,6 @@ const RecordData = props => {
           }
         }
 
-        //var timestamp = playerUtils.getCurrentTime()
         if (!gazeDataArray.includes(gazeLoc)) {
           gazeDataArray.push(gazeLoc)
         }
@@ -178,10 +163,9 @@ const RecordData = props => {
     }
   }
 
-
   const onNewCommandEvent = () => {
-    var args = JSON.parse(eventStore.getCurrentCommand())
-    var shouldProcess = false
+    let args = JSON.parse(eventStore.getCurrentCommand())
+    let shouldProcess = false
 
     if (args.participantId === -1 || args.participantId === store.getState().experimentInfo.participantId) {
       shouldProcess = true
@@ -205,9 +189,7 @@ const RecordData = props => {
     props.history.goBack()
   }
 
-
-  if (taskSet !== null) {  
-
+  if (taskSet !== null) {
     eventStore.addNewCommandListener(onNewCommandEvent)
     let theme = props.theme
     let rightBG = theme.palette.type === "light" ? theme.palette.primary.main : theme.palette.primary.dark

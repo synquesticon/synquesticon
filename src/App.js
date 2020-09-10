@@ -10,7 +10,7 @@ import Edit from './Edit/'
 import Observe from './Observe/'
 import Export from './Export'
 import SessionList from './SessionList/'
-import DisplayTaskComponent from './components/PlayerComponents/RecordData';
+import Play from './Play';
 import './App.css'
 import ThemeProvider from '@material-ui/styles/ThemeProvider'
 
@@ -67,7 +67,7 @@ class App extends Component {
                 <Route path={"/" + AppModes.EDIT} component={Edit} />
                 <Route path="/Observe" component={Observe} />
                 <Route path="/ExportationMode" component={Export} />
-                <Route path="/study" component={DisplayTaskComponent} />
+                <Route path="/study" component={Play} />
               </Switch>
             </div>
           </div>

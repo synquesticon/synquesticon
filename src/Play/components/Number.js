@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { Typography } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
-import store from '../../../core/store'
-import './Text.css'
-import makeLogObject from '../../../makeLogObject'
-import mqtt from '../../../core/mqtt'
+import store from '../../core/store'
+import mqtt from '../../core/mqtt'
+import makeLogObject from '../../makeLogObject'
 import uuid from 'react-uuid'
+import './css/Number.css'
 
 const first_line_keyboard = [1, 2, 3]
 const second_line_keyboard = [4, 5, 6]
@@ -40,7 +40,7 @@ const NumpadComponent = props => {
         name: props.parentSet,
         tags: props.tags
       }
-    
+
       const componentObject = {
         uid: uuid(),
         type: "NUMBER",
@@ -51,13 +51,13 @@ const NumpadComponent = props => {
       }
 
       let observerMessageString = ''
-      if(componentObject.isCorrect !== 'notApplicable') {
-        observerMessageString = componentObject.isCorrect.toUpperCase() + ' Final answer: ' + numpadRef.current + ' (' + componentObject.text  + ' Answer ' + props.task.correctResponses[0] + '+-' + props.task.correctResponses[1] + ')'
+      if (componentObject.isCorrect !== 'notApplicable') {
+        observerMessageString = componentObject.isCorrect.toUpperCase() + ' Final answer: ' + numpadRef.current + ' (' + componentObject.text + ' Answer ' + props.task.correctResponses[0] + '+-' + props.task.correctResponses[1] + ')'
       } else {
-        observerMessageString = 'Final answer: ' + numpadRef.current + ' (' + componentObject.text  + ')'
+        observerMessageString = 'Final answer: ' + numpadRef.current + ' (' + componentObject.text + ')'
       }
 
-      mqtt.broadcastEvents(makeLogObject(taskObject, componentObject, {observerMessage: observerMessageString}))
+      mqtt.broadcastEvents(makeLogObject(taskObject, componentObject, { observerMessage: observerMessageString }))
     }
   }, [])
 
