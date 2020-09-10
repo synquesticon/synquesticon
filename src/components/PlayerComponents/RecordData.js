@@ -12,7 +12,7 @@ import queryString from 'query-string'
 import './Play.css'
 import '../../core/utility.css'
 
-const play = props => {
+const RecordData = props => {
   const [isPaused, setIsPaused] = useState(false)
   const [taskSet, setTaskSet] = useState(null)
 
@@ -226,4 +226,4 @@ const play = props => {
   return <Typography variant="h2" color="textPrimary" style={{ position: 'absolute', left: '50%', top: '50%' }}>Loading...</Typography>
 }
 
-export default withTheme(play)
+export default withTheme(RecordData)

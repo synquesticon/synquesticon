@@ -1,21 +1,16 @@
-import React, { Component } from 'react';
-
-import './ExportMode.css';
-
-import { Typography } from '@material-ui/core';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import Button from '@material-ui/core/Button';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
-import TextField from '@material-ui/core/TextField';
-import { withTheme } from '@material-ui/styles';
-
-import FileSaver from 'file-saver';
-
-import store from '../core/store';
-
-import db_helper from '../core/db_helper';
+import React, { Component } from 'react'
+import './Export.css'
+import { Typography } from '@material-ui/core'
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
+import Button from '@material-ui/core/Button'
+import FormControlLabel from '@material-ui/core/FormControlLabel'
+import Checkbox from '@material-ui/core/Checkbox'
+import TextField from '@material-ui/core/TextField'
+import { withTheme } from '@material-ui/styles'
+import FileSaver from 'file-saver'
+import store from '../core/store'
+import db_helper from '../core/db_helper'
 
 var GAZE_HEADER = "Timestamp(UTC),X,Y,Left pupil radius,Right pupil radius,Task,Target,database_id\n";
 
@@ -39,14 +34,14 @@ function HEADER(seperator) {
    return header;
  }
 
-class ExportMode extends Component {
+class Export extends Component {
   constructor(props){
-    super(props);
+    super(props)
     this.state = {
       participants: [],
       delimiter: ',',
       combineFiles: false
-    };
+    }
     this.pickedParticipants = [];
   }
 
@@ -341,4 +336,4 @@ class ExportMode extends Component {
       </div>)
     }
 }
-export default withTheme(ExportMode);
+export default withTheme(Export)

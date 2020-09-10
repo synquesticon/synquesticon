@@ -7,11 +7,11 @@ import eventStore from '../core/eventStore'
 import mqtt from '../core/mqtt'
 import * as db_objects from '../core/db_objects.js'
 import { AppModes } from '../core/sharedObjects'
-import './PlayMode.css'
-import PlayableSet from './PlayableSet/PlayableSet'
+import './css/SessionList.css'
+import SessionEntry from './SessionEntry.js'
 import * as listUtils from '../core/db_objects_utility_functions'
 
-const PlayMode = props => {
+const SessionList = props => {
   const [taskSets, setTaskSets] = useState([])
   let selectedTaskSet = null
 
@@ -131,20 +131,19 @@ const PlayMode = props => {
   let theme = props.theme
   let viewerBG = theme.palette.type === "light" ? theme.palette.primary.main : theme.palette.primary.dark
 
-  let playableSetList = (
+  let SessionList = (
     taskSets.map((taskSet, index) => {
       const content = listUtils.getTaskContent(taskSet);
       return (
         <div key={index}>
-          <PlayableSet
+          <SessionEntry
             task={taskSet}
             runSetCallback={onPlayButtonClick}
             getLinkCallback={onGetLinkCallback}
             editSetCallback={onEditButtonClick}
             content={content}
             showEditButton={true}>
-
-          </PlayableSet>
+          </SessionEntry>
         </div>
       )
     })
@@ -160,7 +159,7 @@ const PlayMode = props => {
       <div style={{ backgroundColor: viewerBG }} className="IntroViewer">
         <div className="PlayerViewerContent">
           <div className="TaskSetContainer">
-            {playableSetList}
+            {SessionList}
           </div>
         </div>
       </div>
@@ -168,4 +167,4 @@ const PlayMode = props => {
   )
 }
 
-export default withTheme(PlayMode)
+export default withTheme(SessionList)

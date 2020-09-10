@@ -7,10 +7,10 @@ import store from './core/store'
 import Snackbar from '@material-ui/core/Snackbar'
 import Header from './Header/Header'
 import EditMode from './EditMode/EditMode'
-import ObserverMode from './ObserverMode/ObserverMode'
-import ExportMode from './ExportMode/ExportMode'
-import PlayMode from './PlayMode/PlayMode'
-import DisplayTaskComponent from './components/PlayerComponents/DisplayTaskComponent';
+import Observe from './Observe/'
+import Export from './Export'
+import SessionList from './SessionList/'
+import DisplayTaskComponent from './components/PlayerComponents/RecordData';
 import './App.css'
 import ThemeProvider from '@material-ui/styles/ThemeProvider'
 
@@ -63,10 +63,10 @@ class App extends Component {
             <Route component={Header} />
             <div className="MainContent">
               <Switch>
-                <Route exact path="/" component={PlayMode} />
+                <Route exact path="/" component={SessionList} />
                 <Route path={"/" + AppModes.EDIT} component={EditMode} />
-                <Route path="/ObserverMode" component={ObserverMode} />
-                <Route path="/ExportationMode" component={ExportMode} />
+                <Route path="/Observe" component={Observe} />
+                <Route path="/ExportationMode" component={Export} />
                 <Route path="/study" component={DisplayTaskComponent} />
               </Switch>
             </div>
