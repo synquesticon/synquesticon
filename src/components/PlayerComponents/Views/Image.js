@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import AOIComponent from '../../../EditMode/Task/ImageType/AOIEditor/AOIComponent'
+import AOIComponent from '../../../Edit/Task/ImageType/AOIEditor/AOIComponent'
 import store from '../../../core/store'
 import * as playerUtils from '../../../core/player_utility_functions'
 import './Image.css'
@@ -78,7 +78,7 @@ const image = props => {
           else
             observerMessageString += ', '
         })
-        mqtt.broadcastEvents(makeLogObject(taskObject, componentObject, {observerMessage: observerMessageString}))
+        mqtt.broadcastEvents(makeLogObject(taskObject, componentObject, { observerMessage: observerMessageString }))
       }
       window.removeEventListener("resize", handleImageLoaded)
     }

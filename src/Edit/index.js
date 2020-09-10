@@ -1,26 +1,20 @@
-import React, {Component} from 'react';
-
-import Button from '@material-ui/core/Button';
-import {FilterList, AddCircleOutline} from '@material-ui/icons';
-
-import FilterDialog from './FilterDialog';
-import SearchBar from './SearchBar';
-import CollapsableContainer from '../components/Containers/CollapsableContainer';
-import TaskList from './List/TaskList';
-import EditTask from './Task/Task';
-import EditSet from './Set/Set';
-import { withTheme } from '@material-ui/styles';
-
-import { DragDropContext } from 'react-beautiful-dnd';
-
-import db_helper from '../core/db_helper.js';
+import React, { Component } from 'react'
+import Button from '@material-ui/core/Button'
+import { FilterList, AddCircleOutline } from '@material-ui/icons'
+import FilterDialog from './FilterDialog'
+import SearchBar from './SearchBar'
+import CollapsableContainer from '../components/Containers/CollapsableContainer'
+import TaskList from './List'
+import EditTask from './Task/Task'
+import EditSet from './Set/Set'
+import { withTheme } from '@material-ui/styles'
+import { DragDropContext } from 'react-beautiful-dnd'
+import db_helper from '../core/db_helper.js'
 import * as db_objects from '../core/db_objects.js'
+import store from '../core/store'
+import './css/Edit.css'
 
-import store from '../core/store';
-
-import './EditMode.css';
-
-class EditMode extends Component {
+class Edit extends Component {
   constructor(props) {
     super(props);
 
@@ -57,19 +51,19 @@ class EditMode extends Component {
     this.assetViewerQueryDatabase();
   }
 
-  gotoPageHandler(e, route){
+  gotoPageHandler(e, route) {
     this.props.history.push(route);
   }
 
-  initFilterMap(){
+  initFilterMap() {
     let filterMap = new Map();
 
     let objectTypes = Object.values(db_objects.ObjectTypes);
-    for(let i = 0; i < objectTypes.length; i++){
-      filterMap.set(objectTypes[i],{
-        tagFilters:[],
-        searchStrings:[],
-        queryCombination:"OR"
+    for (let i = 0; i < objectTypes.length; i++) {
+      filterMap.set(objectTypes[i], {
+        tagFilters: [],
+        searchStrings: [],
+        queryCombination: "OR"
       });
     }
 
@@ -79,48 +73,48 @@ class EditMode extends Component {
   //---------------------------component functions------------------------------
   componentWillMount() {
     let storeState = store.getState();
-    if(storeState.shouldEdit){
+    if (storeState.shouldEdit) {
 
       var setEditSetAction = {
         type: 'SET_SHOULD_EDIT',
         shouldEdit: false,
-        objectToEdit:null,
-        typeToEdit:''
+        objectToEdit: null,
+        typeToEdit: ''
       };
       store.dispatch(setEditSetAction);
       this.selectTaskSet(storeState.objectToEdit);
     }
   }
 
-  groupTasksByTags(tasks){
+  groupTasksByTags(tasks) {
     let tagMap = new Map();
-    for(let i = 0; i < tasks.length;i++){
+    for (let i = 0; i < tasks.length; i++) {
       let task = tasks[i];
 
       //If the task contains tags we iterate over and add them with value to our map
-      if(task.tags.length > 0){
-        for(let y = 0; y < task.tags.length;y++){
+      if (task.tags.length > 0) {
+        for (let y = 0; y < task.tags.length; y++) {
           let tag = task.tags[y];
-          if(tagMap.has(tag)){
+          if (tagMap.has(tag)) {
             let newValue = tagMap.get(tag);
             newValue.push(task);
-            tagMap.set(tag,newValue);
+            tagMap.set(tag, newValue);
           }
-          else{
+          else {
             let objectList = [];
             objectList.push(task);
             tagMap.set(tag, objectList);
           }
         }
       } //Otherwise we add the task to the No Tag section
-      else{
+      else {
         let key = "No Tag";
-        if(tagMap.has(key)){
+        if (tagMap.has(key)) {
           let newValue = tagMap.get(key);
           newValue.push(task);
-          tagMap.set(key,newValue);
+          tagMap.set(key, newValue);
         }
-        else{
+        else {
           let objectList = [];
           objectList.push(task);
           tagMap.set(key, objectList);
@@ -131,24 +125,24 @@ class EditMode extends Component {
   }
 
   dbSynquestitaskCallbackFunction(dbQueryResult) {
-    this.setState({synquestitaskList: dbQueryResult});
+    this.setState({ synquestitaskList: dbQueryResult });
   }
 
   dbTaskCallbackFunction(dbQueryResult) {
-    this.setState({taskList: dbQueryResult});
+    this.setState({ taskList: dbQueryResult });
   }
 
   dbTaskSetCallbackFunction(dbQueryResult) {
-    this.setState({taskSetList: dbQueryResult});
+    this.setState({ taskSetList: dbQueryResult });
   }
 
   //Callback after querying the database using the search fields
-  onDatabaseSearched(queryType, result){
-    if(queryType === db_objects.ObjectTypes.SET){
-      this.setState({taskSetList: result.tasks});
+  onDatabaseSearched(queryType, result) {
+    if (queryType === db_objects.ObjectTypes.SET) {
+      this.setState({ taskSetList: result.tasks });
     }
-    else if(queryType === db_objects.ObjectTypes.TASK){
-      this.setState({synquestitaskList: result.tasks});
+    else if (queryType === db_objects.ObjectTypes.TASK) {
+      this.setState({ synquestitaskList: result.tasks });
     }
   }
 
@@ -165,7 +159,7 @@ class EditMode extends Component {
       key={this.assetEditorCompKey}
     />;
 
-    this.setState(state => ({selectedTaskSet:null, selectedTask: null, selectedSynquestitask: task, assetEditorObject: assetObject}));
+    this.setState(state => ({ selectedTaskSet: null, selectedTask: null, selectedSynquestitask: task, assetEditorObject: assetObject }));
   }
 
   selectTaskSet(taskSet) {
@@ -175,28 +169,28 @@ class EditMode extends Component {
     var assetObject = <EditSet isEditing={true}
       setObject={taskSet} closeSetCallback={this.assetEditorObjectClosed.bind(this)}
       key={this.assetEditorCompKey} ref={this.editSetComponentRef}
-      runTestSet={()=>{this.props.history.push('/DisplayTaskComponent')}}/>;
+      runTestSet={() => { this.props.history.push('/DisplayTaskComponent') }} />;
 
-    this.setState({selectedTask: null, selectedSynquestitask:null, selectedTaskSet:taskSet, assetEditorObject: assetObject});
+    this.setState({ selectedTask: null, selectedSynquestitask: null, selectedTaskSet: taskSet, assetEditorObject: assetObject });
   }
 
   //Callback from the asset editor object if an object has been changed that requires a refresh of the page
-  assetEditorObjectClosed(dbChanged, shouldCloseAsset){
-    if(shouldCloseAsset){
+  assetEditorObjectClosed(dbChanged, shouldCloseAsset) {
+    if (shouldCloseAsset) {
       this.clearAssetEditorObject();
     }
 
-    if(dbChanged){
+    if (dbChanged) {
       db_helper.getAllTasksFromDb(this.dbSynquestitaskCallback);
       db_helper.getAllTaskSetsFromDb(this.dbTaskSetCallback);
     }
 
     let storeState = store.getState();
-    if(storeState.shouldEdit){
-      if(storeState.typeToEdit === db_objects.ObjectTypes.SET){
+    if (storeState.shouldEdit) {
+      if (storeState.typeToEdit === db_objects.ObjectTypes.SET) {
         this.selectTaskSet(storeState.objectToEdit);
       }
-      else if(storeState.typeToEdit === db_objects.ObjectTypes.TASK){
+      else if (storeState.typeToEdit === db_objects.ObjectTypes.TASK) {
         this.selectSynquestitask(storeState.objectToEdit);
       }
 
@@ -210,8 +204,8 @@ class EditMode extends Component {
   }
 
   //Closes the current objecy being viewed in the asset editor view
-  clearAssetEditorObject(){
-    this.setState({assetEditorContext: "empty", assetEditorObject: null, selectedTaskSet: null, selectedSynquestitask:null});
+  clearAssetEditorObject() {
+    this.setState({ assetEditorContext: "empty", assetEditorObject: null, selectedTaskSet: null, selectedSynquestitask: null });
   }
 
   removeTaskSet(taskSet) {
@@ -223,75 +217,79 @@ class EditMode extends Component {
     return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
   }
 
-  addSynquestitaskCallback(){
+  addSynquestitaskCallback() {
     this.assetEditorCompKey += 1;
     this.clearAssetEditorObject();
-    this.setState({assetEditorObject: <EditTask isEditing={false}
-      closeTaskCallback={this.assetEditorObjectClosed.bind(this)}
-      key={this.assetEditorCompKey} />});
+    this.setState({
+      assetEditorObject: <EditTask isEditing={false}
+        closeTaskCallback={this.assetEditorObjectClosed.bind(this)}
+        key={this.assetEditorCompKey} />
+    });
   }
 
-  addSetCallback(){
+  addSetCallback() {
     this.assetEditorCompKey += 1;
     this.clearAssetEditorObject();
     this.editSetComponentRef = React.createRef();
-    this.setState({assetEditorObject: <EditSet isEditing={false}
-      closeSetCallback={this.assetEditorObjectClosed.bind(this)}
-      key={this.assetEditorCompKey} ref={this.editSetComponentRef}/>});
+    this.setState({
+      assetEditorObject: <EditSet isEditing={false}
+        closeSetCallback={this.assetEditorObjectClosed.bind(this)}
+        key={this.assetEditorCompKey} ref={this.editSetComponentRef} />
+    });
   }
 
   //On drag end callback
   onDragEnd = result => {
-      const { source, destination } = result;
+    const { source, destination } = result;
 
-      // dropped outside the list
-      if (!destination) {
-          return;
+    // dropped outside the list
+    if (!destination) {
+      return;
+    }
+
+    //If the source is the same as the destination we just move the element inside the list
+    if (source.droppableId === destination.droppableId) {
+      this.editSetComponentRef.current.moveTask(source.index, destination.index);
+    } else { //Otherwise we add to the list at the desired location
+      var itemType;
+      if (source.droppableId === "Sets") {
+        itemType = db_objects.ObjectTypes.SET;
+      }
+      else if (source.droppableId === "Tasks") {
+        itemType = db_objects.ObjectTypes.TASK;
+      }
+      else {
+        console.log("Unknown type dragged");
+        return;
       }
 
-      //If the source is the same as the destination we just move the element inside the list
-      if (source.droppableId === destination.droppableId) {
-          this.editSetComponentRef.current.moveTask(source.index,destination.index);
-      } else { //Otherwise we add to the list at the desired location
-          var itemType;
-          if(source.droppableId === "Sets"){
-            itemType = db_objects.ObjectTypes.SET;
-          }
-          else if(source.droppableId === "Tasks"){
-            itemType = db_objects.ObjectTypes.TASK;
-          }
-          else{
-            console.log("Unknown type dragged");
-            return;
-          }
-
-          let id = result.draggableId;
-          if(id.includes('_')){
-            id = result.draggableId.split('_')[0];
-          }
-
-          var dragableItem = {objType:itemType,_id:id};
-          this.editSetComponentRef.current.addTask(dragableItem, destination.index);
+      let id = result.draggableId;
+      if (id.includes('_')) {
+        id = result.draggableId.split('_')[0];
       }
+
+      var dragableItem = { objType: itemType, _id: id };
+      this.editSetComponentRef.current.addTask(dragableItem, destination.index);
+    }
   };
 
   //Get the current asset editorObject
-  getAssetEditorObject(){
+  getAssetEditorObject() {
     let theme = this.props.theme;
     let rightBG = theme.palette.type === "light" ? theme.palette.primary.main : theme.palette.primary.dark;
 
     var assetEditorObject =
-    <div className="AssetEditor" style={{paddingLeft:5, backgroundColor:rightBG}}>
-      <div className="AssetEditorContent">
-        {this.state.assetEditorObject}
-      </div>
-    </div>;
+      <div className="AssetEditor" style={{ paddingLeft: 5, backgroundColor: rightBG }}>
+        <div className="AssetEditorContent">
+          {this.state.assetEditorObject}
+        </div>
+      </div>;
 
     return assetEditorObject;
   }
 
   //Filter button callback, the type determines which collection we are filtering
-  filterButtonPressed(type, e){
+  filterButtonPressed(type, e) {
 
     this.filterDialogKey += 1;
     this.setState({
@@ -301,7 +299,7 @@ class EditMode extends Component {
   }
 
   //Callback when filters have been selected in the filters dialog
-  filtersUpdated(type, filters, searchType){
+  filtersUpdated(type, filters, searchType) {
 
     let updatedMap = new Map(this.state.filterStateMap);
     let updatedObject = updatedMap.get(type);
@@ -313,7 +311,7 @@ class EditMode extends Component {
 
     this.setState({
       openFilterDialog: false,
-      filterStateMap:updatedMap
+      filterStateMap: updatedMap
     });
 
     this.filterMap = updatedMap;
@@ -328,23 +326,23 @@ class EditMode extends Component {
     });
   }
 
-  onSearchInputChanged(type, e){
+  onSearchInputChanged(type, e) {
     var searchString = "";
-    if(typeof(e)==='object'){
+    if (typeof (e) === 'object') {
       searchString = e.target.value;
 
-      if(!this.state.allowRegex){
+      if (!this.state.allowRegex) {
         searchString = this.escapeRegExp(searchString);
       }
 
-      if(searchString.includes(",")){
+      if (searchString.includes(",")) {
         searchString = searchString.split(",");
-        searchString = searchString.map((value)=>{
+        searchString = searchString.map((value) => {
           return value.trim();
         });
         searchString = searchString.filter(Boolean); //Remove empty values
       }
-      else{
+      else {
         searchString = [searchString];
       }
     }
@@ -357,7 +355,7 @@ class EditMode extends Component {
     );
 
     this.setState({
-      filterStateMap:updatedMap
+      filterStateMap: updatedMap
     });
 
     this.filterMap = updatedMap;
@@ -365,17 +363,17 @@ class EditMode extends Component {
     this.querySearchTasksFromDB(type);
   }
 
-  querySearchTasksFromDB(type){
+  querySearchTasksFromDB(type) {
 
     let filterObject = this.filterMap.get(type);
 
     let combinedSearch = filterObject.tagFilters.concat(filterObject.searchStrings);
     combinedSearch = combinedSearch.filter(Boolean); //Remove empty values
 
-    if(combinedSearch.length === 1 && filterObject.searchStrings.length === 1){
+    if (combinedSearch.length === 1 && filterObject.searchStrings.length === 1) {
       combinedSearch = combinedSearch[0];
     }
-    if(combinedSearch.length === 0){
+    if (combinedSearch.length === 0) {
       combinedSearch = "";
     }
 
@@ -383,33 +381,33 @@ class EditMode extends Component {
   }
 
   //
-  getCollapsableHeaderButtons(activeFilters, searchCallback, addCallback, filterCallback, searchBarID){
+  getCollapsableHeaderButtons(activeFilters, searchCallback, addCallback, filterCallback, searchBarID) {
 
     var filterButton = null;
-    if(filterCallback !== null){
-      filterButton = <Button style={{position:"relative", width: '100%', height: '100%', minWidth:0, minHeight:0}}
-      className="collapsableHeaderBtns" size="small" onClick={filterCallback} >
-        <FilterList color={activeFilters?"secondary":"inherit"} fontSize="large"/>
+    if (filterCallback !== null) {
+      filterButton = <Button style={{ position: "relative", width: '100%', height: '100%', minWidth: 0, minHeight: 0 }}
+        className="collapsableHeaderBtns" size="small" onClick={filterCallback} >
+        <FilterList color={activeFilters ? "secondary" : "inherit"} fontSize="large" />
       </Button>;
     }
 
     var collapsableTaskHeaderButtons =
-    <div className="collapsableHeaderBtnsContainer">
-      <div className="searchWrapperDiv"><SearchBar onChange={searchCallback} searchID={searchBarID}/></div>
-      <div className="collapsableBtns">
-        {filterButton}
-        <Button style={{position:"relative", width: '100%', height: '100%', minWidth:0, minHeight:0}} size="small" onClick={addCallback} >
-          <AddCircleOutline fontSize="large"/>
-        </Button>
-      </div>
-    </div>;
+      <div className="collapsableHeaderBtnsContainer">
+        <div className="searchWrapperDiv"><SearchBar onChange={searchCallback} searchID={searchBarID} /></div>
+        <div className="collapsableBtns">
+          {filterButton}
+          <Button style={{ position: "relative", width: '100%', height: '100%', minWidth: 0, minHeight: 0 }} size="small" onClick={addCallback} >
+            <AddCircleOutline fontSize="large" />
+          </Button>
+        </div>
+      </div>;
 
     return collapsableTaskHeaderButtons;
   }
 
-  getTaskTypeContainer(taskType, taskMap){
+  getTaskTypeContainer(taskType, taskMap) {
     var dragEnabled = false;
-    if(this.state.assetEditorObject && this.state.assetEditorObject.type === EditSet){
+    if (this.state.assetEditorObject && this.state.assetEditorObject.type === EditSet) {
       dragEnabled = true;
     }
 
@@ -420,23 +418,23 @@ class EditMode extends Component {
     let addCallback = null;
     let activeFilters = this.state.filterStateMap.get(taskType).tagFilters.length > 0 ? true : false;
 
-    if(taskType === db_objects.ObjectTypes.TASK){
+    if (taskType === db_objects.ObjectTypes.TASK) {
       selectedTask = this.state.selectedSynquestitask;
       selectCallback = this.selectSynquestitask.bind(this);
       addCallback = this.addSynquestitaskCallback.bind(this);
     }
-    else if(taskType === db_objects.ObjectTypes.SET){
+    else if (taskType === db_objects.ObjectTypes.SET) {
       selectedTask = this.state.selectedTaskSet;
       selectCallback = this.selectTaskSet.bind(this);
       addCallback = this.addSetCallback.bind(this);
     }
-    else{
+    else {
       console.log("unknown task type: ", taskType);
       return null;
     }
 
     let collapsableHeaderButtons = this.getCollapsableHeaderButtons(activeFilters, this.onSearchInputChanged.bind(this, taskType),
-      addCallback, this.filterButtonPressed.bind(this, taskType), taskType+"SearchBar");
+      addCallback, this.filterButtonPressed.bind(this, taskType), taskType + "SearchBar");
 
     //let index = 0;
     //Nested lists based on task groups
@@ -452,16 +450,16 @@ class EditMode extends Component {
     }*/
 
     //No nested lists
-    containerContent = < TaskList dragEnabled={dragEnabled} taskList={ taskMap }
-      selectTask={ selectCallback } selectedTask={selectedTask}
-      itemType={taskType} droppableId={taskType} idSuffix={""}/ >;
+    containerContent = < TaskList dragEnabled={dragEnabled} taskList={taskMap}
+      selectTask={selectCallback} selectedTask={selectedTask}
+      itemType={taskType} droppableId={taskType} idSuffix={""} />;
 
 
     let container =
-    <CollapsableContainer headerTitle={taskType} useMediaQuery={true}
-    headerComponents={collapsableHeaderButtons} hideHeaderComponents={true} open={true}>
-      {containerContent}
-    </CollapsableContainer>;
+      <CollapsableContainer headerTitle={taskType} useMediaQuery={true}
+        headerComponents={collapsableHeaderButtons} hideHeaderComponents={true} open={true}>
+        {containerContent}
+      </CollapsableContainer>;
 
     return container;
   }
@@ -479,27 +477,27 @@ class EditMode extends Component {
     let leftBG = theme.palette.type === "light" ? theme.palette.primary.dark : theme.palette.primary.main;
 
     return (
-    <DragDropContext onDragEnd={this.onDragEnd}>
-      <div className = "editorScreenContainer">
+      <DragDropContext onDragEnd={this.onDragEnd}>
+        <div className="editorScreenContainer">
 
-        <div style={{backgroundColor:leftBG}} className = "AssetViewer">
-          <div className="AssetViewerContent">
-            {this.getTaskTypeContainer(db_objects.ObjectTypes.TASK, this.state.synquestitaskList)}
-            {this.getTaskTypeContainer(db_objects.ObjectTypes.SET, this.state.taskSetList)}
+          <div style={{ backgroundColor: leftBG }} className="AssetViewer">
+            <div className="AssetViewerContent">
+              {this.getTaskTypeContainer(db_objects.ObjectTypes.TASK, this.state.synquestitaskList)}
+              {this.getTaskTypeContainer(db_objects.ObjectTypes.SET, this.state.taskSetList)}
+            </div>
           </div>
-        </div>
 
-        {this.getAssetEditorObject()}
+          {this.getAssetEditorObject()}
 
-        <FilterDialog openDialog={this.state.openFilterDialog} key={"filterDialog"+this.filterDialogKey}
-                      closeDialog={this.onCloseFilterDialog.bind(this)}
-                      filterType={this.state.filterQueryType}
-                      filterObject = {this.state.filterStateMap.get(this.state.filterQueryType)}
-                      onFiltersUpdated={this.onFiltersChanged}/>
-      < /div>
+          <FilterDialog openDialog={this.state.openFilterDialog} key={"filterDialog" + this.filterDialogKey}
+            closeDialog={this.onCloseFilterDialog.bind(this)}
+            filterType={this.state.filterQueryType}
+            filterObject={this.state.filterStateMap.get(this.state.filterQueryType)}
+            onFiltersUpdated={this.onFiltersChanged} />
+          < /div>
     </DragDropContext>
-    );
+    )
   }
 }
 
-export default withTheme(EditMode);
+export default withTheme(Edit)

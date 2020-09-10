@@ -6,7 +6,7 @@ import { AppModes } from './core/sharedObjects'
 import store from './core/store'
 import Snackbar from '@material-ui/core/Snackbar'
 import Header from './Header/Header'
-import EditMode from './EditMode/EditMode'
+import Edit from './Edit/'
 import Observe from './Observe/'
 import Export from './Export'
 import SessionList from './SessionList/'
@@ -64,7 +64,7 @@ class App extends Component {
             <div className="MainContent">
               <Switch>
                 <Route exact path="/" component={SessionList} />
-                <Route path={"/" + AppModes.EDIT} component={EditMode} />
+                <Route path={"/" + AppModes.EDIT} component={Edit} />
                 <Route path="/Observe" component={Observe} />
                 <Route path="/ExportationMode" component={Export} />
                 <Route path="/study" component={DisplayTaskComponent} />

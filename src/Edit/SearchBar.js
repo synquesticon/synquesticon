@@ -1,10 +1,10 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import InputBase from '@material-ui/core/InputBase';
-import { fade } from '@material-ui/core/styles/colorManipulator';
-import { withStyles } from '@material-ui/core/styles';
-import SearchIcon from '@material-ui/icons/Search';
-import ClearIcon from '@material-ui/icons/Clear';
+import React from 'react'
+import PropTypes from 'prop-types'
+import InputBase from '@material-ui/core/InputBase'
+import { fade } from '@material-ui/core/styles/colorManipulator'
+import { withStyles } from '@material-ui/core/styles'
+import SearchIcon from '@material-ui/icons/Search'
+import ClearIcon from '@material-ui/icons/Clear'
 
 const styles = theme => ({
   root: {
@@ -17,6 +17,7 @@ const styles = theme => ({
       display: 'block',
     },
   },
+
   search: {
     borderRadius: theme.shape.borderRadius,
     backgroundColor: fade(theme.palette.primary.main, 0.15),
@@ -33,6 +34,7 @@ const styles = theme => ({
       width: 'auto',
     },
   },
+
   searchIcon: {
     width: theme.spacing(2),
     color: theme.palette.text.primary,
@@ -45,6 +47,7 @@ const styles = theme => ({
     alignItems: 'center',
     justifyContent: 'center',
   },
+
   clearSearchIcon: {
     width: theme.spacing(2),
     color: theme.palette.text.primary,
@@ -56,6 +59,7 @@ const styles = theme => ({
     alignItems: 'center',
     justifyContent: 'center',
   },
+
   inputRoot: {
     color: 'inherit',
     borderStyle: 'solid',
@@ -67,6 +71,7 @@ const styles = theme => ({
     marginTop: '10px',
     display: 'relative'
   },
+
   inputInput: {
     paddingTop: theme.spacing(1),
     paddingRight: theme.spacing(4),
@@ -78,35 +83,33 @@ const styles = theme => ({
     color: theme.palette.text.primary,
     display: 'relative'
   },
-});
+})
 
 const ClearSearch = (e, elementID, onChange) => {
-  document.getElementById(elementID).value = "";
-  onChange("");
+  document.getElementById(elementID).value = ""
+  onChange("")
 }
 
-function SearchAppBar(props) {
-  const { classes } = props;
+const SearchAppBar = props => {
+  const { classes } = props
   return (
     <div className={classes.search}>
-        <div className={classes.searchIcon}>
-          <SearchIcon />
-        </div>
-        <InputBase id={props.searchID} onChange={props.onChange} placeholder="Search…"
-              classes={{
-                root: classes.inputRoot,
-                input: classes.inputInput,
-              }}
-        />
-        <div className={classes.clearSearchIcon}>
-          <ClearIcon className={classes.clearIcon} onClick={(e) => ClearSearch(e,props.searchID, props.onChange)}/>
-        </div>
+      <div className={classes.searchIcon}>
+        <SearchIcon />
+      </div>
+      <InputBase id={props.searchID} onChange={props.onChange} placeholder="Search…"
+        classes={{
+          root: classes.inputRoot,
+          input: classes.inputInput,
+        }}
+      />
+      <div className={classes.clearSearchIcon}>
+        <ClearIcon className={classes.clearIcon} onClick={(e) => ClearSearch(e, props.searchID, props.onChange)} />
+      </div>
     </div>
-  );
+  )
 }
 
-SearchAppBar.propTypes = {
-  classes: PropTypes.object.isRequired,
-};
+SearchAppBar.propTypes = { classes: PropTypes.object.isRequired, }
 
-export default withStyles(styles)(SearchAppBar);
+export default withStyles(styles)(SearchAppBar)
