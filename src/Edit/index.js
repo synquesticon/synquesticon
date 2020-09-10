@@ -37,103 +37,90 @@ class Edit extends Component {
     this.dbTaskSetCallback = this.dbTaskSetCallbackFunction.bind(this)
 
     //Filter callback
-    this.onFiltersChanged = this.filtersUpdated.bind(this);
+    this.onFiltersChanged = this.filtersUpdated.bind(this)
 
     //Callback when querying the databaseusing the search fields
-    this.dbQueryCallback = this.onDatabaseSearched.bind(this);
-
-    this.gotoPage = this.gotoPageHandler.bind(this);
+    this.dbQueryCallback = this.onDatabaseSearched.bind(this)
+    this.gotoPage = this.gotoPageHandler.bind(this)
 
     //Asset Editor Component Key. Used to force reconstruction...
-    this.assetEditorCompKey = 0;
-    this.filterDialogKey = 0;
+    this.assetEditorCompKey = 0
+    this.filterDialogKey = 0
 
-    this.assetViewerQueryDatabase();
+    this.assetViewerQueryDatabase()
   }
 
   gotoPageHandler(e, route) {
-    this.props.history.push(route);
+    this.props.history.push(route)
   }
 
   initFilterMap() {
-    let filterMap = new Map();
-
-    let objectTypes = Object.values(db_objects.ObjectTypes);
-    for (let i = 0; i < objectTypes.length; i++) {
-      filterMap.set(objectTypes[i], {
+    let filterMap = new Map()
+    Object.values(db_objects.ObjectTypes).forEach( objectType => {
+      filterMap.set(objectType, {
         tagFilters: [],
         searchStrings: [],
         queryCombination: "OR"
       })
-    }
-
-    return filterMap;
+    })
+    return filterMap
   }
 
   //---------------------------component functions------------------------------
   componentWillMount() {
-    let storeState = store.getState();
+    let storeState = store.getState()
     if (storeState.shouldEdit) {
-
-      var setEditSetAction = {
+      store.dispatch({
         type: 'SET_SHOULD_EDIT',
         shouldEdit: false,
         objectToEdit: null,
         typeToEdit: ''
-      };
-      store.dispatch(setEditSetAction);
-      this.selectTaskSet(storeState.objectToEdit);
+      })
+      this.selectTaskSet(storeState.objectToEdit)
     }
   }
 
   groupTasksByTags(tasks) {
     let tagMap = new Map();
-    for (let i = 0; i < tasks.length; i++) {
-      let task = tasks[i];
-
-      //If the task contains tags we iterate over and add them with value to our map
+    tasks.forEach( task => {   //If the task contains tags we iterate over and add them with value to our map
       if (task.tags.length > 0) {
-        for (let y = 0; y < task.tags.length; y++) {
-          let tag = task.tags[y];
+        task.tags.forEach( tag => {
           if (tagMap.has(tag)) {
-            let newValue = tagMap.get(tag);
-            newValue.push(task);
-            tagMap.set(tag, newValue);
+            let newValue = tagMap.get(tag)
+            newValue.push(task)
+            tagMap.set(tag, newValue)
+          } else {
+            let objectList = []
+            objectList.push(task)
+            tagMap.set(tag, objectList)
           }
-          else {
-            let objectList = [];
-            objectList.push(task);
-            tagMap.set(tag, objectList);
-          }
-        }
-      } //Otherwise we add the task to the No Tag section
-      else {
-        let key = "No Tag";
+        })
+      } else {    //Otherwise we add the task to the No Tag section
+        let key = "No Tag"
         if (tagMap.has(key)) {
-          let newValue = tagMap.get(key);
-          newValue.push(task);
-          tagMap.set(key, newValue);
-        }
-        else {
-          let objectList = [];
-          objectList.push(task);
-          tagMap.set(key, objectList);
+          let newValue = tagMap.get(key)
+          newValue.push(task)
+          tagMap.set(key, newValue)
+        } else {
+          let objectList = []
+          objectList.push(task)
+          tagMap.set(key, objectList)
         }
       }
-    }
-    return tagMap;
+    })
+    return tagMap
   }
 
   dbSynquestitaskCallbackFunction(dbQueryResult) {
-    this.setState({ synquestitaskList: dbQueryResult });
+    this.setState({ synquestitaskList: dbQueryResult })
   }
 
   dbTaskCallbackFunction(dbQueryResult) {
-    this.setState({ taskList: dbQueryResult });
+    this.setState({ taskList: dbQueryResult })
   }
 
   dbTaskSetCallbackFunction(dbQueryResult) {
-    this.setState({ taskSetList: dbQueryResult });
+    this.setState({ taskSetList: dbQueryResult })
   }
 
   //Callback after querying the database using the search fields
@@ -156,28 +143,26 @@ class Edit extends Component {
     var assetObject = <EditTask isEditing={true} synquestitask={task}
       closeTaskCallback={this.assetEditorObjectClosed.bind(this)}
       key={this.assetEditorCompKey}
-    />;
+    />
 
     this.setState(state => ({ selectedTaskSet: null, selectedTask: null, selectedSynquestitask: task, assetEditorObject: assetObject }));
   }
 
   selectTaskSet(taskSet) {
-    this.assetEditorCompKey += 1;
-    this.editSetComponentRef = React.createRef();
+    this.assetEditorCompKey += 1
+    this.editSetComponentRef = React.createRef()
 
     var assetObject = <EditSet isEditing={true}
       setObject={taskSet} closeSetCallback={this.assetEditorObjectClosed.bind(this)}
       key={this.assetEditorCompKey} ref={this.editSetComponentRef}
-      runTestSet={() => { this.props.history.push('/DisplayTaskComponent') }} />;
+      runTestSet={() => { this.props.history.push('/DisplayTaskComponent') }} />
 
     this.setState({ selectedTask: null, selectedSynquestitask: null, selectedTaskSet: taskSet, assetEditorObject: assetObject });
   }
 
   //Callback from the asset editor object if an object has been changed that requires a refresh of the page
   assetEditorObjectClosed(dbChanged, shouldCloseAsset) {
-    if (shouldCloseAsset) {
-      this.clearAssetEditorObject()
-    }
+    if (shouldCloseAsset) this.clearAssetEditorObject()
 
     if (dbChanged) {
       db_helper.getAllTasksFromDb(this.dbSynquestitaskCallback);
@@ -192,12 +177,11 @@ class Edit extends Component {
         this.selectSynquestitask(storeState.objectToEdit)
       }
 
-      var setEditAction = {
+      store.dispatch({
         type: 'SET_SHOULD_EDIT',
         shouldEdit: false,
         typeToEdit: ''
-      }
-      store.dispatch(setEditAction)
+      })
     }
   }
 
@@ -210,8 +194,7 @@ class Edit extends Component {
     db_helper.deleteTaskSetFromDb(taskSet._id)
   }
 
-  //Adds escape characters in fornt of all common regex symbols
-  escapeRegExp(text) {
+   escapeRegExp(text) {        //Adds escape characters in fornt of all common regex symbols
     return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
   }
 
@@ -226,38 +209,30 @@ class Edit extends Component {
   }
 
   addSetCallback() {
-    this.assetEditorCompKey += 1;
-    this.clearAssetEditorObject();
-    this.editSetComponentRef = React.createRef();
+    this.assetEditorCompKey += 1
+    this.clearAssetEditorObject()
+    this.editSetComponentRef = React.createRef()
     this.setState({
       assetEditorObject: <EditSet isEditing={false}
         closeSetCallback={this.assetEditorObjectClosed.bind(this)}
         key={this.assetEditorCompKey} ref={this.editSetComponentRef} />
-    });
+    })
   }
 
-  //On drag end callback
   onDragEnd = result => {
-    const { source, destination } = result;
-
-    // dropped outside the list
-    if (!destination) {
-      return;
-    }
+    const { source, destination } = result;    
+    if (!destination) return   // dropped outside the list
 
     //If the source is the same as the destination we just move the element inside the list
     if (source.droppableId === destination.droppableId) {
-      this.editSetComponentRef.current.moveTask(source.index, destination.index);
+      this.editSetComponentRef.current.moveTask(source.index, destination.index)
     } else { //Otherwise we add to the list at the desired location
-      var itemType;
+      let itemType
       if (source.droppableId === "Sets") {
         itemType = db_objects.ObjectTypes.SET
       } else if (source.droppableId === "Tasks") {
         itemType = db_objects.ObjectTypes.TASK
-      } else {
-        console.log("Unknown type dragged")
-        return;
-      }
+      } else return
 
       let id = result.draggableId
       if (id.includes('_')) {
@@ -274,19 +249,17 @@ class Edit extends Component {
     let theme = this.props.theme;
     let rightBG = theme.palette.type === "light" ? theme.palette.primary.main : theme.palette.primary.dark;
 
-    var assetEditorObject =
+    return (
       <div className="AssetEditor" style={{ paddingLeft: 5, backgroundColor: rightBG }}>
         <div className="AssetEditorContent">
           {this.state.assetEditorObject}
         </div>
       </div>
-
-    return assetEditorObject;
+    )
   }
 
   //Filter button callback, the type determines which collection we are filtering
   filterButtonPressed(type, e) {
-
     this.filterDialogKey += 1
     this.setState({
       openFilterDialog: true,
@@ -296,13 +269,11 @@ class Edit extends Component {
 
   //Callback when filters have been selected in the filters dialog
   filtersUpdated(type, filters, searchType) {
-    let updatedMap = new Map(this.state.filterStateMap);
-    let updatedObject = updatedMap.get(type);
-    updatedObject.tagFilters = filters;
-    updatedObject.queryCombination = searchType;
-    updatedMap.set(type,
-      updatedObject
-    )
+    let updatedMap = new Map(this.state.filterStateMap)
+    let updatedObject = updatedMap.get(type)
+    updatedObject.tagFilters = filters
+    updatedObject.queryCombination = searchType
+    updatedMap.set(type, updatedObject)
 
     this.setState({
       openFilterDialog: false,
@@ -315,20 +286,14 @@ class Edit extends Component {
 
   //Callback close filter dialog
   onCloseFilterDialog() {
-    this.setState({
-      openFilterDialog: false
-    })
+    this.setState({ openFilterDialog: false })
   }
 
   onSearchInputChanged(type, e) {
-    var searchString = ""
+    let searchString = ""
     if (typeof (e) === 'object') {
       searchString = e.target.value;
-
-      if (!this.state.allowRegex) {
-        searchString = this.escapeRegExp(searchString);
-      }
-
+      if (!this.state.allowRegex) searchString = this.escapeRegExp(searchString);
       if (searchString.includes(",")) {
         searchString = searchString.split(",");
         searchString = searchString.map((value) => {
@@ -358,9 +323,7 @@ class Edit extends Component {
     if (combinedSearch.length === 1 && filterObject.searchStrings.length === 1) {
       combinedSearch = combinedSearch[0];
     }
-    if (combinedSearch.length === 0) {
-      combinedSearch = "";
-    }
+    if (combinedSearch.length === 0) combinedSearch = "";
 
     db_helper.queryTasksFromDb(type, combinedSearch, filterObject.queryCombination, this.dbQueryCallback);
   }

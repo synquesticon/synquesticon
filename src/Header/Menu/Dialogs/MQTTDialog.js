@@ -20,7 +20,7 @@ const mqttDialog = (props) => {
     bUseWSS: useWSS
   }
 
-  useEffect(() => {
+  useEffect( () => {
     const mqttConfig = JSON.parse(props.myStorage.getItem('mqtt'))
     if (mqttConfig) {
       mqtt.startMQTT(mqttConfig)
@@ -32,7 +32,7 @@ const mqttDialog = (props) => {
     }
   }, [])
 
-  const onChangeMQTTSettings = (e) => {
+  const onChangeMQTTSettings = e => {
     props.myStorage.setItem('mqtt', JSON.stringify(mqttObject))
 
     //Start MQTT and allow restart if there is an existing connection before

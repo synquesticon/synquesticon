@@ -2,10 +2,7 @@ const store = require('./store')
 const eventStore = require('./eventStore')
 const playerUtils = require('./player_utility_functions')
 
-//MQTT javascript library
 const mqtt = require('mqtt')
-
-//Connection settings
 let mqttClient = null
 let last_config = null
 
@@ -33,21 +30,19 @@ const onMultipleScreenEvent = message => {
 
     //Only respond to the message if the device ID matches our own 
     //and the screenID is different so we don't repeat messages endlessly
-//    if (parsedMessage.deviceID === window.localStorage.getItem('deviceID') && ((parsedMessage.screenID !== store.default.getState().screenID) || (parsedMessage.screenID === ''))) {
     if (parsedMessage.deviceID === window.localStorage.getItem('deviceID') ) {
       eventStore.default.emitMultipleScreenEvent(JSON.parse(message))
     }
   }
 }
 
-//TODO test and finish
 const onRETData = newMessage => {
   let message = JSON.parse(newMessage)
   let gazeData = message[1]
   let gazeX = gazeData[12]
   let gazeY = gazeData[13]
 
-  let gazeAction = {
+  store.default.dispatch({
     type: 'SET_GAZE_DATA',
     tracker: message[0],
     gazeData: {
@@ -57,8 +52,7 @@ const onRETData = newMessage => {
       leftPupilRadius: gazeData[0] / 2,
       rightPupilRadius: gazeData[3] / 2
     }
-  }
-  store.default.dispatch(gazeAction)
+  })
 }
 
 const _startMQTT = (config, restart) => {
@@ -96,41 +90,37 @@ const _startMQTT = (config, restart) => {
 
   //When the client connects we subscribe to the topics we want to listen to
   mqttClient.on('message', function (topic, message) {
-    if (topic === SynquesticonTopic) {
+    if (topic === SynquesticonTopic) 
       onMQTTEvent(message)
-    } else if (topic === SynquesticonCommandTopic) {
+    else if (topic === SynquesticonCommandTopic) 
       onCommandEvent(message)
-    } else if (topic === RemoteEyeTrackingTopic) {
+    else if (topic === RemoteEyeTrackingTopic) 
       onRETData(message)
-    } else if (topic === SynquesticonMultipleScreenTopic) {
+    else if (topic === SynquesticonMultipleScreenTopic) 
       onMultipleScreenEvent(message)
-    } else {
+    else 
       console.log("message from unknown topic recieved: ", topic)
-    }
   })
 }
 
 module.exports = {
   broadcastEvents(info) {
-    if (mqttClient) {
+    if (mqttClient) 
       mqttClient.publish(SynquesticonTopic, info)
-    } else {
+    else 
       console.log("Tried to publish, but MQTT client was null")
-    }
   },
   broadcastCommands(command) {
-    if (mqttClient) {
+    if (mqttClient) 
       mqttClient.publish(SynquesticonCommandTopic, command)
-    } else {
+    else 
       console.log("Tried to publish, but MQTT client was null")
-    }
   },
   broadcastMultipleScreen(command) {
-    if (mqttClient) {
+    if (mqttClient) 
       mqttClient.publish(SynquesticonMultipleScreenTopic, command)
-    } else {
+    else
       console.log("Tried to publish, but MQTT client was null")
-    }
   },
   startMQTT(config, restart) {
     _startMQTT(config, restart)

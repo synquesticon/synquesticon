@@ -12,27 +12,25 @@ const second_line_keyboard = [4, 5, 6]
 const third_line_keyboard = [7, 8, 9]
 const fourth_line_keyboard = [0, '.', "<"]
 
-const NumpadComponent = props => {
+const Number = props => {
   const numpadRef = React.useRef()
   const [numpadEntry, setNumpadEntry] = useState('')
   const [decimalWasPressed, setdecimalWasPressed] = useState(false)
   const [textRef] = useState(React.createRef())
 
   useEffect(() => {
-    console.log('Number changed', numpadEntry)
     numpadRef.current = numpadEntry
   }, [numpadEntry])
 
   useEffect(() => {
-    const textAOIAction = {
+    store.dispatch({
       type: 'ADD_AOIS',
       aois: {
         name: props.parentSet + '_' + props.task.displayText,
         boundingbox: [],
         imageRef: textRef
       }
-    }
-    store.dispatch(textAOIAction)
+    })
 
     return () => {
       const taskObject = {
@@ -63,20 +61,16 @@ const NumpadComponent = props => {
 
   const onMyKeyboardPressed = key => {
     if (key === "<") {
-      var lastChar = numpadEntry[numpadEntry.length - 1]
-      if (lastChar === '.') {
-        setdecimalWasPressed(false)
-      }
+      let lastChar = numpadEntry[numpadEntry.length - 1]
+      if (lastChar === '.') setdecimalWasPressed(false)
       setNumpadEntry(prevNumpadEntry => prevNumpadEntry.substring(0, prevNumpadEntry.length - 1))
     } else if (key === '.') {
       if (!decimalWasPressed) {
-        const newNumpadEntry = numpadEntry.concat(key)
-        setNumpadEntry(newNumpadEntry)
+        setNumpadEntry(numpadEntry.concat(key))
         setdecimalWasPressed(true)
       }
     } else {
-      const newNumpadEntry = numpadEntry.concat(key)
-      setNumpadEntry(newNumpadEntry)
+      setNumpadEntry(numpadEntry.concat(key))
     }
   }
 
@@ -129,4 +123,4 @@ const NumpadComponent = props => {
   )
 }
 
-export default NumpadComponent
+export default Number

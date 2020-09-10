@@ -12,8 +12,6 @@ import ListItemText from '@material-ui/core/ListItemText'
 import Switch from '@material-ui/core/Switch'
 import './Menu.css'
 
-var myStorage = window.localStorage
-
 const Menu = props => {
   const [openDeviceIDSettings, setOpenDeviceIDSettings] = useState(false)
   const [openMQTTSettings, setOpenMQTTSettings] = useState(false)
@@ -39,9 +37,7 @@ const Menu = props => {
     }
   }
 
-  const onToggleThemeChange = () => {
-    store.dispatch({ type: 'TOGGLE_THEME_TYPE', })
-  }
+  const onToggleThemeChange = () => store.dispatch({ type: 'TOGGLE_THEME_TYPE', })
 
   return (
     <span >
@@ -95,10 +91,11 @@ const Menu = props => {
         </div>
       </Drawer>
       <DeviceIDDialog openDeviceIDSettings={openDeviceIDSettings}
-        closeDeviceIDSettings={() => setOpenDeviceIDSettings(false)} myStorage={myStorage} />
+        closeDeviceIDSettings={() => setOpenDeviceIDSettings(false)} myStorage={window.localStorage} />
       <MQTTDialog openMQTTSettings={openMQTTSettings}
-        closeMQTTSettings={() => setOpenMQTTSettings(false)} myStorage={myStorage} />
+        closeMQTTSettings={() => setOpenMQTTSettings(false)} myStorage={window.localStorage} />
     </span>
   )
 }
+
 export default Menu

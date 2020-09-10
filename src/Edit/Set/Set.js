@@ -18,9 +18,8 @@ class EditSet extends Component {
     //If we got a taskObject passed as a prop we use it, otherwise we init with a default constructed object
     //Clone the array via JSON. Otherwise we would operate directly on the original objects which we do not want
     this.set = this.props.isEditing ? JSON.parse(JSON.stringify(this.props.setObject)) : new dbObjects.TaskSetObject();
-    if (this.set.repeatSetThreshold === undefined) {
+    if (this.set.repeatSetThreshold === undefined) 
       this.set.repeatSetThreshold = 0
-    }
 
     //We keep these fields in the state as they affect how the component is rendered
     this.state = {
@@ -55,11 +54,10 @@ class EditSet extends Component {
   }
 
   refreshSetChildList() {
-    if (this.state.taskList && this.state.taskList.length > 0) {
-      db_helper.getTasksOrTaskSetsWithIDs(this.set._id, this.handleRetrieveSetChildTasks);
-    } else { //If the list is empty we clear the list in the state
+    if (this.state.taskList && this.state.taskList.length > 0) 
+      db_helper.getTasksOrTaskSetsWithIDs(this.set._id, this.handleRetrieveSetChildTasks)
+    else  //If the list is empty we clear the list in the state
       this.setState({ taskListObjects: [] })
-    }
   }
 
   onRetrievedSetChildTasksAddToSet(retrievedObject) {
@@ -82,32 +80,27 @@ class EditSet extends Component {
       taskListObjects: updatedObjects,
       taskList: updatedTaskList
     })
-
     this.set.childIds = updatedTaskList
   }
 
   updateSetChildList(taskToAdd) {
     this.shouldCloseAsset = false
-
-    if (taskToAdd.objType === dbObjects.ObjectTypes.SET) {
+    if (taskToAdd.objType === dbObjects.ObjectTypes.SET) 
       db_helper.getTasksOrTaskSetsWithIDs(taskToAdd._id, this.handleUpdateSetChildTasks)
-    } else if (taskToAdd.objType === dbObjects.ObjectTypes.TASK) {
+    else if (taskToAdd.objType === dbObjects.ObjectTypes.TASK) 
       db_helper.getTaskWithID(taskToAdd._id, this.handleUpdateSetChildTasks)
-    }
   }
 
   onDBCallback(setDBID) {
     if (this.shouldReopen) {
       this.shouldReopen = false
-      var setEditSetAction = {
+      store.dispatch({
         type: 'SET_SHOULD_EDIT',
         shouldEdit: true,
         typeToEdit: 'set',
         objectToEdit: { ...this.set, ...{ _id: setDBID } }
-      }
-      store.dispatch(setEditSetAction)
+      })
     }
-
     this.closeSetComponent(true, this.shouldCloseAsset)
   }
 
@@ -115,22 +108,20 @@ class EditSet extends Component {
     if (this.props.isEditing) {
       this.shouldCloseAsset = false
       db_helper.updateTaskSetFromDb(this.set._id, this.set, this.handleDBCallback)
-      let snackbarAction = {
+      store.dispatch({
         type: 'TOAST_SNACKBAR_MESSAGE',
         snackbarOpen: true,
         snackbarMessage: "Set saved"
-      }
-      store.dispatch(snackbarAction)
+      })
     } else {
       this.shouldCloseAsset = true
       this.shouldReopen = true
       db_helper.addTaskSetToDb(this.set, this.handleDBCallback)
-      let snackbarAction = {
+      store.dispatch({
         type: 'TOAST_SNACKBAR_MESSAGE',
         snackbarOpen: true,
         snackbarMessage: "Set created"
-      }
-      store.dispatch(snackbarAction);
+      })
     }
   }
 
@@ -166,32 +157,27 @@ class EditSet extends Component {
     //We only need to check if the task we are adding is a TaskSet
     if (task.objType === dbObjects.ObjectTypes.SET) {
       //Try to get the data contained in the task set we are trying to add as we need this information to check for a circular reference
-      var query = { id: task._id, objType: task.objType }
-      var queryList = []
-      queryList.push(query)
+      let queryList = []
+      queryList.push({ id: task._id, objType: task.objType })
 
       db_helper.getTasksOrTaskSetsWithIDsPromise(task).then(data => {
         //If the query was successful
         if (data) {
           //Extract the child set ids of the set we are trying to add as well as the set id
-          var addingTaskChildSets = this.getChildSetIDs(data, [data._id])
-
           //Check that we are not adding a set containing the set we are editing now
-          if (addingTaskChildSets.includes(this.set._id)) {
+          if (this.getChildSetIDs(data, [data._id]).includes(this.set._id)) {
             //If we are it would cause a circular reference
             this.handleAddTaskAllowed(false, task, "The set you are trying to add already includes this set and would cause a circular reference");
             return
           }
           //No circular reference detected
-          var result_message = task.objType === dbObjects.ObjectTypes.SET ? "Set successfully added" : "Task successfully added";
+          const result_message = task.objType === dbObjects.ObjectTypes.SET ? "Set successfully added" : "Task successfully added";
           this.handleAddTaskAllowed(true, task, result_message)
         } else {    //Otherwise we do not add as we don't know if it will be ok
           this.handleAddTaskAllowed(false, task, "Unable to query the database, did not add " + task.objType === dbObjects.ObjectTypes.SET ? "set" : "task");
         }
       })
-    } else {
-      this.handleAddTaskAllowed(true, task, "Task successfully added")
-    }
+    } else this.handleAddTaskAllowed(true, task, "Task successfully added")
   }
 
   getChildSetIDs(setObject, childSets) {
@@ -199,23 +185,20 @@ class EditSet extends Component {
     childSets.push(setObject._id);
 
     //Iterate over the sets children
-    for (var i = 0; i < setObject.data.length; i++) {
-      if (setObject.data[i].objType === dbObjects.ObjectTypes.SET) {
-        this.getChildSetIDs(setObject.data[i], childSets)
-      }
-    }
+    setObject.data.forEach( obj => {
+      if (obj.objType === dbObjects.ObjectTypes.SET) this.getChildSetIDs(obj, childSets)
+    })
     return childSets
   }
 
   //Add a task to the list of tasks in the set
   addTask(task, destinationIndex) {
     if (this.set._id === task._id) {
-      var snackbarAction = {
+      store.dispatch({
         type: 'TOAST_SNACKBAR_MESSAGE',
         snackbarOpen: true,
         snackbarMessage: "Cannot add the same set to itself"
-      }
-      store.dispatch(snackbarAction)
+      })
     } else {
       this.destinationIndex = destinationIndex
       //perform a deeper check for circular references. This will in turn add the task if it is ok to do so.
@@ -242,29 +225,26 @@ class EditSet extends Component {
       this.set.childIds = updatedTaskList
       this.updateSetChildList(task)
 
-      let snackbarAction = {
+      store.dispatch({
         type: 'TOAST_SNACKBAR_MESSAGE',
         snackbarOpen: true,
         snackbarMessage: message
-      }
-      store.dispatch(snackbarAction)
+      })
 
       this.setState({
         taskListObjects: updatedObjects,
         taskList: updatedTaskList,
       })
     } else {
-      let snackbarAction = {
+      store.dispatch({
         type: 'TOAST_SNACKBAR_MESSAGE',
         snackbarOpen: true,
         snackbarMessage: message
-      }
-      store.dispatch(snackbarAction)
+      })
     }
   }
 
-  //Remove a task from the list of tasks in the set
-  removeTask(taskId) {
+  removeTask(taskId) {   //Remove a task from the list of tasks in the set
     var newList = [...this.state.taskList]
     for (let i = 0; i < newList.length; i++) {
       if (newList[i].id === taskId) {
@@ -282,12 +262,11 @@ class EditSet extends Component {
 
     this.set.childIds = newList
 
-    const snackbarAction = {
+    store.dispatch({
       type: 'TOAST_SNACKBAR_MESSAGE',
       snackbarOpen: true,
       snackbarMessage: "Set removed"
-    }
-    store.dispatch(snackbarAction);
+    })
 
     this.setState({
       taskList: newList,
@@ -296,12 +275,10 @@ class EditSet extends Component {
   }
 
   moveTask(dragIndex, hoverIndex) {
-    var updatedTaskList = this.state.taskList.slice();
-    db_utils.arrayMove(updatedTaskList, dragIndex, hoverIndex);
-    //updatedTaskList.splice(dragIndex, 1, updatedTaskList.splice(hoverIndex, 1, updatedTaskList[dragIndex])[0]);
-    var updatedObjectList = this.state.taskListObjects.slice();
-    db_utils.arrayMove(updatedObjectList, dragIndex, hoverIndex);
-    //updatedObjectList.splice(dragIndex, 1, updatedObjectList.splice(hoverIndex, 1, updatedObjectList[dragIndex])[0]);
+    var updatedTaskList = this.state.taskList.slice()
+    db_utils.arrayMove(updatedTaskList, dragIndex, hoverIndex)
+    var updatedObjectList = this.state.taskListObjects.slice()
+    db_utils.arrayMove(updatedObjectList, dragIndex, hoverIndex)
 
     this.setState({
       taskListObjects: updatedObjectList,
@@ -311,16 +288,14 @@ class EditSet extends Component {
     this.set.childIds = updatedTaskList
   }
 
-  //Removes the selected set from the database
-  removeSet() {
+  removeSet() {  //Removes the selected set from the database
     this.shouldCloseAsset = true
 
-    var snackbarAction = {
+    store.dispatch({
       type: 'TOAST_SNACKBAR_MESSAGE',
       snackbarOpen: true,
       snackbarMessage: "Set deleted"
-    };
-    store.dispatch(snackbarAction);
+    })
 
     db_helper.deleteTaskSetFromDb(this.set._id, this.handleDBCallback);
   }

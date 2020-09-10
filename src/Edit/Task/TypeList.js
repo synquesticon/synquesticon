@@ -6,20 +6,20 @@ import Button from '@material-ui/core/Button'
 import DragIcon from '@material-ui/icons/ControlCamera'
 import { Typography } from '@material-ui/core'
 import TaskTypeItem from './TypeItem'
-import './TypeList.css'
+import './css/TypeList.css'
 
 const TaskClone = styled.div`
     display: flex;
     user-select: none;
     align-items: center;
     justify-content: center;
-`;
+`
 
 const Clone = styled(TaskClone)`
     ~ div {
         transform: none !important;
     }
-`;
+`
 
 const EditTaskTypeList = props => {
   const taskList = props.taskList
@@ -63,7 +63,7 @@ const EditTaskTypeList = props => {
                     </React.Fragment>
                   )}
                 </Draggable>
-              );
+              )
             })}
           <div style={{ display: 'none' }}>{provided.placeholder}</div>
         </div>

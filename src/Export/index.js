@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import './Export.css'
 import { Typography } from '@material-ui/core'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
@@ -11,11 +10,12 @@ import { withTheme } from '@material-ui/styles'
 import FileSaver from 'file-saver'
 import store from '../core/store'
 import db_helper from '../core/db_helper'
+import './Export.css'
 
 var GAZE_HEADER = "Timestamp(UTC),X,Y,Left pupil radius,Right pupil radius,Task,Target,database_id\n";
 
 function HEADER(seperator) {
-  return( "global_vars" + seperator +
+  return ("global_vars" + seperator +
     "content" + seperator +
     "answer" + seperator +
     "answered_correctly" + seperator +
@@ -29,7 +29,6 @@ function HEADER(seperator) {
     "set_names" + seperator +
     "timestamp_start" + seperator +
     "timestamp_first_response" + seperator +
-    //"clicked_points" + seperator +
     "database_id\n" //Note the \n in case more fields are added later
   )
 }
@@ -61,26 +60,24 @@ class Export extends Component {
 
   async handleDeleteSelected() {
     if (this.pickedParticipants.length > 0) {
-      var snackbarAction = {
+      store.dispatch({
         type: 'TOAST_SNACKBAR_MESSAGE',
         snackbarOpen: true,
         snackbarMessage: "Deleting data sets"
-      }
-      store.dispatch(snackbarAction)
+      })
 
-      for (var i = 0; i < this.pickedParticipants.length; i++) {         //Delete each selection synchronously
-        await db_helper.deleteParticipantFromDbPromise(this.pickedParticipants[i]._id)
-      }
+      this.pickedParticipants.forEach( async participants => {         //Delete each selection synchronously
+        await db_helper.deleteParticipantFromDbPromise(participants._id)
+      })
 
       this.pickedParticipants = []        //Empty the user selection
 
       db_helper.getAllParticipantsFromDb((ids) => {        //Update the list after the deletion have been completed
-        var snackbarAction = {
+        store.dispatch({
           type: 'TOAST_SNACKBAR_MESSAGE',
           snackbarOpen: true,
           snackbarMessage: "Deletion completed"
-        }
-        store.dispatch(snackbarAction);
+        })
         this.setState({ participants: ids })
       })
     }
@@ -94,31 +91,28 @@ class Export extends Component {
     })
   }
 
-  handleClose() {
-
-  }
+  handleClose() { }
 
   async handleExport() {
     if (this.pickedParticipants.length > 0) {
-      var snackbarAction = {
+      store.dispatch({
         type: 'TOAST_SNACKBAR_MESSAGE',
         snackbarOpen: true,
         snackbarMessage: "Exporting selected data sets"
-      };
-      store.dispatch(snackbarAction);
+      })
     }
 
-    var exported_csv = "";
-    var exported_gaze = "";
-    var first_file = false;
-    var file_name = "";
+    let exported_csv = ""
+    let exported_gaze = ""
+    let first_file = false
+    let file_name = ""
     await Promise.all(this.pickedParticipants.map(async (p, index) => {
       var data = {
         participant: p,
         delimiter: this.state.delimiter
-      };
+      }
 
-      var returnedValue = await db_helper.exportToCSV(data)
+      const returnedValue = await db_helper.exportToCSV(data)
       if (this.state.combineFiles) {
         if (!first_file) {
           file_name = "combined_" + returnedValue.file_name
@@ -143,7 +137,7 @@ class Export extends Component {
     }))
 
     if (this.state.combineFiles) {
-      var blob = new Blob([HEADER(this.state.delimiter) + exported_csv], { type: 'text/csv' });
+      const blob = new Blob([HEADER(this.state.delimiter) + exported_csv], { type: 'text/csv' });
       FileSaver.saveAs(blob, file_name + '.csv');
 
       if (this.state.combineFiles && exported_gaze !== "") {
@@ -151,17 +145,15 @@ class Export extends Component {
         FileSaver.saveAs(gaze_blob, file_name + '_gaze.csv')
       }
     }
-
     this.handleClose()
   }
 
   handleExportAll() {
-    var snackbarAction = {
+    store.dispatch({
       type: 'TOAST_SNACKBAR_MESSAGE',
       snackbarOpen: true,
       snackbarMessage: "Exporting all data sets"
-    }
-    store.dispatch(snackbarAction)
+    })
 
     if (this.state.combineFiles) {
       var data = {
@@ -202,12 +194,9 @@ class Export extends Component {
 
   formatDateTime(t) {
     var d = new Date(t);
-    var fillZero = (num) => {
-      if (num < 10) {
-        return '0' + num;
-      } else {
-        return num
-      }
+    const fillZero = num => {
+      if (num < 10) return '0' + num;
+      else return num
     }
     var datestring = d.getFullYear() + '-' + fillZero(d.getMonth() + 1) + '-' + fillZero(d.getDate())
       + '_' + fillZero(d.getHours()) + ':' + fillZero(d.getMinutes());
@@ -215,14 +204,9 @@ class Export extends Component {
   }
 
   getParticipantName(p) {
-    //If there is not data we set the name to "Empty"
-    if (!p.linesOfData || p.linesOfData.length <= 0) {
-      return "Empty"
-    }
+    if (!p.linesOfData || p.linesOfData.length <= 0) return "Empty"       //If there is not data we set the name to "Empty"
 
-    var file_name = ""
-
-    // If there are lines of data avalaible we set the name to be the time of the first recorded data
+    let file_name = ""       // If there are lines of data avalaible we set the name to be the time of the first recorded data
     if (p.linesOfData && p.linesOfData.length > 0) {
       file_name = this.formatDateTime(p.linesOfData[0].startTimestamp) + '_'
       file_name += p.linesOfData[0].tasksFamilyTree[0];
@@ -231,12 +215,10 @@ class Export extends Component {
     //If there are saved global variables we append them to the experiment name
     if (p.globalVariables.length > 0) {
       p.globalVariables.sort((a, b) => a.label.localeCompare(b.label))
-
-      for (let i = 0; i < p.globalVariables.length; i++) {
-        if (!p.globalVariables[i].label.toLowerCase().includes("record data")) {
-          file_name += '_' + p.globalVariables[i].label + '-' + p.globalVariables[i].value
-        }
-      }
+      p.globalVariables.forEach(globalVar => {
+        if (!globalVar.label.toLowerCase().includes("record data"))
+          file_name += '_' + globalVar.label + '-' + globalVar.value
+      })
     }
 
     return file_name
@@ -314,4 +296,5 @@ class Export extends Component {
     )
   }
 }
+
 export default withTheme(Export)

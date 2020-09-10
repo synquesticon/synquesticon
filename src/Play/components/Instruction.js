@@ -6,25 +6,22 @@ const InstructionViewComponent = props => {
   const textRef = React.createRef()
 
   if (props.newTask) {
-    const answerObj = {
+    props.answerCallback({
       responses: [],
       correctlyAnswered: "notApplicable",
-      //taskID: props.task._id,
       mapID: props.mapID,
-    }
-    props.answerCallback(answerObj)
+    })
   }
 
   useEffect(() => {
-    const textAOIAction = {
+    store.dispatch({
       type: 'ADD_AOIS',
       aois: {
         name: props.parentSet + '_' + props.task.displayText,
         boundingbox: [],
         imageRef: textRef
       }
-    }
-    store.dispatch(textAOIAction)
+    })
   }, [])
 
   return (

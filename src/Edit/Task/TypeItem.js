@@ -4,7 +4,7 @@ import DragIcon from '@material-ui/icons/ControlCamera'
 import { Typography } from '@material-ui/core'
 import { withTheme } from '@material-ui/styles'
 import * as dnd from '../../core/beautifulDND.js'
-import './TypeList.css'
+import './css/TypeList.css'
 
 const TaskTypeItem = props => {
   const setRef = ref => {       // give the dom ref to react-beautiful-dnd
@@ -15,9 +15,8 @@ const TaskTypeItem = props => {
   let leftBG = theme.palette.type === "light" ? theme.palette.primary.dark : theme.palette.primary.main
   let dragHighlight = isDragging ? theme.palette.secondary.main + "66" : leftBG
   const opacityValue = isDragging ? 0.8 : 1
-  if (provided === undefined) {
-    return null
-  }
+
+  if (provided === undefined) return null
 
   let highlightColor = null
   if (props.highlight) {

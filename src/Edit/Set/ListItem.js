@@ -92,7 +92,6 @@ const EditSetListItem = props => {
         </CollapsableContainer></div>
     )
   }
-
   return null
 }
 

@@ -8,7 +8,7 @@ import * as dnd from '../../core/beautifulDND.js'
 import { Typography } from '@material-ui/core'
 import CollapsableContainer from '../Containers/CollapsableContainer'
 import TaskComponentItem from './ComponentItem'
-import './ComponentList.css'
+import './css/ComponentList.css'
 
 let _id = 0
 

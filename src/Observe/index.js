@@ -16,9 +16,7 @@ const Observe = props => {
 
   useEffect(() => {
     eventStore.addEventListener(onNewEvent)
-    return () => {
-      eventStore.removeEventListener(onNewEvent)
-    }
+    return () => eventStore.removeEventListener(onNewEvent)
   }, [])
 
   const onPausePlayPressed = () => {
@@ -34,14 +32,13 @@ const Observe = props => {
     const checkExistedParticipant = participants.filter(participant => participant.participantId === mqttMessage.session.uid)
 
     if (checkExistedParticipant.length !== 1) { 
-      const newParticipant = {
+      participants.push({
         participantId: mqttMessage.session.uid,
         participantLabel: mqttMessage.user.name,
         sessionStartTime: mqttMessage.session.startTime,
         isPaused: mqttMessage.isPaused,
         messagesQueue: [mqttMessage.event.observerMessage]
-      }
-      participants.push(newParticipant)
+      })
       const updatedParticipants = participants.slice()
       setParticipants(updatedParticipants)
     } else {
@@ -53,9 +50,7 @@ const Observe = props => {
     }
   }
 
-  const onClickedTab = (newValue) => {
-    setCurrentParticipant(newValue)
-  }
+  const onClickedTab = newValue => setCurrentParticipant(newValue)
 
   const getPlayPauseButton = () => {
     let buttonIcon = null
@@ -81,9 +76,7 @@ const Observe = props => {
 
   let theme = props.theme
   let observerBgColor = theme.palette.type === "light" ? theme.palette.primary.main : theme.palette.primary.dark
-  const playPauseButton = getPlayPauseButton()
   let messagesQueue = []
-
   if (participants.length > 0) {
     messagesQueue = participants[currentParticipant].messagesQueue
   }
@@ -92,7 +85,7 @@ const Observe = props => {
     <div className="ObserverViewerContent" style={{ backgroundColor: observerBgColor }}>
       <div className="ObserverHeader">
         <div className="ObserverPlayPauseContainer">
-          {playPauseButton}
+          {getPlayPauseButton()}
         </div>
         <div className="ObserverTabsWrapper">
           <div className={"ObserverTabContainer"}>

@@ -4,10 +4,10 @@ import * as listUtils from '../../core/db_objects_utility_functions'
 import { Droppable, Draggable } from 'react-beautiful-dnd'
 import styled from 'styled-components'
 import { withTheme } from '@material-ui/styles'
-import './List.css'
 import Button from '@material-ui/core/Button'
 import DragIcon from '@material-ui/icons/ControlCamera'
 import { Typography } from '@material-ui/core'
+import './List.css'
 
 /* Used to leave a visual clone behind during drag */
 const TaskClone = styled.div`
@@ -15,24 +15,21 @@ const TaskClone = styled.div`
     user-select: none;
     align-items: flex-start;
     align-content: flex-start;
-`;
+`
 
 const Clone = styled(TaskClone)`
     ~ div {
         transform: none !important;
     }
-`;
+`
 
 const TaskList = props => {
-  const onSelectTask = (e) => {
-    props.selectTask(e)
-  }
+  const onSelectTask = e => props.selectTask(e)
 
   const { theme } = props
   let bgColor = theme.palette.type === "light" ? theme.palette.primary.dark : theme.palette.primary.main
 
   if (!props.taskList) {
-    console.log("No tasks have been created yet")
     return <div className="taskListComponentContainer" />
   }
 
@@ -47,7 +44,7 @@ const TaskList = props => {
                 highlightBG = true
               }
 
-              const content = listUtils.getTaskContent(item);
+              const content = listUtils.getTaskContent(item)
               const clonedContent = <div
                 className={"listItem"} style={{ backgroundColor: bgColor }}>
                 <div className="listItemTextContainer" >

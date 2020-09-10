@@ -16,13 +16,9 @@ const DeviceIDDialog = props => {
   const [screenID, setScreenID] = useState(store.getState().screenID)
   const [multipleScreens, setMultipleScreens] = useState(store.getState().multipleScreens)
 
-  const multipleScreensToggled = (e, checked) => {
-    setMultipleScreens(checked)
-  }
-
+  const multipleScreensToggled = (e, checked) => setMultipleScreens(checked)
   const onChangeDeviceID = e => {
     props.myStorage.setItem('deviceID', deviceName)
-
     store.dispatch({
       type: 'SET_MULTISCREEN',
       screenID: screenID,

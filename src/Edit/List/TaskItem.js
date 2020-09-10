@@ -1,10 +1,10 @@
 import React from 'react'
 import Button from '@material-ui/core/Button'
 import DragIcon from '@material-ui/icons/ControlCamera'
-import './TaskItem.css'
 import { Typography } from '@material-ui/core'
 import { withTheme } from '@material-ui/styles'
 import * as dnd from '../../core/beautifulDND.js'
+import './TaskItem.css'
 
 const TaskItem = props => {
   let setRef = ref => {     // give the dom ref to react-beautiful-dnd
@@ -16,14 +16,10 @@ const TaskItem = props => {
   let dragHighlight = isDragging ? theme.palette.secondary.main + "66" : leftBG
   const opacityValue = isDragging ? 0.8 : 1
 
-  if (provided === undefined) {
-    return null
-  }
+  if (provided === undefined) return null
 
   let highlightColor = null
-  if (props.highlight) {
-    highlightColor = { backgroundColor: theme.palette.secondary.main + "66" }
-  }
+  if (props.highlight) highlightColor = { backgroundColor: theme.palette.secondary.main + "66" }
 
   const dragButton = props.dragEnabled ? <div className="listItemDragBtnContainer" style={{ backgroundColor: dragHighlight }}><Button style={{ cursor: 'move', width: '100%', height: '100%', minWidth: '30px', minHeight: '30px' }}
     className="listItemDragBtn" size="small" fullWidth >

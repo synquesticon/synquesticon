@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import './Header.css'
 import Menu from './Menu/Menu'
 import { AppModes } from '../core/sharedObjects'
 import store from '../core/store'
@@ -14,8 +13,9 @@ import EditIcon from '@material-ui/icons/Edit'
 import PlayIcon from '@material-ui/icons/PlayArrow'
 import VisibilityIcon from '@material-ui/icons/Visibility'
 import ExportationIcon from '@material-ui/icons/Archive'
+import './Header.css'
 
-const Header = (props) => {
+const Header = props => {
   const [showMenu, setShowMenu] = useState(false)
   const gotoPage = route => props.history.push(route)
   const handleBackwardsNavigation = () => props.history.push("/")
@@ -34,6 +34,7 @@ const Header = (props) => {
         }}>
         <EditIcon width="100%" height="100%" />
       </Button>)
+
     modeButtons.push(
       <Button key="/"
         style={{
@@ -43,6 +44,7 @@ const Header = (props) => {
         onClick={handleBackwardsNavigation} >
         <PlayIcon width="100%" height="100%" />
       </Button>)
+
     modeButtons.push(
       <Button key="/Observe"
         onClick={(e) => gotoPage("Observe")}
@@ -52,6 +54,7 @@ const Header = (props) => {
         }}>
         <VisibilityIcon width="100%" height="100%" />
       </Button>)
+
     modeButtons.push(
       <Button key="/ExportationMode"
         onClick={(e) => gotoPage("ExportationMode")}
@@ -64,8 +67,7 @@ const Header = (props) => {
     return modeButtons
   }
 
-  let storeState = store.getState()
-  if (storeState.showHeader) {
+  if (store.getState().showHeader) {
     return (
       <AppBar style={{
         backgroundColor: props.theme.palette.primary.light, padding: 0, display: 'flex', flexGrow: 1,

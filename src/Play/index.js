@@ -10,7 +10,7 @@ import '../core/utility.css'
 import queryString from 'query-string'
 import RunSet from './runSet'
 import PauseDialog from './PauseDialog'
-import './Play.css'
+import './css/Play.css'
 
 const RecordData = props => {
   const [isPaused, setIsPaused] = useState(false)
@@ -22,29 +22,24 @@ const RecordData = props => {
   let timer = null
 
   useEffect(() => {
-    let layoutAction = {
+    store.dispatch({
       type: 'SET_SHOW_HEADER',
       showHeader: false,
       showFooter: false
-    }
-    store.dispatch(layoutAction)
+    })
 
     let parsed = queryString.parse(props.location.search)
     let participantID = parsed.pid
     let mainTaskSetId = parsed.id
     let tracker = parsed.tracker
 
-    if (mainTaskSetId === undefined) {
-      return
-    }
+    if (mainTaskSetId === undefined) return
 
-    if (participantID) {
-      let participantAction = {
+    if (participantID)
+      store.dispatch({
         type: 'SET_PARTICIPANT_ID',
         participantId: participantID
-      }
-      store.dispatch(participantAction)
-    }
+      })
 
     db_helper.getTasksOrTaskSetsWithIDs(mainTaskSetId, (dbQueryResult, count, mainTaskSetName) => {
       setTaskSet(dbQueryResult)
@@ -59,8 +54,8 @@ const RecordData = props => {
       //If the participantID is undefined we create a participant and add it to the experiment
       if (store.getState().experimentInfo.participantId === undefined) {
         db_helper.addParticipantToDb(new dbObjects.ParticipantObject(dbQueryResult._id),
-          (returnedIdFromDB) => {
-            let action = {
+          returnedIdFromDB => {
+            store.dispatch({
               type: 'SET_EXPERIMENT_INFO',
               experimentInfo: {
                 participantLabel: playerUtils.getDeviceName(),
@@ -72,11 +67,10 @@ const RecordData = props => {
                 taskSetCount: count,
                 selectedTracker: tracker,
               }
-            }
-            store.dispatch(action)
+            })
           })
       } else {
-        let action = {
+        store.dispatch({
           type: 'SET_EXPERIMENT_INFO',
           experimentInfo: {
             participantLabel: playerUtils.getDeviceName(),
@@ -88,8 +82,7 @@ const RecordData = props => {
             taskSetCount: count,
             selectedTracker: tracker,
           }
-        }
-        store.dispatch(action)
+        })
       }
     })
 
@@ -99,16 +92,13 @@ const RecordData = props => {
     }
 
     return () => {
-      if (store.getState().experimentInfo.selectedTracker !== "") {
-        clearInterval(timer)
-      }
+      if (store.getState().experimentInfo.selectedTracker !== "") clearInterval(timer)
 
-      var layoutAction = {
+      store.dispatch({
         type: 'SET_SHOW_HEADER',
         showHeader: true,
         showFooter: true
-      }
-      store.dispatch(layoutAction)
+      })
       eventStore.removeNewCommandListener(onNewCommandEvent)
     }
   }, [])
@@ -128,9 +118,9 @@ const RecordData = props => {
     try {
       let gazeLoc = store.getState().gazeData[store.getState().experimentInfo.selectedTracker]
       if (frameDiv) {
-        var cursorX = (gazeLoc.locX * frameDiv.current.offsetWidth - cursorRadius)
-        var cursorY = (gazeLoc.locY * frameDiv.current.offsetHeight - cursorRadius)
-        var aois = store.getState().aois
+        const cursorX = (gazeLoc.locX * frameDiv.current.offsetWidth - cursorRadius)
+        const cursorY = (gazeLoc.locY * frameDiv.current.offsetHeight - cursorRadius)
+        const aois = store.getState().aois
 
         for (var i = 0; i < aois.length; i++) {
           var a = aois[i]
@@ -155,9 +145,7 @@ const RecordData = props => {
           }
         }
 
-        if (!gazeDataArray.includes(gazeLoc)) {
-          gazeDataArray.push(gazeLoc)
-        }
+        if (!gazeDataArray.includes(gazeLoc)) gazeDataArray.push(gazeLoc)
       }
     } catch (err) {
     }
@@ -185,23 +173,17 @@ const RecordData = props => {
     }
   }
 
-  const onFinished = () => {
-    props.history.goBack()
-  }
-
   if (taskSet !== null) {
     eventStore.addNewCommandListener(onNewCommandEvent)
-    let theme = props.theme
-    let rightBG = theme.palette.type === "light" ? theme.palette.primary.main : theme.palette.primary.dark
-    var renderObj =
-      <RunSet
+    let rightBG = props.theme.palette.type === "light" ? props.theme.palette.primary.main : props.theme.palette.primary.dark
+
+    return <div style={{ backgroundColor: rightBG }} className="page" ref={frameDiv}>
+      {<RunSet
         familyTree={[store.getState().experimentInfo.mainTaskSetId]}
         set={taskSet}
-        onFinished={onFinished}
+        onFinished={props.history.goBack()}
         saveGazeData={saveGazeData}
-      />
-    return <div style={{ backgroundColor: rightBG }} className="page" ref={frameDiv}>
-      {renderObj}
+      />}
       <PauseDialog openDialog={isPaused} pauseMessage="Task paused." />
     </div>
   }

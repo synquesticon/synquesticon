@@ -32,11 +32,10 @@ const Image = props => {
         aio.imageRef = imageRef
       })
 
-      const action = {
+      store.dispatch({
         type: 'ADD_AOIS',
         aois: aois
-      }
-      store.dispatch(action)
+      })
 
       window.addEventListener("resize", handleImageLoaded)
     }
@@ -149,9 +148,7 @@ const Image = props => {
   const getClickableComponent = () => {
     if (props.task.recordClicks) {
       let left = 0
-      if (imageElement) {
-        left = parseInt(imageElement.offsetLeft);
-      }
+      if (imageElement) left = parseInt(imageElement.offsetLeft);
 
       return (
         <svg onClick={onImageClicked} style={{ left: left }} className="clickableCanvas"
@@ -172,9 +169,7 @@ const Image = props => {
   const showAOIs = () => {
     if (props.task.showAOIs) {
       let left = 0
-      if (imageElement) {
-        left = parseInt(imageElement.offsetLeft)
-      }
+      if (imageElement) left = parseInt(imageElement.offsetLeft)
 
       return (
         <svg id={props.childKey + "AOICanvas"} style={{ left: left, pointerEvents: 'none' }} className="AOICanvas"

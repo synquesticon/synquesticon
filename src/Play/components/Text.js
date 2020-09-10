@@ -11,15 +11,14 @@ const textEntryComponent = props => {
 
   useEffect(() => {
     textRef.current = ""
-    var textAOIAction = {
+    store.dispatch({
       type: 'ADD_AOIS',
       aois: {
         name: props.parentSet + '_' + props.task.displayText,
         boundingbox: [],
         imageRef: textRef
       }
-    }
-    store.dispatch(textAOIAction)
+    })
 
     return () => {
       const taskObject = {
@@ -46,17 +45,15 @@ const textEntryComponent = props => {
 
       mqtt.broadcastEvents(makeLogObject(taskObject, componentObject, { observerMessage: observerMessageString }))
     }
-  }, []);
+  }, [])
 
   const checkAnswer = () => {
     if (props.task.correctResponses === undefined || props.task.correctResponses.length === 0) {
       return "notApplicable"
     }
 
-    props.task.correctResponses.forEach(item => {
-      if (textRef.current.toLowerCase() === item.toLowerCase()) {
-        return "correct"
-      }
+    props.task.correctResponses.forEach( item => {
+      if (textRef.current.toLowerCase() === item.toLowerCase()) return "correct"
     })
 
     return "incorrect"

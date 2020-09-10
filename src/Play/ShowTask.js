@@ -2,7 +2,7 @@ import React, { Suspense } from 'react'
 import ButtonUI from '@material-ui/core/Button'
 import store from '../core/store'
 import * as dbObjects from '../core/db_objects'
-import './showTask.css'
+import './css/showTask.css'
 import uuid from 'react-uuid'
 
 const Instruction = React.lazy(() => import('./components/Instruction'))
@@ -27,7 +27,6 @@ const ShowTask = props => {
         switch (item.objType) {
           case dbObjects.TaskTypes.MCHOICE.type:
             return <Suspense key={uuid()} fallback={<div></div>}><Button className="itemContainer"
-              // key={props.renderKey +dbObjects.TaskTypes.MCHOICE.type + i} 
               key={uuid()}
               task={item}
               tags={props.task.tags}

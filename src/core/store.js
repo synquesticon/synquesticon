@@ -1,22 +1,20 @@
-import { createStore } from 'redux';
-import eventStore from './eventStore';
-
-import { createMuiTheme, responsiveFontSizes } from '@material-ui/core/styles';
-import darkSecondary from '@material-ui/core/colors/amber';
-import uuid from 'react-uuid';
+import { createStore } from 'redux'
+import eventStore from './eventStore'
+import { createMuiTheme, responsiveFontSizes } from '@material-ui/core/styles'
+import darkSecondary from '@material-ui/core/colors/amber'
+import uuid from 'react-uuid'
 
 /*
 * The store is responsible for storing data that needs to be shared between different parts of the application.
 */
-var savedThemeType = JSON.parse(window.localStorage.getItem('theme'));
+let savedThemeType = JSON.parse(window.localStorage.getItem('theme'));
 
-if(savedThemeType === null || savedThemeType === undefined){
-  savedThemeType = "light";
-}
+if (savedThemeType === null || savedThemeType === undefined)
+  savedThemeType = "light"
 
 function prepareMUITheme(themeType){
   let theme = null;
-  if(themeType === "light"){
+  if (themeType === "light") {
     theme = createMuiTheme({
       palette:{
         primary:{
@@ -34,9 +32,8 @@ function prepareMUITheme(themeType){
         tonalOffset: 0.02,
         type: themeType,
       }
-    });
-  }
-  else{
+    })
+  } else {
     theme = createMuiTheme({
       palette:{
         primary: {
@@ -55,15 +52,14 @@ function prepareMUITheme(themeType){
         tonalOffset: 0.1,
         type: themeType,
       }
-    });
+    })
   }
-  theme = responsiveFontSizes(theme);
+  theme = responsiveFontSizes(theme)
 
-  let actionDisabledBG = theme.palette.secondary.light;
+  let actionDisabledBG = theme.palette.secondary.light
   if(theme.palette.secondary.light.includes("#")){
     actionDisabledBG = actionDisabledBG + "66";
-  }
-  else{
+  } else{
     actionDisabledBG = actionDisabledBG.replace("rgb", "rgba");
     actionDisabledBG = actionDisabledBG.replace(")", ",0.25)");
   }
@@ -71,10 +67,9 @@ function prepareMUITheme(themeType){
   theme.palette.action.disabledBackground = actionDisabledBG;
 
   let selectedItemBGColor = theme.palette.secondary.light;
-  if(theme.palette.secondary.light.includes("#")){
+  if (theme.palette.secondary.light.includes("#")){
     selectedItemBGColor = selectedItemBGColor + "66";
-  }
-  else{
+  } else {
     selectedItemBGColor = selectedItemBGColor.replace("rgb", "rgba");
     selectedItemBGColor = selectedItemBGColor.replace(")", ",0.25)");
   }
@@ -101,12 +96,11 @@ function prepareMUITheme(themeType){
         backgroundColor: selectedItemBGColor
       }}
     }
-  };
-
-  return theme = responsiveFontSizes(theme);
+  }
+  return theme = responsiveFontSizes(theme)
 }
 
-let theme = prepareMUITheme(savedThemeType);
+let theme = prepareMUITheme(savedThemeType)
 
 const initialState = {
   screenID:'',
@@ -201,8 +195,6 @@ const store = createStore ((state = initialState, action) => {
     default:
       return state;
   }
-},  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
+},  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__())
 
-
-
-export default store;
+export default store
