@@ -9,18 +9,18 @@ import Header from './Home/Header'
 import Edit from './Edit/'
 import Observe from './Observe/'
 import Export from './Export'
-import SessionList from './SessionList/'
-import Play from './Play';
+import SessionList from './Home/SessionList/'
+import Play from './Play'
 import ThemeProvider from '@material-ui/styles/ThemeProvider'
 import './App.css'
 
 //To make MaterialUI use the new variant of typography and avoid the deprecation warning
-window.__MUI_USE_NEXT_TYPOGRAPHY_VARIANTS__ = true;
+window.__MUI_USE_NEXT_TYPOGRAPHY_VARIANTS__ = true
 
 class App extends Component {
   constructor(props) {
-    super(props);
-    this.resize = throttle(this.resize.bind(this), 100); //Setup the resize callback function so it is not called too frequently
+    super(props)
+    this.resize = throttle(this.resize.bind(this), 100) //Setup the resize callback function so it is not called too frequently
   }
 
   resize() {
@@ -89,8 +89,7 @@ class App extends Component {
   }
 }
 
-//Allows us to use store state to update our react component
-function mapStateToProps(state, ownProps) {
+const mapStateToProps = (state, ownProps) => {   //Allows us to use store state to update our react component
   return {
     showHeader: state.showHeader,
     windowSize: state.windowSize,
