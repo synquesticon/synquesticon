@@ -5,14 +5,14 @@ import PlayIcon from '@material-ui/icons/PlayArrow'
 import LinkIcon from '@material-ui/icons/Link'
 import { Typography } from '@material-ui/core'
 import { withTheme } from '@material-ui/styles'
-import store from '../core/store'
+import store from '../../core/store'
 import './css/SessionEntry.css'
 
 const SessionEntry = props => {
   const buttonSize = store.getState().windowSize.width > 500 ? 40 : 20
   const textColor = props.theme.palette.type === "light" ? "textSecondary" : "textPrimary"
 
-  const content =
+  return (
     <div className={"listItem "}>
       <div className="listItemTextContainer dotLongText">
         <div className="listItemText ">
@@ -35,8 +35,7 @@ const SessionEntry = props => {
         <PlayIcon fontSize="default" />
       </Button>
     </div>
-
-  return (content)
+  )
 }
 
 export default withTheme(SessionEntry)

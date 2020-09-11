@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { withTheme } from '@material-ui/styles'
 import { Typography } from '@material-ui/core'
-import store from '../core/store'
-import db_helper from '../core/db_helper.js'
-import eventStore from '../core/eventStore'
-import mqtt from '../core/mqtt'
-import * as db_objects from '../core/db_objects.js'
-import { AppModes } from '../core/sharedObjects'
+import store from '../../core/store'
+import db_helper from '../../core/db_helper.js'
+import eventStore from '../../core/eventStore'
+import mqtt from '../../core/mqtt'
+import * as db_objects from '../../core/db_objects.js'
+import { AppModes } from '../../core/sharedObjects'
+import * as listUtils from '../../core/db_objects_utility_functions'
 import SessionEntry from './SessionEntry.js'
-import * as listUtils from '../core/db_objects_utility_functions'
 import './css/SessionList.css'
 
 const SessionList = props => {
@@ -29,7 +29,7 @@ const SessionList = props => {
 
   const appendEyeTrackerInfo = url => {
     let storeState = store.getState()
-    if (storeState.selectedEyeTracker !== "" && storeState.selectedEyeTracker !== undefined) 
+    if (storeState.selectedEyeTracker !== "" && storeState.selectedEyeTracker !== undefined)
       url = url + '&tracker=' + storeState.selectedEyeTracker
     return url
   }
@@ -40,7 +40,7 @@ const SessionList = props => {
       function (e) { return { e: e, status: "rejected" } }
     )
 
-    if (result.status === "fulfilled") 
+    if (result.status === "fulfilled")
       url += '&pid=' + result.v.data._id
     else
       console.log("Unable to create participantID: ", result.e)
@@ -75,7 +75,7 @@ const SessionList = props => {
           participantID: dbID
         }))
 
-        let url = '/study?id=' + selectedTaskSet._id;
+        let url = '/study?id=' + selectedTaskSet._id
         url = appendEyeTrackerInfo(url)
         props.history.push(url)
       })
@@ -88,7 +88,7 @@ const SessionList = props => {
 
   const onGetLinkCallback = (taskSet) => {
     selectedTaskSet = taskSet;
-    copyToClipboard();
+    copyToClipboard()
   }
 
   const copyToClipboard = async () => {
@@ -100,7 +100,7 @@ const SessionList = props => {
     }
     navigator.clipboard.writeText(url)
 
-    store.dispatch( {
+    store.dispatch({
       type: 'TOAST_SNACKBAR_MESSAGE',
       snackbarOpen: true,
       snackbarMessage: "Link copied to clipboard"
@@ -112,7 +112,7 @@ const SessionList = props => {
     //Was checking if multipe screen. With the new change we should just check for same device ID instead
     if (window.localStorage.getItem('deviceID') === payload.deviceID && payload.type === 'StartExperiment') {
       //if(store.getState().multipleScreens && payload.type === 'StartExperiment'){
-        store.dispatch({
+      store.dispatch({
         type: 'SET_PARTICIPANT_ID',
         participantId: payload.participantID
       })
