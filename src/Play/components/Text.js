@@ -3,7 +3,7 @@ import { Typography, TextField } from '@material-ui/core'
 import store from '../../core/store'
 import mqtt from '../../core/mqtt'
 import uuid from 'react-uuid'
-import makeLogObject from '../../makeLogObject'
+import makeLogObject from '../../core/makeLogObject'
 import './css/Text.css'
 
 const textEntryComponent = props => {

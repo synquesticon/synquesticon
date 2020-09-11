@@ -1,4 +1,4 @@
-import store from "./core/store"
+import store from "./store"
 
 const makeLogObject = (task = null, component = null, event = null) => {
     const session = {

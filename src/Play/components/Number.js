@@ -3,7 +3,7 @@ import { Typography } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
 import store from '../../core/store'
 import mqtt from '../../core/mqtt'
-import makeLogObject from '../../makeLogObject'
+import makeLogObject from '../../core/makeLogObject'
 import uuid from 'react-uuid'
 import './css/Number.css'
 

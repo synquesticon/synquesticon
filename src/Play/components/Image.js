@@ -3,7 +3,7 @@ import mqtt from '../../core/mqtt'
 import store from '../../core/store'
 import * as playerUtils from '../../core/player_utility_functions'
 import AOIComponent from '../../Edit/Task/Image/AOIEditor/AOIComponent'
-import makeLogObject from '../../makeLogObject'
+import makeLogObject from '../../core/makeLogObject'
 import uuid from 'react-uuid'
 import './css/Image.css'
 

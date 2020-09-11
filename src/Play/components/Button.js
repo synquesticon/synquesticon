@@ -5,7 +5,7 @@ import Button from './ButtonElement'
 import store from '../../core/store'
 import * as dbObjects from '../../core/db_objects'
 import * as playerUtils from '../../core/player_utility_functions'
-import makeLogObject from '../../makeLogObject'
+import makeLogObject from '../../core/makeLogObject'
 import uuid from 'react-uuid'
 
 const buttonList = props => {
