@@ -25,28 +25,18 @@ class Edit extends Component {
       allowRegex: true,
       assetEditorContext: "empty",
       assetEditorObject: null,
-
-      //Filter dialog states
-      openFilterDialog: false,
+      openFilterDialog: false,         //Filter dialog states
       filterQueryType: db_objects.ObjectTypes.TASK,
       filterStateMap: this.initFilterMap()
     }
 
-    //Database callbacks
-    this.dbSynquestitaskCallback = this.dbSynquestitaskCallbackFunction.bind(this)
+    this.dbSynquestitaskCallback = this.dbSynquestitaskCallbackFunction.bind(this)  //Database callbacks
     this.dbTaskSetCallback = this.dbTaskSetCallbackFunction.bind(this)
-
-    //Filter callback
-    this.onFiltersChanged = this.filtersUpdated.bind(this)
-
-    //Callback when querying the databaseusing the search fields
-    this.dbQueryCallback = this.onDatabaseSearched.bind(this)
+    this.onFiltersChanged = this.filtersUpdated.bind(this)        //Filter callback
+    this.dbQueryCallback = this.onDatabaseSearched.bind(this)       //Callback when querying the databaseusing the search fields
     this.gotoPage = this.gotoPageHandler.bind(this)
-
-    //Asset Editor Component Key. Used to force reconstruction...
-    this.assetEditorCompKey = 0
+    this.assetEditorCompKey = 0       //Asset Editor Component Key. Used to force reconstruction...
     this.filterDialogKey = 0
-
     this.assetViewerQueryDatabase()
   }
 
@@ -68,20 +58,19 @@ class Edit extends Component {
 
   //---------------------------component functions------------------------------
   componentWillMount() {
-    let storeState = store.getState()
-    if (storeState.shouldEdit) {
+    if (store.getState().shouldEdit) {
       store.dispatch({
         type: 'SET_SHOULD_EDIT',
         shouldEdit: false,
         objectToEdit: null,
         typeToEdit: ''
       })
-      this.selectTaskSet(storeState.objectToEdit)
+      this.selectTaskSet(store.getState().objectToEdit)
     }
   }
 
   groupTasksByTags(tasks) {
-    let tagMap = new Map();
+    let tagMap = new Map()
     tasks.forEach( task => {   //If the task contains tags we iterate over and add them with value to our map
       if (task.tags.length > 0) {
         task.tags.forEach( tag => {
@@ -125,39 +114,38 @@ class Edit extends Component {
 
   //Callback after querying the database using the search fields
   onDatabaseSearched(queryType, result) {
-    if (queryType === db_objects.ObjectTypes.SET) {
+    if (queryType === db_objects.ObjectTypes.SET) 
       this.setState({ taskSetList: result.tasks })
-    } else if (queryType === db_objects.ObjectTypes.TASK) {
+    else if (queryType === db_objects.ObjectTypes.TASK) 
       this.setState({ synquestitaskList: result.tasks })
-    }
   }
 
   assetViewerQueryDatabase() {
-    db_helper.getAllTasksFromDb(this.dbSynquestitaskCallback);
-    db_helper.getAllTaskSetsFromDb(this.dbTaskSetCallback);
+    db_helper.getAllTasksFromDb(this.dbSynquestitaskCallback)
+    db_helper.getAllTaskSetsFromDb(this.dbTaskSetCallback)
   }
 
   selectSynquestitask(task) {
     this.assetEditorCompKey += 1
 
-    var assetObject = <EditTask isEditing={true} synquestitask={task}
+    const assetObject = <EditTask isEditing={true} synquestitask={task}
       closeTaskCallback={this.assetEditorObjectClosed.bind(this)}
       key={this.assetEditorCompKey}
     />
 
-    this.setState(state => ({ selectedTaskSet: null, selectedTask: null, selectedSynquestitask: task, assetEditorObject: assetObject }));
+    this.setState(state => ({ selectedTaskSet: null, selectedTask: null, selectedSynquestitask: task, assetEditorObject: assetObject }))
   }
 
   selectTaskSet(taskSet) {
     this.assetEditorCompKey += 1
     this.editSetComponentRef = React.createRef()
 
-    var assetObject = <EditSet isEditing={true}
+    const assetObject = <EditSet isEditing={true}
       setObject={taskSet} closeSetCallback={this.assetEditorObjectClosed.bind(this)}
       key={this.assetEditorCompKey} ref={this.editSetComponentRef}
       runTestSet={() => { this.props.history.push('/DisplayTaskComponent') }} />
 
-    this.setState({ selectedTask: null, selectedSynquestitask: null, selectedTaskSet: taskSet, assetEditorObject: assetObject });
+    this.setState({ selectedTask: null, selectedSynquestitask: null, selectedTaskSet: taskSet, assetEditorObject: assetObject })
   }
 
   //Callback from the asset editor object if an object has been changed that requires a refresh of the page
@@ -165,17 +153,16 @@ class Edit extends Component {
     if (shouldCloseAsset) this.clearAssetEditorObject()
 
     if (dbChanged) {
-      db_helper.getAllTasksFromDb(this.dbSynquestitaskCallback);
-      db_helper.getAllTaskSetsFromDb(this.dbTaskSetCallback);
+      db_helper.getAllTasksFromDb(this.dbSynquestitaskCallback)
+      db_helper.getAllTaskSetsFromDb(this.dbTaskSetCallback)
     }
 
     let storeState = store.getState()
     if (storeState.shouldEdit) {
-      if (storeState.typeToEdit === db_objects.ObjectTypes.SET) {
+      if (storeState.typeToEdit === db_objects.ObjectTypes.SET) 
         this.selectTaskSet(storeState.objectToEdit)
-      } else if (storeState.typeToEdit === db_objects.ObjectTypes.TASK) {
+      else if (storeState.typeToEdit === db_objects.ObjectTypes.TASK) 
         this.selectSynquestitask(storeState.objectToEdit)
-      }
 
       store.dispatch({
         type: 'SET_SHOULD_EDIT',
@@ -195,7 +182,7 @@ class Edit extends Component {
   }
 
    escapeRegExp(text) {        //Adds escape characters in fornt of all common regex symbols
-    return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+    return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
   }
 
   addSynquestitaskCallback() {
@@ -220,35 +207,30 @@ class Edit extends Component {
   }
 
   onDragEnd = result => {
-    const { source, destination } = result;    
+    const { source, destination } = result   
     if (!destination) return   // dropped outside the list
 
     //If the source is the same as the destination we just move the element inside the list
-    if (source.droppableId === destination.droppableId) {
+    if (source.droppableId === destination.droppableId)
       this.editSetComponentRef.current.moveTask(source.index, destination.index)
-    } else { //Otherwise we add to the list at the desired location
+    else { //Otherwise we add to the list at the desired location
       let itemType
-      if (source.droppableId === "Sets") {
+      if (source.droppableId === "Sets") 
         itemType = db_objects.ObjectTypes.SET
-      } else if (source.droppableId === "Tasks") {
+      else if (source.droppableId === "Tasks") 
         itemType = db_objects.ObjectTypes.TASK
-      } else return
+      else return
 
       let id = result.draggableId
-      if (id.includes('_')) {
+      if (id.includes('_'))
         id = result.draggableId.split('_')[0]
-      }
 
-      var dragableItem = { objType: itemType, _id: id };
-      this.editSetComponentRef.current.addTask(dragableItem, destination.index);
+      this.editSetComponentRef.current.addTask({ objType: itemType, _id: id }, destination.index)
     }
   }
 
-  //Get the current asset editorObject
-  getAssetEditorObject() {
-    let theme = this.props.theme;
-    let rightBG = theme.palette.type === "light" ? theme.palette.primary.main : theme.palette.primary.dark;
-
+  getAssetEditorObject() {  
+    let rightBG = this.props.theme.palette.type === "light" ? this.props.theme.palette.primary.main : this.props.theme.palette.primary.dark
     return (
       <div className="AssetEditor" style={{ paddingLeft: 5, backgroundColor: rightBG }}>
         <div className="AssetEditorContent">
@@ -261,10 +243,7 @@ class Edit extends Component {
   //Filter button callback, the type determines which collection we are filtering
   filterButtonPressed(type, e) {
     this.filterDialogKey += 1
-    this.setState({
-      openFilterDialog: true,
-      filterQueryType: type
-    })
+    this.setState({ openFilterDialog: true, filterQueryType: type })
   }
 
   //Callback when filters have been selected in the filters dialog
@@ -274,17 +253,11 @@ class Edit extends Component {
     updatedObject.tagFilters = filters
     updatedObject.queryCombination = searchType
     updatedMap.set(type, updatedObject)
-
-    this.setState({
-      openFilterDialog: false,
-      filterStateMap: updatedMap
-    })
-
+    this.setState({ openFilterDialog: false, filterStateMap: updatedMap })
     this.filterMap = updatedMap
     this.querySearchTasksFromDB(type)
   }
 
-  //Callback close filter dialog
   onCloseFilterDialog() {
     this.setState({ openFilterDialog: false })
   }
@@ -292,24 +265,21 @@ class Edit extends Component {
   onSearchInputChanged(type, e) {
     let searchString = ""
     if (typeof (e) === 'object') {
-      searchString = e.target.value;
-      if (!this.state.allowRegex) searchString = this.escapeRegExp(searchString);
+      searchString = e.target.value
+      if (!this.state.allowRegex) searchString = this.escapeRegExp(searchString)
       if (searchString.includes(",")) {
-        searchString = searchString.split(",");
+        searchString = searchString.split(",")
         searchString = searchString.map((value) => {
           return value.trim()
         })
-        searchString = searchString.filter(Boolean); //Remove empty values
-      } else {
-        searchString = [searchString]
-      }
+        searchString = searchString.filter(Boolean) //Remove empty values
+      } else searchString = [searchString]
     }
 
     let updatedMap = new Map(this.state.filterStateMap)
     let updatedObject = updatedMap.get(type)
     updatedObject.searchStrings = searchString
     updatedMap.set( type, updatedObject )
-
     this.setState({ filterStateMap: updatedMap })
     this.filterMap = updatedMap
     this.querySearchTasksFromDB(type)
@@ -317,21 +287,17 @@ class Edit extends Component {
 
   querySearchTasksFromDB(type) {
     let filterObject = this.filterMap.get(type)
-    let combinedSearch = filterObject.tagFilters.concat(filterObject.searchStrings);
-    combinedSearch = combinedSearch.filter(Boolean); //Remove empty values
-
-    if (combinedSearch.length === 1 && filterObject.searchStrings.length === 1) {
-      combinedSearch = combinedSearch[0];
-    }
-    if (combinedSearch.length === 0) combinedSearch = "";
-
-    db_helper.queryTasksFromDb(type, combinedSearch, filterObject.queryCombination, this.dbQueryCallback);
+    let combinedSearch = filterObject.tagFilters.concat(filterObject.searchStrings)
+    combinedSearch = combinedSearch.filter(Boolean) //Remove empty values
+    if (combinedSearch.length === 1 && filterObject.searchStrings.length === 1)
+      combinedSearch = combinedSearch[0]
+    if (combinedSearch.length === 0)
+      combinedSearch = ""
+    db_helper.queryTasksFromDb(type, combinedSearch, filterObject.queryCombination, this.dbQueryCallback)
   }
 
-  //
   getCollapsableHeaderButtons(activeFilters, searchCallback, addCallback, filterCallback, searchBarID) {
-
-    var filterButton = null;
+    let filterButton = null
     if (filterCallback !== null) {
       filterButton = <Button style={{ position: "relative", width: '100%', height: '100%', minWidth: 0, minHeight: 0 }}
         className="collapsableHeaderBtns" size="small" onClick={filterCallback} >
@@ -339,7 +305,7 @@ class Edit extends Component {
       </Button>
     }
 
-    var collapsableTaskHeaderButtons =
+    return(
       <div className="collapsableHeaderBtnsContainer">
         <div className="searchWrapperDiv"><SearchBar onChange={searchCallback} searchID={searchBarID} /></div>
         <div className="collapsableBtns">
@@ -349,51 +315,44 @@ class Edit extends Component {
           </Button>
         </div>
       </div>
-
-    return collapsableTaskHeaderButtons;
+    )
   }
 
   getTaskTypeContainer(taskType, taskMap) {
-    var dragEnabled = false;
-    if (this.state.assetEditorObject && this.state.assetEditorObject.type === EditSet) {
-      dragEnabled = true;
-    }
+    let dragEnabled = false
+    if (this.state.assetEditorObject && this.state.assetEditorObject.type === EditSet)
+      dragEnabled = true
 
-    let containerContent = [];
-
-    let selectedTask = null;
-    let selectCallback = null;
-    let addCallback = null;
-    let activeFilters = this.state.filterStateMap.get(taskType).tagFilters.length > 0 ? true : false;
+    let containerContent = []
+    let selectedTask = null
+    let selectCallback = null
+    let addCallback = null
+    let activeFilters = this.state.filterStateMap.get(taskType).tagFilters.length > 0 ? true : false
 
     if (taskType === db_objects.ObjectTypes.TASK) {
-      selectedTask = this.state.selectedSynquestitask;
-      selectCallback = this.selectSynquestitask.bind(this);
-      addCallback = this.addSynquestitaskCallback.bind(this);
+      selectedTask = this.state.selectedSynquestitask
+      selectCallback = this.selectSynquestitask.bind(this)
+      addCallback = this.addSynquestitaskCallback.bind(this)
     } else if (taskType === db_objects.ObjectTypes.SET) {
-      selectedTask = this.state.selectedTaskSet;
+      selectedTask = this.state.selectedTaskSet
       selectCallback = this.selectTaskSet.bind(this)
       addCallback = this.addSetCallback.bind(this)
-    } else {
-      console.log("unknown task type: ", taskType)
-      return null
-    }
+    } else return null
 
     let collapsableHeaderButtons = this.getCollapsableHeaderButtons(activeFilters, this.onSearchInputChanged.bind(this, taskType),
-      addCallback, this.filterButtonPressed.bind(this, taskType), taskType + "SearchBar");
+      addCallback, this.filterButtonPressed.bind(this, taskType), taskType + "SearchBar")
 
     //No nested lists
     containerContent = < TaskList dragEnabled={dragEnabled} taskList={taskMap}
       selectTask={selectCallback} selectedTask={selectedTask}
       itemType={taskType} droppableId={taskType} idSuffix={""} />
 
-    let container =
+    return(
       <CollapsableContainer headerTitle={taskType} useMediaQuery={true}
         headerComponents={collapsableHeaderButtons} hideHeaderComponents={true} open={true}>
         {containerContent}
       </CollapsableContainer>
-
-    return container
+    )
   }
 
   /*
@@ -405,13 +364,11 @@ class Edit extends Component {
 */
 
   render() {
-    let theme = this.props.theme;
-    let leftBG = theme.palette.type === "light" ? theme.palette.primary.dark : theme.palette.primary.main;
+    let leftBG = this.props.theme.palette.type === "light" ? this.props.theme.palette.primary.dark : this.props.theme.palette.primary.main
 
     return (
       <DragDropContext onDragEnd={this.onDragEnd}>
         <div className="editorScreenContainer">
-
           <div style={{ backgroundColor: leftBG }} className="AssetViewer">
             <div className="AssetViewerContent">
               {this.getTaskTypeContainer(db_objects.ObjectTypes.TASK, this.state.synquestitaskList)}
