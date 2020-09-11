@@ -6,10 +6,10 @@ import store from '../core/store'
 import db_helper from '../core/db_helper'
 import * as dbObjects from '../core/db_objects'
 import * as playerUtils from '../core/player_utility_functions'
-import '../core/utility.css'
 import queryString from 'query-string'
 import RunSet from './runSet'
 import PauseDialog from './PauseDialog'
+import '../core/utility.css'
 import './css/Play.css'
 
 const Play = props => {
@@ -92,7 +92,8 @@ const Play = props => {
     }
 
     return () => {
-      if (store.getState().experimentInfo.selectedTracker !== "") clearInterval(timer)
+      if (store.getState().experimentInfo.selectedTracker !== "") 
+        clearInterval(timer)
 
       store.dispatch({
         type: 'SET_SHOW_HEADER',

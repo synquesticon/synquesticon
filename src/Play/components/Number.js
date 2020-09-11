@@ -49,12 +49,10 @@ const Number = props => {
       }
 
       let observerMessageString = ''
-      if (componentObject.isCorrect !== 'notApplicable') {
+      if (componentObject.isCorrect !== 'notApplicable')
         observerMessageString = componentObject.isCorrect.toUpperCase() + ' Final answer: ' + numpadRef.current + ' (' + componentObject.text + ' Answer ' + props.task.correctResponses[0] + '+-' + props.task.correctResponses[1] + ')'
-      } else {
+      else
         observerMessageString = 'Final answer: ' + numpadRef.current + ' (' + componentObject.text + ')'
-      }
-
       mqtt.broadcastEvents(makeLogObject(taskObject, componentObject, { observerMessage: observerMessageString }))
     }
   }, [])
@@ -69,28 +67,23 @@ const Number = props => {
         setNumpadEntry(numpadEntry.concat(key))
         setdecimalWasPressed(true)
       }
-    } else {
-      setNumpadEntry(numpadEntry.concat(key))
-    }
+    } else setNumpadEntry(numpadEntry.concat(key))
   }
 
   const checkAnswer = () => {
-    if (props.task.correctResponses === undefined || props.task.correctResponses.length === 0) {
+    if (props.task.correctResponses === undefined || props.task.correctResponses.length === 0)
       return "notApplicable"
-    }
 
     //If the response has two values then we treat the second as how much the answer can differ and still be valid
     if (props.task.correctResponses.length > 1) {
       let answer = parseFloat(numpadRef.current)
       let correctAnswer = parseFloat(props.task.correctResponses[0])
       let threshold = parseFloat(props.task.correctResponses[1])
-      if (answer >= correctAnswer - threshold && answer <= correctAnswer + threshold) {
+      if (answer >= correctAnswer - threshold && answer <= correctAnswer + threshold)
         return "correct"
-      }
     } else if (props.task.correctResponses.length === 1) {  //Otherwise we just check if it matches the correct response
-      if (parseFloat(props.task.correctResponses[0]) === parseFloat(numpadEntry)) {
+      if (parseFloat(props.task.correctResponses[0]) === parseFloat(numpadEntry))
         return "correct"
-      }
     }
     return "incorrect"
   }

@@ -6,11 +6,7 @@ const buttonElement = props => {
     const clickedButtonStyle = { backgroundColor: "#33ccff" }
 
     useEffect(() => {
-        if (props.id === props.clickedButton) {
-            setIsClicked(true)
-        } else {
-            setIsClicked(false)
-        }
+        (props.id === props.clickedButton) ? setIsClicked(true) : setIsClicked(false)
     }, [props.clickedButton])
 
     const onButtonPressed = () => {
@@ -21,12 +17,7 @@ const buttonElement = props => {
             }
             props.logElementData(props.id, true, props.content)
         } else if (props.isSingleChoice) {      //Single-choice buttons
-            if (isClicked) {
-                props.logElementData(props.id, false, props.content)
-            } else {
-                props.logElementData(props.id, true, props.content)
-            }
-
+            isClicked ? props.logElementData(props.id, false, props.content) : props.logElementData(props.id, true, props.content)
         } else {                                //Multiple-choice buttons
             props.logElementData(props.id, !isClicked, props.content)
             setIsClicked(!isClicked)

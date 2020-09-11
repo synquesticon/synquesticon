@@ -28,9 +28,7 @@ const Image = props => {
 
     if (props.task.aois.length > 0) {
       let aois = props.task.aois.slice()
-      aois.forEach(aio => {
-        aio.imageRef = imageRef
-      })
+      aois.forEach(aio => { aio.imageRef = imageRef })
 
       store.dispatch({
         type: 'ADD_AOIS',
@@ -50,15 +48,12 @@ const Image = props => {
 
         const aois = props.task.aois.slice()
         const AOICount = {}
-        aois.forEach(aoi => {
-          AOICount[aoi.name] = 0
-        })
+        aois.forEach(aoi => { AOICount[aoi.name] = 0 })
 
         AOICount['Background '] = 0
 
         clicksRef.current.map(click =>
-          click.hitAOIs.forEach(aoi =>
-            AOICount[aoi]++)
+          click.hitAOIs.forEach(aoi => AOICount[aoi]++)
         )
 
         const componentObject = {
@@ -106,9 +101,7 @@ const Image = props => {
     let pointInsideAOIs = []
 
     aois.map(a => {
-      if (a.imageRef.current === null) {
-        return ["Background"]
-      }
+      if (a.imageRef.current === null) return ["Background"]
 
       let imageDivRect = imageRef.current.getBoundingClientRect()
       let polygon = []
@@ -123,16 +116,14 @@ const Image = props => {
         polygon.push([imageDivRect.x, imageDivRect.y + imageDivRect.height])
       }
 
-      if (playerUtils.pointIsInPoly([click.clientX, click.clientY], polygon)) {
+      if (playerUtils.pointIsInPoly([click.clientX, click.clientY], polygon))
         pointInsideAOIs.push(a.name)
-      }
     })
 
-    if (pointInsideAOIs.length > 0) {
+    if (pointInsideAOIs.length > 0) 
       return pointInsideAOIs
-    } else {
+    else 
       return ["Background"]
-    }
   }
 
   const onImageClicked = e => {
@@ -161,9 +152,7 @@ const Image = props => {
             })}
           </g>
         </svg>)
-    } else {
-      return null
-    }
+    } else return null
   }
 
   const showAOIs = () => {
@@ -179,9 +168,7 @@ const Image = props => {
           })}
         </svg>
       )
-    } else {
-      return null
-    }
+    } else return null
   }
 
   const handleImageLoaded = () => {
