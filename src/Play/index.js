@@ -12,7 +12,7 @@ import RunSet from './runSet'
 import PauseDialog from './PauseDialog'
 import './css/Play.css'
 
-const RecordData = props => {
+const Play = props => {
   const [isPaused, setIsPaused] = useState(false)
   const [taskSet, setTaskSet] = useState(null)
 
@@ -111,8 +111,7 @@ const RecordData = props => {
     }
   }
 
-  //TODO currently this is updated using an interval timer.However it would be better to only update when
-  // new events occur.
+  //TODO currently this is updated using an interval timer.However it would be better to only update when new events occur.
   //Updates the location of the Gaze Cursor. And checks if any of the AOIs were looked at
   const updateCursorLocation = () => {
     try {
@@ -123,9 +122,9 @@ const RecordData = props => {
         const aois = store.getState().aois
 
         for (var i = 0; i < aois.length; i++) {
-          var a = aois[i]
-          var imageDivRect = a.imageRef.current.getBoundingClientRect()
-          var polygon = []
+          const a = aois[i]
+          const imageDivRect = a.imageRef.current.getBoundingClientRect()
+          let polygon = []
 
           if (a.boundingbox.length > 0) {
             for (let boundingbox of a.boundingbox) {
@@ -181,7 +180,7 @@ const RecordData = props => {
       {<RunSet
         familyTree={[store.getState().experimentInfo.mainTaskSetId]}
         set={taskSet}
-        onFinished={props.history.goBack()}
+        onFinished={props.history.goBack}
         saveGazeData={saveGazeData}
       />}
       <PauseDialog openDialog={isPaused} pauseMessage="Task paused." />
@@ -190,4 +189,4 @@ const RecordData = props => {
   return <Typography variant="h2" color="textPrimary" style={{ position: 'absolute', left: '50%', top: '50%' }}>Loading...</Typography>
 }
 
-export default withTheme(RecordData)
+export default withTheme(Play)

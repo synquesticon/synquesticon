@@ -17,26 +17,23 @@ const runSet = props => {
 
   useEffect(() => {
     eventStore.addControlMsgListener(onControlMsg)
-    return () => {
-      eventStore.removeControlMsgListener(onControlMsg)
-    }
+    return () => eventStore.removeControlMsgListener(onControlMsg)
   }, [])
 
   const onControlMsg = payload => {
-    if (payload.type === 'nextTask' && payload.setID === props.set._id) {
+    if (payload.type === 'nextTask' && payload.setID === props.set._id) 
       startNextTask(payload.set)
-    }
   }
 
   const startNextTask = (taskSet = task[1]) => {
-    if (taskSet.length > 0) {
+    if (taskSet.length > 0) 
       setTask(getTask(taskSet))
-    } else {
+    else
       props.onFinished()
-    }
   }
 
   const nextPressed = (setID, set) => {
+    console.log("mqtt nextTask")
     mqtt.broadcastMultipleScreen(JSON.stringify({
       type: "nextTask",
       setID: setID,

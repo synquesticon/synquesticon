@@ -2,8 +2,8 @@ import React, { Suspense } from 'react'
 import ButtonUI from '@material-ui/core/Button'
 import store from '../core/store'
 import * as dbObjects from '../core/db_objects'
-import './css/showTask.css'
 import uuid from 'react-uuid'
+import './css/showTask.css'
 
 const Instruction = React.lazy(() => import('./components/Instruction'))
 const Text = React.lazy(() => import('./components/Text'))
@@ -13,9 +13,7 @@ const Image = React.lazy(() => import('./components/Image'))
 
 const ShowTask = props => {
   const getDisplayedContent = (taskList, _id, mapIndex) => {
-    if (!taskList) {
-      return null
-    }
+    if (!taskList) return null
 
     let hideNext = false
     let components = taskList.map((item, i) => {
@@ -64,11 +62,12 @@ const ShowTask = props => {
 
   let nextButton = null
   if (!contentObject.hideNext) {
-    nextButton = <div style={{ position: 'fixed', bottom: 20, right: 20, zIndex: 99 }}>
-      <ButtonUI className="nextButton" variant="contained" onClick={() => props.nextPressed(props.setID, props.set)}>
-        Next
+    nextButton =
+      <div style={{ position: 'fixed', bottom: 20, right: 20, zIndex: 99 }}>
+        <ButtonUI className="nextButton" variant="contained" onClick={() => props.nextPressed(props.setID, props.set)}>
+          Next
       </ButtonUI>
-    </div>
+      </div>
   }
 
   return (
