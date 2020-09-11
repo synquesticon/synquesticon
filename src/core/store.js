@@ -6,11 +6,10 @@ import uuid from 'react-uuid'
 
 //The store is responsible for storing data that needs to be shared between different parts of the application.
 let savedThemeType = JSON.parse(window.localStorage.getItem('theme'))
-
 if (savedThemeType === null || savedThemeType === undefined)
   savedThemeType = "light"
 
-function prepareMUITheme(themeType){
+function prepareMUITheme(themeType) {
   let theme = null
   if (themeType === "light") {
     theme = createMuiTheme({
@@ -150,7 +149,7 @@ const store = createStore ( (state = initialState, action) => {
       window.localStorage.setItem('theme', JSON.stringify(type))
       return {...state, theme: theme}
     }
-    
+
     case 'ADD_AOIS': 
       return {...state, aois: state.aois.concat(action.aois)}
     
