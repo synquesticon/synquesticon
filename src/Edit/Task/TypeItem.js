@@ -19,9 +19,8 @@ const TaskTypeItem = props => {
   if (provided === undefined) return null
 
   let highlightColor = null
-  if (props.highlight) {
+  if (props.highlight)
     highlightColor = { backgroundColor: theme.palette.secondary.main + "66" }
-  }
 
   const dragButton = props.dragEnabled ? <div className="synquestiListItemDragBtnContainer" style={{ backgroundColor: dragHighlight }}><Button style={{ cursor: 'move', width: '100%', height: '100%', minWidth: '30px', minHeight: '30px' }}
     className="synquestiListItemDragBtn" size="small" fullWidth >
