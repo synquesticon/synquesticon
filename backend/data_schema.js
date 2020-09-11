@@ -1,7 +1,10 @@
-const mongoose = require("mongoose")
-const Schema = mongoose.Schema
+// /backend/data.js
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
-//objType: Synquestitask
+/*
+objType: Synquestitask
+*/
 const SynquestitaskSchema = new Schema({
   name: String, //The name for the Synquestitask
   tags: [String], //A list of searchable tags
@@ -11,7 +14,9 @@ const SynquestitaskSchema = new Schema({
   childObj: [{ //A list of child objects
     _id: false, //To disable automatic mongo db id's for the elements in the list
 
-    //taskType: Instruction, Text Entry, Multiple Choice, Image, Numpad Entry
+    /*
+    taskType: Instruction, Text Entry, Multiple Choice, Image, Numpad Entry
+    */
     objType: String, // What type of object this is
     globalVariable: Boolean, //If true the response of the task should be stored as a global var in the participant DB object
     screenIDS: [String], //A list of screen IDs
@@ -38,9 +43,10 @@ const SynquestitaskSchema = new Schema({
       _id: false
     }],
   }],
-}, 
-{collection: 'Synquestitasks'}
-)
+
+}, {
+  collection: 'Synquestitasks'
+});
 
 const TaskSetSchema = new Schema({
   id: String, //The id of the TaskSet
@@ -56,12 +62,12 @@ const TaskSetSchema = new Schema({
   //logOneLine: Boolean, //If true log all the tasks in one line
   counterbalancingOrder: [Number], //List of the order the tasks should be played
   objType: String
-}, 
-{collection: 'TaskSets'}
-)
+}, {
+  collection: 'TaskSets'
+});
 
 const ParticipantSchema = new Schema(
-  {
+{
     readableId: String,
     mainTaskSetId: String,
     eyeData: String,
@@ -115,17 +121,19 @@ const ParticipantSchema = new Schema(
       value: [String],
       _id: false
     }]
-  }, 
-  {collection: 'Participants'}
-)
+  }, {
+    collection: 'Participants'
+  }
+);
 
 const ExperimentSchema = new Schema(
   {
     readableId: String,
     participantIds: [String]
-  }, 
-  {collection: 'Experiments'}
-)
+  }, {
+    collection: 'Experiments'
+  }
+);
 
 const ObserverMessageSchema = new Schema(
   {
@@ -135,14 +143,18 @@ const ObserverMessageSchema = new Schema(
     taskId: String,
     startTaskTime: String,
     messages: [String]
-  }, 
-  {collection: 'ObserverMessages'}
-)
+  }, {
+    collection: 'ObserverMessages'
+  }
+);
 
 const RoleSchema = new Schema(
-  {name: String}, 
-  {collection: 'Roles'}
-)
+  {
+    name: String
+  }, {
+    collection: 'Roles'
+  }
+);
 
 // export the new Schema so we could modify it using Node.js
 module.exports = {
@@ -152,4 +164,4 @@ module.exports = {
   Experiments: mongoose.model("Experiments", ParticipantSchema),
   Roles: mongoose.model("Roles", RoleSchema),
   ObserverMessages: mongoose.model("ObserverMessages", ObserverMessageSchema)
-}
+};
