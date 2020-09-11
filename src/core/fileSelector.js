@@ -8,19 +8,18 @@ import Button from '@material-ui/core/Button'
  */
 export class FileSelector extends Component {
   constructor(props: any) {
-    super(props);
-    this.handleChange = this.handleChange.bind(this);
-    this.onClickRedirector = this.redirectUploadClick.bind(this);
+    super(props)
+    this.handleChange = this.handleChange.bind(this)
+    this.onClickRedirector = this.redirectUploadClick.bind(this)
   }
 
   redirectUploadClick() {
-    document.getElementById("dataaseImageUploadSelector").click();
+    document.getElementById("dataaseImageUploadSelector").click()
   }
 
   handleChange(selectorFiles: FileList) {
-    if (selectorFiles.length > 0) {
-      this.props.handleSelectionCallback(selectorFiles[0]);
-    }
+    if (selectorFiles.length > 0) 
+      this.props.handleSelectionCallback(selectorFiles[0])
   }
 
   render() {

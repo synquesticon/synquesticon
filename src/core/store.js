@@ -7,13 +7,13 @@ import uuid from 'react-uuid'
 /*
 * The store is responsible for storing data that needs to be shared between different parts of the application.
 */
-let savedThemeType = JSON.parse(window.localStorage.getItem('theme'));
+let savedThemeType = JSON.parse(window.localStorage.getItem('theme'))
 
 if (savedThemeType === null || savedThemeType === undefined)
   savedThemeType = "light"
 
 function prepareMUITheme(themeType){
-  let theme = null;
+  let theme = null
   if (themeType === "light") {
     theme = createMuiTheme({
       palette:{
@@ -57,21 +57,22 @@ function prepareMUITheme(themeType){
   theme = responsiveFontSizes(theme)
 
   let actionDisabledBG = theme.palette.secondary.light
-  if(theme.palette.secondary.light.includes("#")){
-    actionDisabledBG = actionDisabledBG + "66";
-  } else{
-    actionDisabledBG = actionDisabledBG.replace("rgb", "rgba");
-    actionDisabledBG = actionDisabledBG.replace(")", ",0.25)");
+  if (theme.palette.secondary.light.includes("#"))
+    actionDisabledBG = actionDisabledBG + "66"
+  else {
+    actionDisabledBG = actionDisabledBG.replace("rgb", "rgba")
+    actionDisabledBG = actionDisabledBG.replace(")", ",0.25)")
   }
 
-  theme.palette.action.disabledBackground = actionDisabledBG;
+  theme.palette.action.disabledBackground = actionDisabledBG
 
-  let selectedItemBGColor = theme.palette.secondary.light;
-  if (theme.palette.secondary.light.includes("#")){
-    selectedItemBGColor = selectedItemBGColor + "66";
-  } else {
-    selectedItemBGColor = selectedItemBGColor.replace("rgb", "rgba");
-    selectedItemBGColor = selectedItemBGColor.replace(")", ",0.25)");
+  let selectedItemBGColor = theme.palette.secondary.light
+
+  if (theme.palette.secondary.light.includes("#"))
+    selectedItemBGColor = selectedItemBGColor + "66"
+  else {
+    selectedItemBGColor = selectedItemBGColor.replace("rgb", "rgba")
+    selectedItemBGColor = selectedItemBGColor.replace(")", ",0.25)")
   }
 
   theme.overrides = {
@@ -124,76 +125,75 @@ const initialState = {
   theme: theme,
   snackbarOpen: false,
   snackbarMessage: ""
-};
+}
 
-const store = createStore ((state = initialState, action) => {
+const store = createStore ( (state = initialState, action) => {
   switch(action.type) {
     case 'RESET_EXPERIMENT': {
-      return { ...state, experimentInfo: {} };
+      return { ...state, experimentInfo: {} }
     }
     case 'SET_GAZE_DATA': {
-      state.gazeData[action.tracker] = action.gazeData;
+      state.gazeData[action.tracker] = action.gazeData
       if (!state.remoteEyeTrackers.includes(action.tracker)) {
-        state.remoteEyeTrackers.push(action.tracker);
-        eventStore.setCurrentRemoteTracker(action.tracker);
-        eventStore.emitNewRemoteTrackerListener();
+        state.remoteEyeTrackers.push(action.tracker)
+        eventStore.setCurrentRemoteTracker(action.tracker)
+        eventStore.emitNewRemoteTrackerListener()
       }
-      return state;
+      return state
     }
-    case 'SET_MULTISCREEN':{
-      return { ...state, multipleScreens:action.multipleScreens, screenID:action.screenID, screen_uuid: action.screen_uuid};
-    }
-    case 'SET_SELECTED_EYETRACKER': {
-      return { ...state, selectedEyeTracker:action.selectedEyeTracker};
-    }
-    case 'SET_PARTICIPANT_ID': {
-      return { ...state, experimentInfo:{...state.experimentInfo, participantId: action.participantId}};
-    }
-    case 'SET_SHOULD_SAVE': {
-      return { ...state, experimentInfo:{...state.experimentInfo, shouldSave: action.shouldSave}};
-    }
-    case 'SET_SHOULD_EDIT': {
-      return { ...state, shouldEdit:action.shouldEdit, objectToEdit:action.objectToEdit, typeToEdit:action.typeToEdit};
-    }
+    case 'SET_MULTISCREEN':
+      return { ...state, multipleScreens:action.multipleScreens, screenID:action.screenID, screen_uuid: action.screen_uuid}
+    
+    case 'SET_SELECTED_EYETRACKER': 
+      return { ...state, selectedEyeTracker:action.selectedEyeTracker}
+    
+    case 'SET_PARTICIPANT_ID': 
+      return { ...state, experimentInfo:{...state.experimentInfo, participantId: action.participantId}}
+    
+    case 'SET_SHOULD_SAVE': 
+      return { ...state, experimentInfo:{...state.experimentInfo, shouldSave: action.shouldSave}}
+    
+    case 'SET_SHOULD_EDIT': 
+      return { ...state, shouldEdit:action.shouldEdit, objectToEdit:action.objectToEdit, typeToEdit:action.typeToEdit}
+    
     case 'ADD_PARTICIPANT': {
-      state.participants[action.participant] = action.tracker;
-      return state;
+      state.participants[action.participant] = action.tracker
+      return state
     }
     case 'REMOVE_PARTICIPANT': {
-      if (state.participants[action.participant] !== undefined) {
-        delete state.participants[action.participant];
-      }
-      return state;
+      if (state.participants[action.participant] !== undefined) 
+        delete state.participants[action.participant]
+      return state
     }
-    case 'SET_GAZE_RADIUS': {
-      return { ...state, gazeCursorRadius: action.gazeRadius};
-    }
-    case 'SET_EXPERIMENT_INFO': {
+    case 'SET_GAZE_RADIUS': 
+      return { ...state, gazeCursorRadius: action.gazeRadius}
+    
+    case 'SET_EXPERIMENT_INFO': 
       return { ...state, experimentInfo: action.experimentInfo}
-    }
-    case 'SET_SHOW_HEADER': {
+    
+    case 'SET_SHOW_HEADER': 
       return { ...state, showHeader: action.showHeader}
-    }
-    case 'WINDOW_RESIZE': {
+    
+    case 'WINDOW_RESIZE': 
       return { ...state, windowSize: action.windowSize}
-    }
+
     case 'TOGGLE_THEME_TYPE': {
-      let type = state.theme.palette.type === "light" ? "dark" : "light";
+      let type = state.theme.palette.type === "light" ? "dark" : "light"
       theme = prepareMUITheme(type)
-      window.localStorage.setItem('theme', JSON.stringify(type));
+      window.localStorage.setItem('theme', JSON.stringify(type))
       return {...state, theme: theme}
     }
-    case 'ADD_AOIS': {
-      return {...state, aois: state.aois.concat(action.aois)};
-    }
-    case 'RESET_AOIS': {
-      return {...state, aois: []};
-    }
-    case 'TOAST_SNACKBAR_MESSAGE': {
-      return {...state, snackbarOpen: action.snackbarOpen, snackbarMessage: action.snackbarMessage};
-    }
+    case 'ADD_AOIS': 
+      return {...state, aois: state.aois.concat(action.aois)}
+    
+    case 'RESET_AOIS': 
+      return {...state, aois: []}
+    
+    case 'TOAST_SNACKBAR_MESSAGE': 
+      return {...state, snackbarOpen: action.snackbarOpen, snackbarMessage: action.snackbarMessage}
+    
     default:
-      return state;
+      return state
   }
 },  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__())
 

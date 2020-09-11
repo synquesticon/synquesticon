@@ -1,9 +1,9 @@
 import * as dbObjects from './db_objects'
 
 export function arrayMove(arr, fromIndex, toIndex) {
-    var element = arr[fromIndex];
-    arr.splice(fromIndex, 1);
-    arr.splice(toIndex, 0, element);
+    let element = arr[fromIndex]
+    arr.splice(fromIndex, 1)
+    arr.splice(toIndex, 0, element)
 }
 
 /**
@@ -13,14 +13,12 @@ export function arrayMove(arr, fromIndex, toIndex) {
  * @param  {object} task The object to extract content from.
  */
 export function getTaskContent(task){
-  var content = null;
+  let content = null
 
-  if(task.objType === dbObjects.ObjectTypes.SET){
-    content = task.name;
-  }
-  else{
-    content = task.name;
-  }
+  if (task.objType === dbObjects.ObjectTypes.SET)
+    content = task.name
+  else
+    content = task.name
 
-  return content;
+  return content
 }

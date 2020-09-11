@@ -17,9 +17,8 @@ export function getFormattedTime(dt) {
   return hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2) + '.' + milliseconds
 }
 
-const myStorage = window.localStorage
 export function getDeviceName() {
-  return myStorage.getItem('deviceID')
+  return window.localStorage.getItem('deviceID')
 }
 
 export function pointIsInPoly(p, polygon) {
@@ -52,15 +51,14 @@ export function getAllImagePaths(taskList) {
 
 function getImagePath(dataList, imageFiles) {
   dataList.forEach(function (data) {
-    if (data.taskType === dbObjects.ObjectTypes.SET) {
+    if (data.taskType === dbObjects.ObjectTypes.SET) 
       getImagePath(data.data, imageFiles)
-    } else if (data.taskType === "Image") {
+    else if (data.taskType === "Image")
       imageFiles.push("/Images/" + data.image)
-    } else if (data.taskType === "Comparison") {
+    else if (data.taskType === "Comparison") {
       data.subTasks.forEach(function (subTask) {
-        if (subTask.subType === "Image") {
+        if (subTask.subType === "Image")
           imageFiles.push("/Images/" + subTask.image)
-        }
       })
     }
   })
@@ -70,7 +68,6 @@ function getImagePath(dataList, imageFiles) {
 export function stringifyMessage(store, task, lineOfData, eventType, progressCount, taskIndex) {
   try {
     if (store.getState().experimentInfo.participantId === undefined) return null
-
     return JSON.stringify({
       eventType: eventType,
       participantId: store.getState().experimentInfo.participantId,

@@ -330,7 +330,7 @@ class db_helper {
   getTasksOrTaskSetsWithIDs(wrapperSetId, callback) {
     axios.post("/api/getTasksOrTaskSetsWithIDs", { wrapperSetId: JSON.stringify(wrapperSetId) })
       .then(response => {
-        callback(response.data.data, response.data.count, response.data.mainTaskSetName);
+        callback(response.data.data, response.data.count, response.data.mainTaskSetName)
       })
   }
 
@@ -468,7 +468,7 @@ class db_helper {
       participantId: participantId,
       globalVariableJSON: globalVariableJSON //please stringify before calling this function
     })
-      .then(response => { });
+      .then( response => { })
   }
 
   deleteAllParticipantsFromDb(callback) {
@@ -519,11 +519,11 @@ class db_helper {
 
   addRoleToDb(name) {
     axios.post("/api/addRole", { role: name })
-      .then((response) => {
+      .then( response => {
         if (response.status === 200) {
         } else {
-          alert("Something's wrong! Cannot log the current run into database.");
-          throw new Error("Cannot log data");
+          alert("Something's wrong! Cannot log the current run into database.")
+          throw new Error("Cannot log data")
         }
       })
   }
