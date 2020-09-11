@@ -13,15 +13,13 @@ import './css/ComponentList.css'
 let _id = 0
 
 const TaskComponentList = props => {
-  const {theme} = props
-  let taskBgColor = theme.palette.type === "light" ? theme.palette.primary.main : theme.palette.primary.dark
+  let taskBgColor = props.theme.palette.type === "light" ? props.theme.palette.primary.main : props.theme.palette.primary.dark
   const headerHeight = 40
 
-  if (props.taskComponents.length === 0) {
-    return <Typography variant='h5' color='textPrimary' style={{opacity:0.5, padding:5, marginLeft:5}}>{props.displayIfEmpty?props.displayIfEmpty:''}</Typography>;
-  }
+  if (props.taskComponents.length === 0) 
+    return <Typography variant='h5' color='textPrimary' style={{opacity:0.5, padding:5, marginLeft:5}}>{props.displayIfEmpty?props.displayIfEmpty:''}</Typography>
 
-  const collapsableContent = props.taskComponents.map((comp, index) => {
+  const collapsableContent = props.taskComponents.map( (comp, index) => {
     const dragSource =
     <div>
       <div className="editListItemDelBtnContainer">
@@ -58,7 +56,7 @@ const TaskComponentList = props => {
       </Draggable>
     )
   })
-  return <div style={{height:'100%', width:'100%', overflowY:'auto'}}>{collapsableContent}</div>;
+  return <div style={{height:'100%', width:'100%', overflowY:'auto'}}>{collapsableContent}</div>
 }
 
 export default withTheme(TaskComponentList)
