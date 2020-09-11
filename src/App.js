@@ -11,8 +11,8 @@ import Observe from './Observe/'
 import Export from './Export'
 import SessionList from './SessionList/'
 import Play from './Play';
-import './App.css'
 import ThemeProvider from '@material-ui/styles/ThemeProvider'
+import './App.css'
 
 //To make MaterialUI use the new variant of typography and avoid the deprecation warning
 window.__MUI_USE_NEXT_TYPOGRAPHY_VARIANTS__ = true;
@@ -24,11 +24,10 @@ class App extends Component {
   }
 
   resize() {
-    var resizeAction = {
+    store.dispatch({
       type: 'WINDOW_RESIZE',
       windowSize: { width: window.innerWidth, height: window.innerHeight }
-    }
-    store.dispatch(resizeAction)
+    })
   }
 
   componentDidMount() {
@@ -43,12 +42,11 @@ class App extends Component {
   }
 
   handleCloseSnackbar(event, reason) {
-    var snackbarAction = {
+    store.dispatch({
       type: 'TOAST_SNACKBAR_MESSAGE',
       snackbarOpen: false,
       snackbarMessage: ""
-    }
-    store.dispatch(snackbarAction);
+    })
   }
 
   render() {
