@@ -22,7 +22,7 @@ export const ObjectTypes = {
   SET: 'Sets',
 }
 
-var childListID = 0;
+let childListID = 0;
 // The default object used for Tasks. New tasks should use this as the base.
 export class SynquestitaskObject {
   constructor() {
@@ -62,8 +62,6 @@ export class SynquestitaskChildComponent {
     childListID++
   }
 }
-
-
 
 //The default object used for Sets. New sets should use this as the base.
 export class TaskSetObject {
@@ -109,11 +107,8 @@ export class LineOfData {
     */
     this.correctlyAnswered = "skipped"
 
-    this.startTimestamp = currentTime
-    /*
-    raw timestamp for every response
-    */
-    this.firstResponseTimestamp = -1 //The end timestamp
+    this.startTimestamp = currentTime     //raw timestamp for every response
+    this.firstResponseTimestamp = -1      //The end timestamp
     /* timeToFirstAnswer
     time from when the question was presented to first input
     - for buttons: to when first button is pressed
