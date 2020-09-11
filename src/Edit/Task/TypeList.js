@@ -23,8 +23,7 @@ const Clone = styled(TaskClone)`
 
 const EditTaskTypeList = props => {
   const taskList = props.taskList
-  const { theme } = props
-  let bgColor = theme.palette.type === "light" ? theme.palette.primary.dark : theme.palette.primary.main
+  let bgColor = props.theme.palette.type === "light" ? props.theme.palette.primary.dark : props.theme.palette.primary.main
 
   return (
     <Droppable droppableId={props.droppableId} isDropDisabled={true} >
@@ -32,7 +31,7 @@ const EditTaskTypeList = props => {
         <div className="synquestitaskListComponentContainer" ref={provided.innerRef}>
           {
             taskList.map((item, index) => {
-              const margin = index < taskList.length - 1 ? " synquestiMargin" : "";
+              const margin = index < taskList.length - 1 ? " synquestiMargin" : ""
               const clonedContent = <div
                 className={"synquestiListItem " + margin} style={{ backgroundColor: bgColor }}>
                 <div className="synquestiListItemTextContainer" >
