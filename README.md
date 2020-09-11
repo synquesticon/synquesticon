@@ -8,7 +8,7 @@
 
 <p>Installation instructions:</p>
 <ul>
-  <li>In the root dir - cmd npm install</li>
+  <li>In the root dir - cmd npm install (window) or npm install (linux)</li>
   <li>In the mqttAEDES dir - cmd npm install</li>
   <li>In the backend dir - cmd npm install</li>
 </ul>
