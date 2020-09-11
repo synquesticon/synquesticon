@@ -10,11 +10,9 @@ export function getFormattedCurrentTime() {
 
 export function getFormattedTime(dt) {
   const date = new Date(dt)
-  const hours = date.getHours()
   const minutes = "0" + date.getMinutes()
   const seconds = "0" + date.getSeconds()
-  const milliseconds = date.getMilliseconds()
-  return hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2) + '.' + milliseconds
+  return date.getHours() + ':' + minutes.substr(-2) + ':' + seconds.substr(-2) + '.' + date.getMilliseconds()
 }
 
 export function getDeviceName() {

@@ -1,21 +1,17 @@
 // In production, we register a service worker to serve assets from local cache.
-
 // This lets the app load faster on subsequent visits in production, and gives
 // it offline capabilities. However, it also means that developers (and users)
 // will only see deployed updates on the "N+1" visit to a page, since previously
 // cached resources are updated in the background.
-
 // To learn more about the benefits of this model, read https://goo.gl/KwvDNy.
 // This link also includes instructions on opting out of this behavior.
 
 const isLocalhost = Boolean(
   window.location.hostname === 'localhost' ||
-    // [::1] is the IPv6 localhost address.
-    window.location.hostname === '[::1]' ||
-    // 127.0.0.1/8 is considered localhost for IPv4.
-    window.location.hostname.match(
-      /^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/
-    )
+  window.location.hostname === '[::1]' ||   // [::1] is the IPv6 localhost address.
+  window.location.hostname.match(   // 127.0.0.1/8 is considered localhost for IPv4.
+    /^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/
+  )
 )
 
 export default function register() {
@@ -31,23 +27,12 @@ export default function register() {
 
     window.addEventListener('load', () => {
       const swUrl = `${process.env.PUBLIC_URL}/service-worker.js`
-
       if (isLocalhost) {
-        // This is running on localhost. Lets check if a service worker still exists or not.
-        checkValidServiceWorker(swUrl);
-
-        // Add some additional logging to localhost, pointing developers to the
-        // service worker/PWA documentation.
-        navigator.serviceWorker.ready.then(() => {
-          console.log(
-            'This web app is being served cache-first by a service ' +
-              'worker. To learn more, visit https://goo.gl/SC7cgQ'
-          )
+        checkValidServiceWorker(swUrl)           // This is running on localhost. Lets check if a service worker still exists or not.
+        navigator.serviceWorker.ready.then(() => {            // Add some additional logging to localhost, pointing developers to the service worker/PWA documentation.
+          console.log('This web app is being served cache-first by a service worker. To learn more, visit https://goo.gl/SC7cgQ')
         })
-      } else {
-        // Is not local host. Just register service worker
-        registerValidSW(swUrl)
-      }
+      } else registerValidSW(swUrl)    // Is not local host. Just register service worker
     })
   }
 }
@@ -76,7 +61,7 @@ function registerValidSW(swUrl) {
         }
       }
     })
-    .catch(error => {
+    .catch( error => {
       console.error('Error during service worker registration:', error)
     })
 }
@@ -96,15 +81,10 @@ function checkValidServiceWorker(swUrl) {
             window.location.reload()
           })
         })
-      } else {
-        // Service worker found. Proceed as normal.
-        registerValidSW(swUrl)
-      }
+      } else registerValidSW(swUrl)    // Service worker found. Proceed as normal.
     })
     .catch(() => {
-      console.log(
-        'No internet connection found. App is running in offline mode.'
-      )
+      console.log('No internet connection found. App is running in offline mode.')
     })
 }
 

@@ -108,9 +108,6 @@ class db_helper {
       .then( response => { callback() })
   }
 
-  /**
-   * deleteAllTasksFromDb - Deletes all the tasks in the DB. Use with care.
-   */
   deleteAllTasksFromDb() {
     axios.delete("/api/deleteAllTasks", {})
   }
@@ -158,7 +155,7 @@ class db_helper {
           throw new Error("Database connection failed")
         }
       })
-      .catch( error => { console.log(error) })
+      .catch( error => { console.log(error) } )
   }
 
   /**
@@ -314,7 +311,7 @@ class db_helper {
           throw new Error("Database connection failed")
         }
       })
-      .catch(error => { console.log(error) })
+      .catch( error => { console.log(error) })
   }
 
   /**
@@ -350,9 +347,6 @@ class db_helper {
   ██       ██ ██  ██      ██      ██   ██ ██ ██  ██  ██ ██      ██  ██ ██    ██
   ███████ ██   ██ ██      ███████ ██   ██ ██ ██      ██ ███████ ██   ████    ██
   */
-
-
-
   /**
    * getAllExperimentsFromDb - Queries the DB for all sets tagged as experiments
    *
@@ -380,7 +374,6 @@ class db_helper {
 ██      ██   ██ ██   ██    ██    ██ ██      ██ ██      ██   ██ ██  ██ ██    ██
 ██      ██   ██ ██   ██    ██    ██  ██████ ██ ██      ██   ██ ██   ████    ██
 */
-
   /**
    * getAllParticipantsFromDb - Asynch Query the DB for all participants. The result is passed to the callback function.
    *
@@ -464,7 +457,6 @@ class db_helper {
       .then(() => callback())
   }
 
-  //Deletes participant from the DB. Use with care.
   deleteParticipantFromDb(participantId, callback) {
     axios.post("/api/deleteParticipant", { id: participantId })
       .then(() => callback())

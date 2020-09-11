@@ -22,8 +22,7 @@ export function getItemStyle(snapshot, draggableStyle, bgColor, highlightColor, 
     return {
         ...draggableStyle,
         userSelect: 'none',
-        // change background colour if dragging
-        background: snapshot.isDragging ? highlightColor : bgColor,
+        background: snapshot.isDragging ? highlightColor : bgColor, // change background colour if dragging
     }
 }
 

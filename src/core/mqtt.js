@@ -28,11 +28,9 @@ const onMultipleScreenEvent = message => {
   if (message) {
     let parsedMessage = JSON.parse(message)
 
-    //Only respond to the message if the device ID matches our own 
-    //and the screenID is different so we don't repeat messages endlessly
-    if (parsedMessage.deviceID === window.localStorage.getItem('deviceID') ) {
+    //Only respond to the message if the device ID matches our own and the screenID is different so we don't repeat messages endlessly
+    if (parsedMessage.deviceID === window.localStorage.getItem('deviceID'))
       eventStore.default.emitMultipleScreenEvent(JSON.parse(message))
-    }
   }
 }
 
@@ -59,9 +57,8 @@ const _startMQTT = (config, restart) => {
   if (restart) {
     console.log("restarting mqtt client")
     if (mqttClient) {mqttClient.end()}
-  } else if (last_config && (last_config.ip === config.ip && last_config.port === config.port)) {
+  } else if (last_config && (last_config.ip === config.ip && last_config.port === config.port)) 
     return
-  }
 
   let wsURL = config.bUseWSS ? "wss://" : "ws://"
   wsURL += config.ip + ":" + config.port
@@ -74,18 +71,10 @@ const _startMQTT = (config, restart) => {
   //When the client connects we subscribe to the topics we want to listen to
   mqttClient.on('connect', function () {
     console.log("Connected to mqtt broker")
-    mqttClient.subscribe(SynquesticonTopic, function (err) {
-      if (err) {console.log(err)}
-    })
-    mqttClient.subscribe(SynquesticonCommandTopic, function (err) {
-      if (err) { console.log(err) }
-    })
-    mqttClient.subscribe(SynquesticonMultipleScreenTopic, function (err) {
-      if (err) { console.log(err) }
-    })
-    mqttClient.subscribe(RemoteEyeTrackingTopic, function (err) {
-      if (err) { console.log(err) }
-    })
+    mqttClient.subscribe(SynquesticonTopic, function (err) { if (err) {console.log(err)} })
+    mqttClient.subscribe(SynquesticonCommandTopic, function (err) { if (err) { console.log(err) } })
+    mqttClient.subscribe(SynquesticonMultipleScreenTopic, function (err) { if (err) { console.log(err) } })
+    mqttClient.subscribe(RemoteEyeTrackingTopic, function (err) { if (err) { console.log(err) } })
   })
 
   //When the client connects we subscribe to the topics we want to listen to
