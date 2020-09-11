@@ -23,9 +23,7 @@ const TaskComponentItem = props => {
   const onSelectImage = (shouldUploadFlag, image) => {
     shouldUpload = shouldUploadFlag
     imageToUpload = image
-    if (shouldUpload) {
-      uploadImages()
-    }
+    if (shouldUpload) uploadImages()
   }
 
   //Upload the sleected image to the database
@@ -297,7 +295,6 @@ const TaskComponentItem = props => {
       }
       default: component = null
     }
-
     return component
   }
 
@@ -320,13 +317,12 @@ const TaskComponentItem = props => {
     })
     response = response.filter(Boolean) //Remove empty values
 
-    if (target === "Responses") {
+    if (target === "Responses") 
       props.task.responses = response
-    } else if (target === "Correct Responses") {
+    else if (target === "Correct Responses") 
       props.task.correctResponses = response
-    } else if (target === "ScreenIDs") {
+    else if (target === "ScreenIDs") 
       props.task.screenIDS = response
-    }
   }
 
   return (
