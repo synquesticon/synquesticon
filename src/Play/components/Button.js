@@ -3,7 +3,6 @@ import { Typography } from '@material-ui/core'
 import mqtt from '../../core/mqtt'
 import Button from './ButtonElement'
 import store from '../../core/store'
-import * as dbObjects from '../../core/db_objects'
 import * as playerUtils from '../../core/player_utility_functions'
 import makeLogObject from '../../core/makeLogObject'
 import uuid from 'react-uuid'
@@ -85,15 +84,6 @@ const buttonList = props => {
       }
       mqtt.broadcastEvents(makeLogObject(taskObject, componentObject, { observerMessage: observerMessageString }))
     }
-  }, [])
-
-  useEffect(() => {
-    let newLine = new dbObjects.LineOfData(playerUtils.getCurrentTime(),
-      props.taskID,
-      props.familyTree,
-      props.objType === dbObjects.TaskTypes.IMAGE.type ? props.image : props.displayText,
-      props.correctResponses,
-      props.objType)
   }, [])
 
   const logElementData = (id, isClicked, content) => {
