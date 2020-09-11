@@ -4,9 +4,7 @@ import { createMuiTheme, responsiveFontSizes } from '@material-ui/core/styles'
 import darkSecondary from '@material-ui/core/colors/amber'
 import uuid from 'react-uuid'
 
-/*
-* The store is responsible for storing data that needs to be shared between different parts of the application.
-*/
+//The store is responsible for storing data that needs to be shared between different parts of the application.
 let savedThemeType = JSON.parse(window.localStorage.getItem('theme'))
 
 if (savedThemeType === null || savedThemeType === undefined)
@@ -17,38 +15,19 @@ function prepareMUITheme(themeType){
   if (themeType === "light") {
     theme = createMuiTheme({
       palette:{
-        primary:{
-          main: "#EEEEEE"
-        },
-        secondary:{
-          main:"#3F51B5"
-        },
-        // Used by `getContrastText()` to maximize the contrast between the
-        // background and the text.
-        contrastThreshold: 3,
-        // Used to shift a color's luminance by approximately
-        // two indexes within its tonal palette.
-        // E.g., shift from Red 500 to Red 300 or Red 700.
-        tonalOffset: 0.02,
+        primary:{ main: "#EEEEEE" },
+        secondary:{ main:"#3F51B5" },
+        contrastThreshold: 3,   // Used by `getContrastText()` to maximize the contrast between the background and the text.
+        tonalOffset: 0.02,      // Used to shift a color's luminance by approximately two indexes within its tonal palette. E.g., shift from Red 500 to Red 300 or Red 700.
         type: themeType,
       }
     })
   } else {
     theme = createMuiTheme({
       palette:{
-        primary: {
-          //light: '#757ce8',
-          main: '#555',
-          //dark: '#002884',
-          //contrastText: '#fff',
-        },
-        secondary: darkSecondary,
-        // Used by `getContrastText()` to maximize the contrast between the
-        // background and the text.
+        primary: { main: '#555', },  
+        secondary: darkSecondary,    
         contrastThreshold: 3,
-        // Used to shift a color's luminance by approximately
-        // two indexes within its tonal palette.
-        // E.g., shift from Red 500 to Red 300 or Red 700.
         tonalOffset: 0.1,
         type: themeType,
       }
@@ -63,11 +42,9 @@ function prepareMUITheme(themeType){
     actionDisabledBG = actionDisabledBG.replace("rgb", "rgba")
     actionDisabledBG = actionDisabledBG.replace(")", ",0.25)")
   }
-
   theme.palette.action.disabledBackground = actionDisabledBG
 
   let selectedItemBGColor = theme.palette.secondary.light
-
   if (theme.palette.secondary.light.includes("#"))
     selectedItemBGColor = selectedItemBGColor + "66"
   else {
@@ -78,31 +55,21 @@ function prepareMUITheme(themeType){
   theme.overrides = {
     MuiSlider:{
       track:{backgroundColor:theme.palette.secondary.dark, height:4},
-      thumb:{backgroundColor:theme.palette.secondary.dark}
-    },
+      thumb:{backgroundColor:theme.palette.secondary.dark}},
     MuiInputLabel:{
       root:{"&$focused":{color: theme.palette.secondary.dark, underline:theme.palette.secondary.dark}},
-      focused:{borderColor:theme.palette.secondary.dark}
-    },
+      focused:{borderColor:theme.palette.secondary.dark}},
     MuiTouchRipple:{
-      ripple: {
-        color: theme.palette.secondary.main,
-      },
-    },
+      ripple: {color: theme.palette.secondary.main,},},
     MuiFormControlLabel:{
-      root:{color: theme.palette.text.primary}
-    },
+      root:{color: theme.palette.text.primary}},
     MuiListItem:{
-      root:{"&.Mui-selected": {
-        backgroundColor: selectedItemBGColor
-      }}
-    }
+      root:{"&.Mui-selected": {backgroundColor: selectedItemBGColor}}}
   }
   return theme = responsiveFontSizes(theme)
 }
 
 let theme = prepareMUITheme(savedThemeType)
-
 const initialState = {
   screenID:'',
   screen_uuid: uuid(),
@@ -116,10 +83,7 @@ const initialState = {
   showHeader: true,
   experimentInfo: {},
   shouldSave: true,
-  windowSize: {
-    width: window.innerWidth,
-    height: window.innerHeight
-  },
+  windowSize: { width: window.innerWidth, height: window.innerHeight },
   shouldEditSet: false,
   setToEdit: null,
   theme: theme,
@@ -129,9 +93,9 @@ const initialState = {
 
 const store = createStore ( (state = initialState, action) => {
   switch(action.type) {
-    case 'RESET_EXPERIMENT': {
+    case 'RESET_EXPERIMENT': 
       return { ...state, experimentInfo: {} }
-    }
+
     case 'SET_GAZE_DATA': {
       state.gazeData[action.tracker] = action.gazeData
       if (!state.remoteEyeTrackers.includes(action.tracker)) {
@@ -141,6 +105,7 @@ const store = createStore ( (state = initialState, action) => {
       }
       return state
     }
+
     case 'SET_MULTISCREEN':
       return { ...state, multipleScreens:action.multipleScreens, screenID:action.screenID, screen_uuid: action.screen_uuid}
     
@@ -160,11 +125,13 @@ const store = createStore ( (state = initialState, action) => {
       state.participants[action.participant] = action.tracker
       return state
     }
+
     case 'REMOVE_PARTICIPANT': {
       if (state.participants[action.participant] !== undefined) 
         delete state.participants[action.participant]
       return state
     }
+
     case 'SET_GAZE_RADIUS': 
       return { ...state, gazeCursorRadius: action.gazeRadius}
     
@@ -183,6 +150,7 @@ const store = createStore ( (state = initialState, action) => {
       window.localStorage.setItem('theme', JSON.stringify(type))
       return {...state, theme: theme}
     }
+    
     case 'ADD_AOIS': 
       return {...state, aois: state.aois.concat(action.aois)}
     
