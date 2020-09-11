@@ -8,9 +8,8 @@ import App from './App'
 let doubleTouchStartTimestamp = 0
 document.addEventListener("touchstart", function (event) {
   const now = +(new Date())
-  if (doubleTouchStartTimestamp + 500 > now) {
+  if (doubleTouchStartTimestamp + 500 > now) 
     event.preventDefault()
-  }
   doubleTouchStartTimestamp = now
 })
 
