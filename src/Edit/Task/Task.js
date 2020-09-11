@@ -25,7 +25,6 @@ class Task extends Component {
 
     //We keep these fields in the state as they affect how the component is rendered
     this.state = { taskComponents: this.synquestitask.childObj, }
-
     this.updateChildOpenStateCallback = this.updateChildOpenState.bind(this)
     this.removeComponentCallback = this.removeComponent.bind(this)
     this.moveComponentCallback = this.moveComponent.bind(this)
@@ -36,7 +35,7 @@ class Task extends Component {
 
   //Callback from the collapsable container when it's state is changed
   updateChildOpenState(childIndex, newState) {
-    var updatedComponents = this.state.taskComponents.slice()
+    let updatedComponents = this.state.taskComponents.slice()
     updatedComponents[childIndex].openState = newState
     this.setState({ taskComponents: updatedComponents })
   }
@@ -82,21 +81,17 @@ class Task extends Component {
     response = response.map((value) => {
       return value.trim()
     })
-    response = response.filter(Boolean); //Remove empty values
-
+    response = response.filter(Boolean) //Remove empty values
     if (target === "Tags") this.synquestitask.tags = response
   }
 
 
   addComponent(sourceIndex, destinationIndex) {  //Add a task to the list of tasks in the set
-    var newComponent = new dbObjects.SynquestitaskChildComponent(Object.values(dbObjects.TaskTypes)[sourceIndex])
+    let newComponent = new dbObjects.SynquestitaskChildComponent(Object.values(dbObjects.TaskTypes)[sourceIndex])
     newComponent.openState = true
-
     if (newComponent) {
-      var updatedComponents = this.state.taskComponents.slice()
-      //Insert the new component at the index stored when add task was called
+      let updatedComponents = this.state.taskComponents.slice()        //Insert the new component at the index stored when add task was called
       updatedComponents.splice(destinationIndex, 0, newComponent)
-
       store.dispatch({
         type: 'TOAST_SNACKBAR_MESSAGE',
         snackbarOpen: true,
@@ -107,11 +102,9 @@ class Task extends Component {
     }
   }
 
-  //Remove a task from the list of tasks in the set
-  removeComponent(index) {
+  removeComponent(index) {        //Remove a task from the list of tasks in the set
     var newObjectList = [...this.state.taskComponents]
     newObjectList.splice(index, 1)
-
     store.dispatch({
       type: 'TOAST_SNACKBAR_MESSAGE',
       snackbarOpen: true,
@@ -144,17 +137,14 @@ class Task extends Component {
     this.props.closeTaskCallback(componentChanged, shouldClose)
   }
 
-  //On drag end callback from ReactDND
-  onDragEnd = result => {
+  onDragEnd = result => {       //On drag end callback from ReactDND
     const { source, destination } = result
     if (!destination) return   // dropped outside the list
 
-    //If the sourc eis the same as the destination we just move the element inside the list
-    if (source.droppableId === destination.droppableId) {
+    if (source.droppableId === destination.droppableId) 
       this.moveComponent(source.index, destination.index)
-    } else { //Otherwise we add to the list at the desired location
+    else  //Otherwise we add to the list at the desired location
       this.addComponent(source.index, destination.index)
-    }
   }
   /*
 ██████  ███████ ███    ██ ██████  ███████ ██████
