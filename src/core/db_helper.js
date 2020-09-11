@@ -71,8 +71,7 @@ class db_helper {
   addTwoTasksToDb(tasks, callback) {
     axios.post("/api/addTwoTasks", { tasks: JSON.stringify(tasks) })
       .then(response => {
-        if (response.data.success)
-          callback(response.data._ids)
+        if (response.data.success) callback(response.data._ids)
       })
   }
 
@@ -107,7 +106,7 @@ class db_helper {
    */
   deleteTaskFromDb(idTodelete, callback) {
     axios.post("/api/deleteTask", { id: idTodelete })
-      .then(response => { callback() })
+      .then( response => { callback() })
   }
 
   /**
@@ -140,8 +139,8 @@ class db_helper {
           throw new Error("Database connection failed")
         }
       })
-      .then(res => { callback(res.sets) })
-      .catch(error => { console.log(error) })
+      .then( res => { callback(res.sets) })
+      .catch( error => { console.log(error) })
   }
 
   /**
@@ -160,7 +159,7 @@ class db_helper {
           throw new Error("Database connection failed")
         }
       })
-      .catch(error => { console.log(error) })
+      .catch( error => { console.log(error) })
   }
 
   /**
@@ -172,7 +171,7 @@ class db_helper {
    */
   getTaskSetObject(taskSetID, callback) {
     axios.post("/api/getCompleteTaskSetObject", { objId: JSON.stringify(taskSetID) })
-      .then(response => { callback(response.data.data) })
+      .then( response => { callback(response.data.data) })
   }
 
   /**
@@ -183,7 +182,7 @@ class db_helper {
    */
   addTaskSetToDb(setObject, callback) {
     axios.post("/api/addTaskSet", { message: JSON.stringify(setObject) })
-      .then(response => {
+      .then( response => {
         if (response.status === 200)
           callback(response.data._id)
         else {
@@ -224,7 +223,7 @@ class db_helper {
    */
   addChildToTaskSetDb(setID, childObj) {
     axios.post("/api/addChildToTaskSet", { setId: setID, childObj: childObj })
-      .then(data => { })
+      .then( data => { })
   }
 
   /**
@@ -235,7 +234,7 @@ class db_helper {
    */
   removeChildFromTaskSetDb(setID, childId) {
     axios.post("/api/removeChildFromTaskSet", { setId: setID, childId: childId })
-      .then(data => { })
+      .then( data => { })
   }
 
   //Deletes all the sets in the DB. Use with care.
@@ -255,7 +254,7 @@ class db_helper {
    */
   getImage(filepath, callback) {
     axios.post("/api/getImage", { file: filepath })
-      .then(data => { callback(data.data.data) })
+      .then( data => { callback(data.data.data) } )
   }
 
   /*
@@ -329,7 +328,7 @@ class db_helper {
    */
   getTasksOrTaskSetsWithIDs(wrapperSetId, callback) {
     axios.post("/api/getTasksOrTaskSetsWithIDs", { wrapperSetId: JSON.stringify(wrapperSetId) })
-      .then(response => {
+      .then( response => {
         callback(response.data.data, response.data.count, response.data.mainTaskSetName)
       })
   }
@@ -344,12 +343,7 @@ class db_helper {
   async getTasksOrTaskSetsWithIDsPromise(objIds) {
     return new Promise((resolve, reject) => {
       axios.post("/api/getTasksOrTaskSetsWithIDs", { wrapperSetId: JSON.stringify(objIds) })
-        .then(response => { resolve(response.data.data) },
-          errorResponse => {
-            console.log(errorResponse)
-            reject(errorResponse)
-          }
-        )
+        .then(response => { resolve(response.data.data) }, errorResponse => { reject(errorResponse) })
     })
   }
 
@@ -371,7 +365,7 @@ class db_helper {
    */
   getAllExperimentsFromDb(callback) {
     fetch("/api/getAllExperiments")
-      .then(response => {
+      .then( response => {
         if (response.ok)
           return response.json()
         else {
@@ -379,8 +373,8 @@ class db_helper {
           throw new Error("Database connection failed")
         }
       })
-      .then(res => { callback(res.experiments) })
-      .catch(error => { console.log(error) })
+      .then( res => { callback(res.experiments) })
+      .catch( error => { console.log(error) })
   }
 
   /*
@@ -398,7 +392,7 @@ class db_helper {
    */
   getAllParticipantsFromDb(callback) {
     fetch("/api/getAllParticipants")
-      .then(response => {
+      .then( response => {
         if (response.ok)
           return response.json()
         else {
@@ -406,8 +400,8 @@ class db_helper {
           throw new Error("Database connection failed")
         }
       })
-      .then(res => { callback(res.participants) })
-      .catch(error => { console.log(error) })
+      .then( res => { callback(res.participants) } )
+      .catch( error => { console.log(error) } )
   }
 
   /**
@@ -435,9 +429,7 @@ class db_helper {
    * @param  {function}          callback  This function will be called with the MongoDB id assigned to the created participant. The function should take one parameter.
    */
   async addParticipantToDbSync(obj) {
-    return (
-      await axios.post("/api/addParticipant", { message: JSON.stringify(obj) })
-    )
+    return ( await axios.post("/api/addParticipant", { message: JSON.stringify(obj) }) )
   }
 
   /**
@@ -451,7 +443,7 @@ class db_helper {
   addNewLineToParticipantDB(participantId, newLineJSON) {
     if (participantId === undefined) return
     axios.post("/api/addNewLineToParticipant", { participantId: participantId, newLineJSON: newLineJSON })
-      .then(response => { })
+      .then( response => { })
   }
 
   /**
@@ -492,7 +484,7 @@ class db_helper {
   async deleteParticipantFromDbPromise(participantId) {
     return new Promise((resolve, reject) => {
       axios.post("/api/deleteParticipant", { id: participantId })
-        .then(response => { resolve() }, errorResponse => { reject(errorResponse) })
+        .then( response => { resolve() }, errorResponse => { reject(errorResponse) })
     })
   }
 
@@ -530,12 +522,12 @@ class db_helper {
 
   deleteRoleFromDb(role, callback) {
     axios.post("/api/deleteRole", { role: role })
-      .then(response => { callback() })
+      .then( response => { callback() })
   }
 
   deleteAllRolesFromDb(callback) {
     axios.delete("/api/deleteAllRoles")
-      .then(() => callback())
+      .then( () => callback() )
   }
 
   /*
@@ -547,48 +539,48 @@ class db_helper {
   */
   getAllObserverMessagesFromDb(callback) {
     fetch("/api/getAllObserverMessages")
-      .then(response => { if (response.ok) return response.json() })
-      .then(res => { callback(res.messages) }).catch((err) => { })
+      .then( response => { if (response.ok) return response.json() } )
+      .then( res => { callback(res.messages) }).catch((err) => { } )
   }
 
   getAllMessagesFromAnObserverFromDb(name, role, callback) {
-    axios.post("/api/getAllMessagesFromAnObserver", { name: name, role: role })
-      .then(response => { callback(response.data.messages) })
+    axios.post("/api/getAllMessagesFromAnObserver", { name: name, role: role } )
+      .then( response => { callback(response.data.messages) } )
   }
 
   getAllMessagesForAParticipantFromDb(participantId, callback) {
     axios.post("/api/getAllMessagesForAParticipant", { participantId: participantId })
-      .then(response => { callback(response.data.messages) })
+      .then( response => { callback(response.data.messages) })
   }
 
   getAllMessagesForALineOfDataFromDb(lineOfDataId, callback) {
     axios.post("/api/getAllMessagesForALineOfData", { lineOfDataId: lineOfDataId })
-      .then(response => { callback(response.data.messages) })
+      .then( response => { callback(response.data.messages) })
   }
 
   addNewObserverMessageToDb(message) {
     axios.post("/api/addNewObserverMessage", { observerMessage: JSON.stringify(message) })
-      .then(response => { })
+      .then( response => { })
   }
 
   deleteAMessageFromDb(info) {
     axios.post("/api/deleteAMessage", { info: JSON.stringify(info) })
-      .then(response => { })
+      .then( response => { })
   }
 
   deleteAllMessagesForParticipantFromDb(participantId) {
     axios.post("/api/deleteAllMessagesForParticipant", { participantId: participantId })
-      .then(response => { })
+      .then( response => { })
   }
 
   deleteAllMessagesFromObserverFromDb(name, role) {
     axios.post("/api/deleteAllMessagesFromObserver", { name: name, role: role })
-      .then(response => { })
+      .then( response => { })
   }
 
   deleteAllMessagesFromDb() {
     axios.post("/api/deleteAllMessages")
-      .then(response => { })
+      .then( response => { })
   }
 
   /*
@@ -622,10 +614,7 @@ class db_helper {
 
   getAllImages(callback) {
     fetch("/api/getAllImages")
-      .then(response => {
-        if (response.ok)
-          return response.json()
-      })
+      .then(response => { if (response.ok) return response.json() })
       .then(res => { callback(res.images) })
       .catch(err => { })
   }
@@ -641,9 +630,7 @@ class db_helper {
   async exportToCSV(data, callback) {
     return new Promise((resolve, reject) => {
       axios.post("/api/exportToCSV", { data: JSON.stringify(data) })
-        .then(response => { resolve(response.data) },
-          errorResponse => { reject(errorResponse) }
-        )
+        .then( response => { resolve(response.data) }, errorResponse => { reject(errorResponse) } )
     })
   }
 }
