@@ -35,8 +35,7 @@ class CollapsableContainer extends Component {
       this.timerID = setInterval(this.dropAnimStop, 2000)
   }
 
-  //Reset the dropping flag
-  dropAnimStop() {
+  dropAnimStop() {       //Reset the dropping flag
     this.dropping = false
     clearInterval(this.timerID)
   }

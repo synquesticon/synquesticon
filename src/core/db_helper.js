@@ -80,8 +80,7 @@ class db_helper {
       .then( response => {
         if (response.status === 200)
           callback(response.data.tasks)
-        else
-          throw new Error("Database connection failed")
+        else throw new Error("Database connection failed")
       })
       .catch(error => { console.log(error) })
   }
@@ -95,7 +94,7 @@ class db_helper {
    */
   updateTaskFromDb(id, editedObj, callback) {
     axios.post("/api/updateTask", { id: id, message: JSON.stringify(editedObj) })
-      .then(data => { callback(data._id) })
+      .then( data => { callback(data._id) })
   }
 
   /**
@@ -201,7 +200,7 @@ class db_helper {
    */
   updateTaskSetFromDb(id, editedObj, callback) {
     axios.post("/api/updateTaskSet", { id: id, message: JSON.stringify(editedObj) })
-      .then(data => { callback() })
+      .then( data => { callback() })
   }
 
   /**
@@ -212,7 +211,7 @@ class db_helper {
    */
   deleteTaskSetFromDb(idTodelete, callback) {
     axios.post("/api/deleteTaskSet", { id: idTodelete })
-      .then(response => { callback() })
+      .then( response => { callback() })
   }
 
   /**
@@ -237,8 +236,7 @@ class db_helper {
       .then( data => { })
   }
 
-  //Deletes all the sets in the DB. Use with care.
-  deleteAllTaskSetsFromDb() {
+  deleteAllTaskSetsFromDb() {    //Deletes all the sets in the DB. Use with care.
     axios.delete("api/deleteAllTaskSets")
   }
 
@@ -271,8 +269,7 @@ class db_helper {
       queryCollection = 'TaskSets'
     else if (queryType === db_objects.ObjectTypes.TASK)
       queryCollection = 'Synquestitasks'
-    else
-      return
+    else return
 
     axios.post("/api/getAllTagValues", { queryCollection: queryCollection, })
       .then(response => {
@@ -302,8 +299,7 @@ class db_helper {
       queryCollection = 'TaskSets'
     else if (queryType === db_objects.ObjectTypes.TASK)
       queryCollection = 'Synquestitasks'
-    else
-      return
+    else return
 
     axios.post("/api/getAllTasksContaining", {
       queryCollection: queryCollection,

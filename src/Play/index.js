@@ -16,9 +16,9 @@ const Play = props => {
   const [isPaused, setIsPaused] = useState(false)
   const [taskSet, setTaskSet] = useState(null)
 
-  let gazeDataArray = []
   const frameDiv = React.createRef()
   const cursorRadius = 20
+  let gazeDataArray = []
   let timer = null
 
   useEffect(() => {
@@ -29,19 +29,16 @@ const Play = props => {
     })
 
     let parsed = queryString.parse(props.location.search)
-    let participantID = parsed.pid
-    let mainTaskSetId = parsed.id
-    let tracker = parsed.tracker
 
-    if (mainTaskSetId === undefined) return
+    if (parsed.id === undefined) return
 
-    if (participantID)
+    if (parsed.pid)
       store.dispatch({
         type: 'SET_PARTICIPANT_ID',
-        participantId: participantID
+        participantId: parsed.pid
       })
 
-    db_helper.getTasksOrTaskSetsWithIDs(mainTaskSetId, (dbQueryResult, count, mainTaskSetName) => {
+    db_helper.getTasksOrTaskSetsWithIDs(parsed.id, (dbQueryResult, count, mainTaskSetName) => {
       setTaskSet(dbQueryResult)
       if (dbQueryResult.data) {     //Force preload all images
         playerUtils.getAllImagePaths(dbQueryResult.data).forEach((picture) => {
@@ -64,7 +61,7 @@ const Play = props => {
                 mainTaskSetId: mainTaskSetName,
                 taskSet: dbQueryResult,
                 taskSetCount: count,
-                selectedTracker: tracker,
+                selectedTracker: parsed.tracker,
               }
             })
           })
@@ -79,7 +76,7 @@ const Play = props => {
             mainTaskSetId: mainTaskSetName,
             taskSet: dbQueryResult,
             taskSetCount: count,
-            selectedTracker: tracker,
+            selectedTracker: parsed.tracker,
           }
         })
       }
