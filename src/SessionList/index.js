@@ -7,9 +7,9 @@ import eventStore from '../core/eventStore'
 import mqtt from '../core/mqtt'
 import * as db_objects from '../core/db_objects.js'
 import { AppModes } from '../core/sharedObjects'
-import './css/SessionList.css'
 import SessionEntry from './SessionEntry.js'
 import * as listUtils from '../core/db_objects_utility_functions'
+import './css/SessionList.css'
 
 const SessionList = props => {
   const [taskSets, setTaskSets] = useState([])
@@ -19,9 +19,7 @@ const SessionList = props => {
     //save data into DB before closing
     db_helper.queryTasksFromDb(db_objects.ObjectTypes.SET, ["experiment"], "OR", dbTaskSetCallback)
     eventStore.addControlMsgListener(onControlMsg)
-    return () => {
-      eventStore.removeControlMsgListener(onControlMsg)
-    }
+    return () => { eventStore.removeControlMsgListener(onControlMsg) }
   }, [])
 
   //query all tasksets with experiment tag
@@ -31,9 +29,8 @@ const SessionList = props => {
 
   const appendEyeTrackerInfo = url => {
     let storeState = store.getState()
-    if (storeState.selectedEyeTracker !== "" && storeState.selectedEyeTracker !== undefined) {
+    if (storeState.selectedEyeTracker !== "" && storeState.selectedEyeTracker !== undefined) 
       url = url + '&tracker=' + storeState.selectedEyeTracker
-    }
     return url
   }
 
@@ -43,22 +40,20 @@ const SessionList = props => {
       function (e) { return { e: e, status: "rejected" } }
     )
 
-    if (result.status === "fulfilled") {
+    if (result.status === "fulfilled") 
       url += '&pid=' + result.v.data._id
-    } else {
+    else
       console.log("Unable to create participantID: ", result.e)
-    }
     return url
   }
 
   const onEditButtonClick = taskSet => {
-    const setEditSetAction = {
+    store.dispatch({
       type: 'SET_SHOULD_EDIT',
       shouldEdit: true,
       objectToEdit: taskSet,
       typeToEdit: 'set'
-    }
-    store.dispatch(setEditSetAction)
+    })
     props.history.push("/" + AppModes.EDIT)
   }
 
@@ -67,11 +62,10 @@ const SessionList = props => {
 
     if (emitterTriggered === undefined && store.getState().multipleScreens) {
       db_helper.addParticipantToDb(new db_objects.ParticipantObject(taskSet._id), (dbID) => {
-        const idAction = {
+        store.dispatch({
           type: 'SET_PARTICIPANT_ID',
           participantId: dbID
-        }
-        store.dispatch(idAction)
+        })
 
         mqtt.broadcastMultipleScreen(JSON.stringify({
           type: "StartExperiment",
@@ -106,12 +100,11 @@ const SessionList = props => {
     }
     navigator.clipboard.writeText(url)
 
-    const snackbarAction = {
+    store.dispatch( {
       type: 'TOAST_SNACKBAR_MESSAGE',
       snackbarOpen: true,
       snackbarMessage: "Link copied to clipboard"
-    }
-    store.dispatch(snackbarAction)
+    })
   }
 
   const onControlMsg = payload => {
@@ -119,21 +112,18 @@ const SessionList = props => {
     //Was checking if multipe screen. With the new change we should just check for same device ID instead
     if (window.localStorage.getItem('deviceID') === payload.deviceID && payload.type === 'StartExperiment') {
       //if(store.getState().multipleScreens && payload.type === 'StartExperiment'){
-      let idAction = {
+        store.dispatch({
         type: 'SET_PARTICIPANT_ID',
         participantId: payload.participantID
-      }
-      store.dispatch(idAction)
+      })
       onPlayButtonClick(payload.taskSet, true)
     }
   }
 
-  let theme = props.theme
-  let viewerBG = theme.palette.type === "light" ? theme.palette.primary.main : theme.palette.primary.dark
+  let viewerBG = props.theme.palette.type === "light" ? props.theme.palette.primary.main : props.theme.palette.primary.dark
 
   let SessionList = (
     taskSets.map((taskSet, index) => {
-      const content = listUtils.getTaskContent(taskSet);
       return (
         <div key={index}>
           <SessionEntry
@@ -141,7 +131,7 @@ const SessionList = props => {
             runSetCallback={onPlayButtonClick}
             getLinkCallback={onGetLinkCallback}
             editSetCallback={onEditButtonClick}
-            content={content}
+            content={listUtils.getTaskContent(taskSet)}
             showEditButton={true}>
           </SessionEntry>
         </div>
