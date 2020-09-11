@@ -43,8 +43,7 @@ const Play = props => {
 
     db_helper.getTasksOrTaskSetsWithIDs(mainTaskSetId, (dbQueryResult, count, mainTaskSetName) => {
       setTaskSet(dbQueryResult)
-      //Force preload all images
-      if (dbQueryResult.data) {
+      if (dbQueryResult.data) {     //Force preload all images
         playerUtils.getAllImagePaths(dbQueryResult.data).forEach((picture) => {
           const img = document.createElement('img')
           img.src = picture
@@ -92,7 +91,7 @@ const Play = props => {
     }
 
     return () => {
-      if (store.getState().experimentInfo.selectedTracker !== "") 
+      if (store.getState().experimentInfo.selectedTracker !== "")
         clearInterval(timer)
 
       store.dispatch({
@@ -155,9 +154,8 @@ const Play = props => {
     let args = JSON.parse(eventStore.getCurrentCommand())
     let shouldProcess = false
 
-    if (args.participantId === -1 || args.participantId === store.getState().experimentInfo.participantId) {
+    if (args.participantId === -1 || args.participantId === store.getState().experimentInfo.participantId)
       shouldProcess = true
-    }
 
     if (shouldProcess) {
       switch (args.commandType) {
