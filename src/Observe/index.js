@@ -74,12 +74,10 @@ const Observe = props => {
     return playPauseButton
   }
 
-  let theme = props.theme
-  let observerBgColor = theme.palette.type === "light" ? theme.palette.primary.main : theme.palette.primary.dark
+  let observerBgColor = props.theme.palette.type === "light" ? props.theme.palette.primary.main : props.theme.palette.primary.dark
   let messagesQueue = []
-  if (participants.length > 0) {
+  if (participants.length > 0)
     messagesQueue = participants[currentParticipant].messagesQueue
-  }
 
   return (
     <div className="ObserverViewerContent" style={{ backgroundColor: observerBgColor }}>

@@ -92,9 +92,7 @@ const Header = props => {
         </Toolbar>
       </AppBar>
     )
-  } else { //If the header flag is False we return null
-    return null
-  }
+  } else return null  //If the header flag is False we return null
 }
 
 export default withRouter(withTheme(Header))

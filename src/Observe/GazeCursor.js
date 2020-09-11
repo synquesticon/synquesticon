@@ -1,8 +1,8 @@
 import React from 'react'
-import './css/GazeCursor.css'
 import { withTheme } from '@material-ui/styles'
 import { Typography } from '@material-ui/core'
 import store from '../core/store'
+import './css/GazeCursor.css'
 
 class GazeCursor extends React.Component {
   constructor() {
@@ -16,11 +16,10 @@ class GazeCursor extends React.Component {
     this.handleGazeLocUpdate = this.updateCursorLocation.bind(this)
     this.cursorRadius = 20
 
-    let radiusAction = {
+    store.dispatch({
       type: 'SET_GAZE_RADIUS',
       gazeRadius: this.cursorRadius
-    }
-    store.dispatch(radiusAction)
+    })
     this.frameDiv = React.createRef()
   }
 
@@ -47,19 +46,15 @@ class GazeCursor extends React.Component {
       gazeLocY = gazeLocY > this.frameDiv.current.offsetHeight - this.cursorRadius * 2
         ? this.frameDiv.current.offsetHeight - this.cursorRadius * 2 : gazeLocY
 
-      //Only draw the cursor if it is visible
-      if (this.state.visible && this.frameDiv) {
-        var cursorDiv = document.getElementById("gazeCursorDiv" + this.props.id)
+      if (this.state.visible && this.frameDiv) {   //Only draw the cursor if it is visible
+        let cursorDiv = document.getElementById("gazeCursorDiv" + this.props.id)
         cursorDiv.style.left = gazeLocX + 'px'
         cursorDiv.style.top = gazeLocY + 'px'
         cursorDiv.style.width = this.cursorRadius * 2 + "px"
         cursorDiv.style.height = this.cursorRadius * 2 + "px"
       }
 
-      this.setState({
-        locX: gazeLocX,
-        locY: gazeLocY
-      })
+      this.setState({ locX: gazeLocX, locY: gazeLocY })
     } catch (err) {
     }
   }
@@ -69,14 +64,11 @@ class GazeCursor extends React.Component {
   }
 
   render() {
-    let theme = this.props.theme
     let cursor = null
+    if (this.state.visible) 
+      cursor = <span style={{ backgroundColor: this.props.theme.palette.secondary.main }} className="gazeCursor" id={"gazeCursorDiv" + this.props.id} />
 
-    if (this.state.visible) {
-      cursor = <span style={{ backgroundColor: theme.palette.secondary.main }} className="gazeCursor" id={"gazeCursorDiv" + this.props.id} />
-    }
-
-    let bgolor = theme.palette.type === "light" ? theme.palette.primary.dark : theme.palette.primary.main
+    let bgolor = this.props.theme.palette.type === "light" ? this.props.theme.palette.primary.dark : this.props.theme.palette.primary.main
 
     return (
       <div style={{ backgroundColor: bgolor }} className="ETwrapper" >
