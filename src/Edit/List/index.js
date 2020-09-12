@@ -25,9 +25,7 @@ const Clone = styled(TaskClone)`
 
 const TaskList = props => {
   const onSelectTask = e => props.selectTask(e)
-
-  const { theme } = props
-  let bgColor = theme.palette.type === "light" ? theme.palette.primary.dark : theme.palette.primary.main
+  let bgColor = props.theme.palette.type === "light" ? props.theme.palette.primary.dark : props.theme.palette.primary.main
 
   if (!props.taskList) {
     return <div className="taskListComponentContainer" />
@@ -38,11 +36,9 @@ const TaskList = props => {
       {(provided, snapshot) => (
         <div className="taskListComponentContainer" ref={provided.innerRef}>
           {
-            props.taskList.map((item, index) => {
-              let highlightBG = null
-              if (props.selectedTask && item && item._id === props.selectedTask._id) {
-                highlightBG = true
-              }
+            props.taskList.map( (item, index) => {
+              const highlightBG = 
+                (props.selectedTask && item && item._id === props.selectedTask._id) ? true : false
 
               const content = listUtils.getTaskContent(item)
               const clonedContent = <div
