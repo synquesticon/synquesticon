@@ -11,8 +11,7 @@ import './ListItem.css'
 
 const EditSetListItem = props => {
   const removeTask = () => {
-    const id = props._id ? props._id : props.item._id
-    props.removeCallback(id)
+    props.removeCallback(props._id ? props._id : props.item._id)
   }
 
   const headerHeight = 40
@@ -48,13 +47,13 @@ const EditSetListItem = props => {
   } else if (props.item.objType === dbOjects.ObjectTypes.SET) { //Is a node with children
     const newDepth = props.componentDepth + 1
     let collapsableContent = props.item.data.map((data, index) => {
-      const content = listUtils.getTaskContent(data)
-      return <EditSetListItem key={index} removeCallback={props.removeTaskCallback} item={data} content={content} componentDepth={newDepth} />
+      return <EditSetListItem key={index} removeCallback={props.removeTaskCallback} 
+        item={data} content={listUtils.getTaskContent(data)} componentDepth={newDepth} />
     })
 
     collapsableContent = <div className="collapsedItemListWrapper">{collapsableContent}</div>
 
-    let dragSource = null;
+    const dragSource = null
     if (props.componentDepth === 0) {
       dragSource =
         <div>
