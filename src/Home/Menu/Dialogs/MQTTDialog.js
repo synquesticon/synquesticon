@@ -27,19 +27,13 @@ const mqttDialog = (props) => {
       setIpAddress(mqttConfig.ip)
       setPort(mqttConfig.port)
       setUseWSS(mqttConfig.bUseWSS)
-    } else {
-      mqtt.startMQTT(mqttObject)
-    }
+    } else mqtt.startMQTT(mqttObject)
   }, [])
 
   const onChangeMQTTSettings = e => {
     props.myStorage.setItem('mqtt', JSON.stringify(mqttObject))
-
-    //Start MQTT and allow restart if there is an existing connection before
-    mqtt.startMQTT(mqttObject, true)
-
-    //Callback to close the dialog from the header
-    props.closeMQTTSettings()
+    mqtt.startMQTT(mqttObject, true)    //Start MQTT and allow restart if there is an existing connection before
+    props.closeMQTTSettings()           //Callback to close the dialog from the header
   }
 
   return (
