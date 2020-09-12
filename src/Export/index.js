@@ -12,7 +12,7 @@ import store from '../core/store'
 import db_helper from '../core/db_helper'
 import './Export.css'
 
-var GAZE_HEADER = "Timestamp(UTC),X,Y,Left pupil radius,Right pupil radius,Task,Target,database_id\n";
+const GAZE_HEADER = "Timestamp(UTC),X,Y,Left pupil radius,Right pupil radius,Task,Target,database_id\n"
 
 function HEADER(seperator) {
   return ("global_vars" + seperator +
@@ -45,7 +45,7 @@ class Export extends Component {
   }
 
   componentWillMount() {
-    db_helper.getAllParticipantsFromDb((ids) => {
+    db_helper.getAllParticipantsFromDb(ids => {
       this.setState({ participants: ids })
     })
   }
@@ -66,7 +66,7 @@ class Export extends Component {
         snackbarMessage: "Deleting data sets"
       })
 
-      this.pickedParticipants.forEach( async participants => {         //Delete each selection synchronously
+      this.pickedParticipants.forEach(async participants => {         //Delete each selection synchronously
         await db_helper.deleteParticipantFromDbPromise(participants._id)
       })
 
@@ -85,7 +85,7 @@ class Export extends Component {
 
   handleDeleteAll() {
     db_helper.deleteAllParticipantsFromDb(() => {
-      db_helper.getAllParticipantsFromDb((ids) => {
+      db_helper.getAllParticipantsFromDb(ids => {
         this.setState({ participants: ids })
       })
     })
@@ -94,42 +94,35 @@ class Export extends Component {
   handleClose() { }
 
   async handleExport() {
-    if (this.pickedParticipants.length > 0) {
+    if (this.pickedParticipants.length > 0)
       store.dispatch({
         type: 'TOAST_SNACKBAR_MESSAGE',
         snackbarOpen: true,
         snackbarMessage: "Exporting selected data sets"
       })
-    }
 
     let exported_csv = ""
     let exported_gaze = ""
     let first_file = false
     let file_name = ""
     await Promise.all(this.pickedParticipants.map(async (p, index) => {
-      var data = {
-        participant: p,
-        delimiter: this.state.delimiter
-      }
-
-      const returnedValue = await db_helper.exportToCSV(data)
+      const returnedValue = await db_helper.exportToCSV({ participant: p, delimiter: this.state.delimiter })
       if (this.state.combineFiles) {
         if (!first_file) {
           file_name = "combined_" + returnedValue.file_name
-          first_file = true;
+          first_file = true
         }
 
-        exported_csv += returnedValue.csv_string;
+        exported_csv += returnedValue.csv_string
 
-        if (returnedValue.gaze_data !== undefined && returnedValue.gaze_data) {
-          exported_gaze += returnedValue.gaze_data;
-        }
+        if (returnedValue.gaze_data !== undefined && returnedValue.gaze_data)
+          exported_gaze += returnedValue.gaze_data
       } else {
-        var blob = new Blob([HEADER(this.state.delimiter) + returnedValue.csv_string], { type: 'text/csv' });
+        const blob = new Blob([HEADER(this.state.delimiter) + returnedValue.csv_string], { type: 'text/csv' })
         FileSaver.saveAs(blob, returnedValue.file_name + '.csv')
 
         if (returnedValue.gaze_data !== undefined && returnedValue.gaze_data) {
-          var gaze_blob = new Blob([GAZE_HEADER + returnedValue.gaze_data], { type: 'text/csv' });
+          const gaze_blob = new Blob([GAZE_HEADER + returnedValue.gaze_data], { type: 'text/csv' })
           FileSaver.saveAs(gaze_blob, returnedValue.file_name + '_gaze.csv')
         }
       }
@@ -137,11 +130,11 @@ class Export extends Component {
     }))
 
     if (this.state.combineFiles) {
-      const blob = new Blob([HEADER(this.state.delimiter) + exported_csv], { type: 'text/csv' });
-      FileSaver.saveAs(blob, file_name + '.csv');
+      const blob = new Blob([HEADER(this.state.delimiter) + exported_csv], { type: 'text/csv' })
+      FileSaver.saveAs(blob, file_name + '.csv')
 
       if (this.state.combineFiles && exported_gaze !== "") {
-        var gaze_blob = new Blob([GAZE_HEADER + exported_gaze], { type: 'text/csv' })
+        const gaze_blob = new Blob([GAZE_HEADER + exported_gaze], { type: 'text/csv' })
         FileSaver.saveAs(gaze_blob, file_name + '_gaze.csv')
       }
     }
@@ -156,16 +149,11 @@ class Export extends Component {
     })
 
     if (this.state.combineFiles) {
-      var data = {
-        participants: this.state.participants,
-        delimiter: this.state.delimiter
-      }
-
-      db_helper.exportManyToCSV(data, (res) => {
+      db_helper.exportManyToCSV({ participants: this.state.participants, delimiter: this.state.delimiter }, (res) => {
         var blob = new Blob([res.data.csv_string], { type: 'text/csv' })
         FileSaver.saveAs(blob, res.data.file_name + '.csv')
         if (res.data.gaze_data !== undefined) {
-          var gaze_blob = new Blob([res.data.gaze_data], { type: 'text/csv' })
+          const gaze_blob = new Blob([res.data.gaze_data], { type: 'text/csv' })
           FileSaver.saveAs(gaze_blob, res.data.file_name + '_gaze.csv')
         }
         this.handleClose()
@@ -173,15 +161,11 @@ class Export extends Component {
       })
     } else {
       this.state.participants.map((p, ind) => {
-        var data = {
-          participant: p,
-          delimiter: this.state.delimiter
-        }
-        db_helper.exportToCSV(data, (res) => {
-          var blob = new Blob([res.data.csv_string], { type: 'text/csv' })
+        db_helper.exportToCSV({ participant: p, delimiter: this.state.delimiter }, (res) => {
+          const blob = new Blob([res.data.csv_string], { type: 'text/csv' })
           FileSaver.saveAs(blob, res.data.file_name + '.csv')
           if (res.data.gaze_data !== undefined) {
-            var gaze_blob = new Blob([res.data.gaze_data], { type: 'text/csv' })
+            const gaze_blob = new Blob([res.data.gaze_data], { type: 'text/csv' })
             FileSaver.saveAs(gaze_blob, res.data.file_name + '_gaze.csv')
           }
           this.handleClose()
@@ -193,69 +177,62 @@ class Export extends Component {
   }
 
   formatDateTime(t) {
-    var d = new Date(t);
+    const d = new Date(t)
     const fillZero = num => {
-      if (num < 10) return '0' + num;
+      if (num < 10) return '0' + num
       else return num
     }
-    var datestring = d.getFullYear() + '-' + fillZero(d.getMonth() + 1) + '-' + fillZero(d.getDate())
-      + '_' + fillZero(d.getHours()) + ':' + fillZero(d.getMinutes());
-    return datestring
+    return(
+      d.getFullYear() + '-' + fillZero(d.getMonth() + 1) + '-' + fillZero(d.getDate()) + '_' + fillZero(d.getHours()) + ':' + fillZero(d.getMinutes())
+    )
   }
 
   getParticipantName(p) {
     if (!p.linesOfData || p.linesOfData.length <= 0) return "Empty"       //If there is not data we set the name to "Empty"
 
-    let file_name = ""       // If there are lines of data avalaible we set the name to be the time of the first recorded data
+    let file_name = ""                        // If there are lines of data avalaible we set the name to be the time of the first recorded data
     if (p.linesOfData && p.linesOfData.length > 0) {
       file_name = this.formatDateTime(p.linesOfData[0].startTimestamp) + '_'
-      file_name += p.linesOfData[0].tasksFamilyTree[0];
+      file_name += p.linesOfData[0].tasksFamilyTree[0]
     }
-
-    //If there are saved global variables we append them to the experiment name
-    if (p.globalVariables.length > 0) {
+    if (p.globalVariables.length > 0) {       //If there are saved global variables we append them to the experiment name
       p.globalVariables.sort((a, b) => a.label.localeCompare(b.label))
       p.globalVariables.forEach(globalVar => {
         if (!globalVar.label.toLowerCase().includes("record data"))
           file_name += '_' + globalVar.label + '-' + globalVar.value
       })
     }
-
     return file_name
   }
 
   render() {
-    let theme = this.props.theme
-    let exportationBG = theme.palette.type === "light" ? theme.palette.primary.main : theme.palette.primary.dark
-    var buttonHeight = 50
-
     return (
-      <div className="ExportationModeContainer" style={{ backgroundColor: exportationBG }}>
+      <div className="ExportationModeContainer" style={{ backgroundColor: (this.props.theme.palette.type === "light" ? this.props.theme.palette.primary.main : this.props.theme.palette.primary.dark) }}>
         <List style={{ display: 'flex', flexDirection: 'column', flexGrow: 1, width: '100%', minHeight: 100, maxHeight: 'calc(100% - 100px)', overflowY: 'auto', overflowX: 'hidden' }}>
-          {this.state.participants.map((p, index) => {
+          {this.state.participants.map( (p, index) => {
             if (this.pickedParticipants.includes(p)) {
-              return (<ListItem style={{ borderBottom: 'grey solid 1px' }} selected button onClick={() => {
-                if (this.pickedParticipants.includes(p)) {
-                  this.pickedParticipants.splice(this.pickedParticipants.indexOf(p), 1);
-                } else {
-                  this.pickedParticipants.push(p);
-                }
-                this.forceUpdate();
-
-              }} key={index} >
-                <Typography color="textSecondary">{this.getParticipantName(p)}</Typography>
-              </ListItem>);
+              return (
+                <ListItem style={{ borderBottom: 'grey solid 1px' }} selected
+                  button onClick={ () => {
+                    if (this.pickedParticipants.includes(p))
+                      this.pickedParticipants.splice(this.pickedParticipants.indexOf(p), 1)
+                    else
+                      this.pickedParticipants.push(p)
+                    this.forceUpdate()
+                  }} key={index} >
+                  <Typography color="textSecondary">{this.getParticipantName(p)}</Typography>
+                </ListItem>
+              )
             } else {
               return (
-                <ListItem style={{ borderBottom: 'grey solid 1px' }} button onClick={() => {
-                  if (this.pickedParticipants.includes(p)) {
-                    this.pickedParticipants.splice(this.pickedParticipants.indexOf(p), 1);
-                  } else {
-                    this.pickedParticipants.push(p)
-                  }
-                  this.forceUpdate()
-
-                }} key={index} >
+                <ListItem style={{ borderBottom: 'grey solid 1px' }}
+                  button onClick={ () => {
+                    if (this.pickedParticipants.includes(p))
+                      this.pickedParticipants.splice(this.pickedParticipants.indexOf(p), 1)
+                    else
+                      this.pickedParticipants.push(p)
+                    this.forceUpdate()
+                  }} key={index} >
                   <Typography color="textPrimary">{this.getParticipantName(p)}</Typography>
                 </ListItem>
               )
@@ -263,8 +240,9 @@ class Export extends Component {
           })}
         </List>
         <div className="ExportationActions">
-          <Typography variant="body1" color="textPrimary"> {this.pickedParticipants.length} data sets selected </Typography>
-
+          <Typography variant="body1" color="textPrimary">
+            {this.pickedParticipants.length} data sets selected 
+          </Typography>
           <FormControlLabel label="Combine files"
             value="combineFiles"
             checked={this.state.combineFiles}
@@ -284,11 +262,11 @@ class Export extends Component {
             onChange={(e) => { this.setState({ delimiter: e.target.value }) }} //state.delimiter = e.target.value
           />
 
-          <Button style={{ height: buttonHeight, marginLeft: 20 }} onClick={this.handleExport.bind(this)} variant="outlined">
+          <Button style={{ height: 50, marginLeft: 20 }} onClick={this.handleExport.bind(this)} variant="outlined">
             Export
           </Button>
 
-          <Button style={{ height: buttonHeight, marginLeft: 20 }} onClick={this.handleDeleteSelected.bind(this)} variant="outlined">
+          <Button style={{ height: 50, marginLeft: 20 }} onClick={this.handleDeleteSelected.bind(this)} variant="outlined">
             Delete
           </Button>
         </div>
