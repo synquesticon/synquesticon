@@ -19,9 +19,8 @@ const ShowTask = props => {
     let components = taskList.map((item, i) => {
       if ((store.getState().multipleScreens && (item.screenIDS.includes(store.getState().screenID)
         || item.screenIDS.length === 0)) || !store.getState().multipleScreens) {
-        if (store.getState().multipleScreens && item.hideNext) {
+        if (store.getState().multipleScreens && item.hideNext) 
           hideNext = true
-        }
         switch (item.objType) {
           case dbObjects.TaskTypes.MCHOICE.type:
             return <Suspense key={uuid()} fallback={<div></div>}><Button className="itemContainer"

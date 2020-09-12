@@ -75,10 +75,9 @@ const buttonList = props => {
         observerMessageString += 'Final answer '
 
         let stringObject = []
-        componentObject.responseOptions.map((opt, i) => {
-          if (!opt.includes('//') && !opt.includes('\\n')) {
+        componentObject.responseOptions.map( (opt, i) => {
+          if (!opt.includes('//') && !opt.includes('\\n')) 
             stringObject.push(' ' + componentObject.responseOptions[i] + ' : ' + componentObject.responseCountArray[i])
-          }
         })
         observerMessageString += stringObject.toString() + ' (' + componentObject.text + ')'
       }

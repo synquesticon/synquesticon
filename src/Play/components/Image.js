@@ -52,9 +52,7 @@ const Image = props => {
 
         AOICount['Background '] = 0
 
-        clicksRef.current.map(click =>
-          click.hitAOIs.forEach(aoi => AOICount[aoi]++)
-        )
+        clicksRef.current.map( click => click.hitAOIs.forEach(aoi => AOICount[aoi]++) )
 
         const componentObject = {
           uid: uuid(),
@@ -65,7 +63,7 @@ const Image = props => {
         }
 
         let observerMessageString = 'Final answer '
-        componentObject.AOICount.map((count, i) => {
+        componentObject.AOICount.map( (count, i) => {
           observerMessageString += count[0] + ': ' + count[1]
           if (i === componentObject.AOICount.length - 1)
             observerMessageString += ' '
@@ -138,8 +136,7 @@ const Image = props => {
 
   const getClickableComponent = () => {
     if (props.task.recordClicks) {
-      let left = 0
-      if (imageElement) left = parseInt(imageElement.offsetLeft);
+      const left = (imageElement) ? parseInt(imageElement.offsetLeft) : 0
 
       return (
         <svg onClick={onImageClicked} style={{ left: left }} className="clickableCanvas"
@@ -157,8 +154,7 @@ const Image = props => {
 
   const showAOIs = () => {
     if (props.task.showAOIs) {
-      let left = 0
-      if (imageElement) left = parseInt(imageElement.offsetLeft)
+      const left = (imageElement) ? parseInt(imageElement.offsetLeft) : 0
 
       return (
         <svg id={props.childKey + "AOICanvas"} style={{ left: left, pointerEvents: 'none' }} className="AOICanvas"
@@ -180,20 +176,13 @@ const Image = props => {
     }
   }
 
-  let url = "/Images/" + props.task.image
-  let clickable = null
-  let aois = null
-  if (imageElement) {
-    clickable = getClickableComponent()
-    aois = showAOIs()
-  }
-
   return (
     <div className="imagePreviewContainer">
-      <img className={props.task.fullScreenImage ? "fullScreenImage" : "imageCanvas"} src={url} alt="" ref={imageRef}
+      <img className={props.task.fullScreenImage ? "fullScreenImage" : "imageCanvas"} 
+        src={"/Images/" + props.task.image} alt="" ref={imageRef}
         onLoad={handleImageLoaded} />
-      {clickable}
-      {aois}
+      {(imageElement) ? getClickableComponent() : null}
+      {(imageElement) ? showAOIs() : null}
     </div>
   )
 }
