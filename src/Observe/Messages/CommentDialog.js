@@ -9,10 +9,6 @@ import TextField from '@material-ui/core/TextField'
 const CommentDialog = props => {
   let comment = ""
 
-  const closeDialog = () => {
-    props.closeCommentDialog(comment)
-  }
-
   return (
     <Dialog
       open={props.isOpen}
@@ -37,10 +33,10 @@ const CommentDialog = props => {
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={closeDialog} variant="outlined">
+        <Button onClick={() => props.closeCommentDialog(comment)} variant="outlined">
           Cancel
       </Button>
-        <Button onClick={closeDialog} variant="outlined">
+        <Button onClick={() => props.closeCommentDialog(comment)} variant="outlined">
           Submit
       </Button>
       </DialogActions>
