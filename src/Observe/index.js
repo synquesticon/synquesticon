@@ -64,7 +64,7 @@ const Observe = props => {
   }
 
   return (
-    <div className="ObserverViewerContent" style={{ backgroundColor: observerBgColor = props.theme.palette.type === "light" ? props.theme.palette.primary.main : props.theme.palette.primary.dark }}>
+    <div className="ObserverViewerContent" style={{ backgroundColor: (props.theme.palette.type === "light") ? props.theme.palette.primary.main : props.theme.palette.primary.dark }}>
       <div className="ObserverHeader">
         <div className="ObserverPlayPauseContainer">
           {getPlayPauseButton()}
