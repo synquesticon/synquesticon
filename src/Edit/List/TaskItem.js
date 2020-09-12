@@ -11,31 +11,22 @@ const TaskItem = props => {
     props.domRef(ref)
   }
 
-  const { theme, provided, isDragging, snapshot } = props
-  let leftBG = theme.palette.type === "light" ? theme.palette.primary.dark : theme.palette.primary.main
-  let dragHighlight = isDragging ? theme.palette.secondary.main + "66" : leftBG
-  const opacityValue = isDragging ? 0.8 : 1
+  let leftBG = props.theme.palette.type === "light" ? props.theme.palette.primary.dark : props.theme.palette.primary.main
 
-  if (provided === undefined) return null
+  if (props.provided === undefined) return null
 
-  let highlightColor = null
-  if (props.highlight) highlightColor = { backgroundColor: theme.palette.secondary.main + "66" }
-
-  const dragButton = props.dragEnabled ? <div className="listItemDragBtnContainer" style={{ backgroundColor: dragHighlight }}><Button style={{ cursor: 'move', width: '100%', height: '100%', minWidth: '30px', minHeight: '30px' }}
-    className="listItemDragBtn" size="small" fullWidth >
-    <DragIcon className="dragBtnIcon" />
-  </Button></div> : null
-
-  const dragStyle = dnd.getItemStyle( //Was style={backgroundColor:leftBG}
-    snapshot,
-    provided.draggableProps.style,
-    leftBG,
-    leftBG
-  )
+  const highlightColor = (props.highlight) ? { backgroundColor: props.theme.palette.secondary.main + "66" } : null
+  const dragButton = props.dragEnabled ? 
+    <div className="listItemDragBtnContainer" style={{ backgroundColor: (props.isDragging ? props.theme.palette.secondary.main + "66" : leftBG) }}>
+      <Button style={{ cursor: 'move', width: '100%', height: '100%', minWidth: '30px', minHeight: '30px' }} className="listItemDragBtn" size="small" fullWidth >
+        <DragIcon className="dragBtnIcon" />
+      </Button>
+    </div> : null
+  const dragStyle = dnd.getItemStyle( props.snapshot, props.provided.draggableProps.style, leftBG, leftBG)
 
   return (
-    <div ref={setRef}{...provided.draggableProps}{...provided.dragHandleProps}
-      className={"listItem"} style={{ ...dragStyle, ...{ opacity: opacityValue }, ...highlightColor }}
+    <div ref={setRef}{...props.provided.draggableProps}{...props.provided.dragHandleProps}
+      className={"listItem"} style={{ ...dragStyle, ...{ opacity: (props.isDragging ? 0.8 : 1) }, ...highlightColor }}
       onClick={() => props.onSelectedCallback(props.task)}>
       <div className="listItemTextContainer" >
         <div className="listItemText">
