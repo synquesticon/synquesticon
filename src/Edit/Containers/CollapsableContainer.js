@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
 import store from '../../core/store'
-import './CollapsableContainer.css'
 import Collapse from '@material-ui/core/Collapse'
 import Button from '@material-ui/core/Button'
 import { ArrowDropDown, ArrowDropUp } from '@material-ui/icons'
 import { Typography } from '@material-ui/core'
+import './CollapsableContainer.css'
 
 class CollapsableContainer extends Component {
   constructor(props) {
