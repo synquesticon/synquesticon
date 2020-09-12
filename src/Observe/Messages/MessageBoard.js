@@ -22,6 +22,7 @@ const MessageBoard = props => {
     setCommentDialogOpen(false)
     if (comment !== "") onCommentRecieved(comment)
   }
+  
   const onCommentRecieved = comment => {
     db_helper.addNewObserverMessageToDb(new dbObjects.ObserverMessage(window.localStorage.getItem('deviceID'),
       window.localStorage.getItem('deviceRole'),
