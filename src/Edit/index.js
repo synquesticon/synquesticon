@@ -46,7 +46,7 @@ class Edit extends Component {
 
   initFilterMap() {
     let filterMap = new Map()
-    Object.values(db_objects.ObjectTypes).forEach( objectType => {
+    Object.values(db_objects.ObjectTypes).forEach(objectType => {
       filterMap.set(objectType, {
         tagFilters: [],
         searchStrings: [],
@@ -71,9 +71,9 @@ class Edit extends Component {
 
   groupTasksByTags(tasks) {
     let tagMap = new Map()
-    tasks.forEach( task => {   //If the task contains tags we iterate over and add them with value to our map
+    tasks.forEach(task => {   //If the task contains tags we iterate over and add them with value to our map
       if (task.tags.length > 0) {
-        task.tags.forEach( tag => {
+        task.tags.forEach(tag => {
           if (tagMap.has(tag)) {
             let newValue = tagMap.get(tag)
             newValue.push(task)
@@ -114,9 +114,9 @@ class Edit extends Component {
 
   //Callback after querying the database using the search fields
   onDatabaseSearched(queryType, result) {
-    if (queryType === db_objects.ObjectTypes.SET) 
+    if (queryType === db_objects.ObjectTypes.SET)
       this.setState({ taskSetList: result.tasks })
-    else if (queryType === db_objects.ObjectTypes.TASK) 
+    else if (queryType === db_objects.ObjectTypes.TASK)
       this.setState({ synquestitaskList: result.tasks })
   }
 
@@ -159,9 +159,9 @@ class Edit extends Component {
 
     let storeState = store.getState()
     if (storeState.shouldEdit) {
-      if (storeState.typeToEdit === db_objects.ObjectTypes.SET) 
+      if (storeState.typeToEdit === db_objects.ObjectTypes.SET)
         this.selectTaskSet(storeState.objectToEdit)
-      else if (storeState.typeToEdit === db_objects.ObjectTypes.TASK) 
+      else if (storeState.typeToEdit === db_objects.ObjectTypes.TASK)
         this.selectSynquestitask(storeState.objectToEdit)
 
       store.dispatch({
@@ -181,7 +181,7 @@ class Edit extends Component {
     db_helper.deleteTaskSetFromDb(taskSet._id)
   }
 
-   escapeRegExp(text) {        //Adds escape characters in fornt of all common regex symbols
+  escapeRegExp(text) {        //Adds escape characters in fornt of all common regex symbols
     return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
   }
 
@@ -207,7 +207,7 @@ class Edit extends Component {
   }
 
   onDragEnd = result => {
-    const { source, destination } = result   
+    const { source, destination } = result
     if (!destination) return   // dropped outside the list
 
     //If the source is the same as the destination we just move the element inside the list
@@ -215,9 +215,9 @@ class Edit extends Component {
       this.editSetComponentRef.current.moveTask(source.index, destination.index)
     else { //Otherwise we add to the list at the desired location
       let itemType
-      if (source.droppableId === "Sets") 
+      if (source.droppableId === "Sets")
         itemType = db_objects.ObjectTypes.SET
-      else if (source.droppableId === "Tasks") 
+      else if (source.droppableId === "Tasks")
         itemType = db_objects.ObjectTypes.TASK
       else return
 
@@ -229,10 +229,9 @@ class Edit extends Component {
     }
   }
 
-  getAssetEditorObject() {  
-    let rightBG = this.props.theme.palette.type === "light" ? this.props.theme.palette.primary.main : this.props.theme.palette.primary.dark
+  getAssetEditorObject() {
     return (
-      <div className="AssetEditor" style={{ paddingLeft: 5, backgroundColor: rightBG }}>
+      <div className="AssetEditor" style={{ paddingLeft: 5, backgroundColor: (this.props.theme.palette.type === "light" ? this.props.theme.palette.primary.main : this.props.theme.palette.primary.dark) }}>
         <div className="AssetEditorContent">
           {this.state.assetEditorObject}
         </div>
@@ -240,14 +239,12 @@ class Edit extends Component {
     )
   }
 
-  //Filter button callback, the type determines which collection we are filtering
-  filterButtonPressed(type, e) {
+  filterButtonPressed(type, e) {       //Filter button callback, the type determines which collection we are filtering
     this.filterDialogKey += 1
     this.setState({ openFilterDialog: true, filterQueryType: type })
   }
 
-  //Callback when filters have been selected in the filters dialog
-  filtersUpdated(type, filters, searchType) {
+  filtersUpdated(type, filters, searchType) {      //Callback when filters have been selected in the filters dialog
     let updatedMap = new Map(this.state.filterStateMap)
     let updatedObject = updatedMap.get(type)
     updatedObject.tagFilters = filters
@@ -279,7 +276,7 @@ class Edit extends Component {
     let updatedMap = new Map(this.state.filterStateMap)
     let updatedObject = updatedMap.get(type)
     updatedObject.searchStrings = searchString
-    updatedMap.set( type, updatedObject )
+    updatedMap.set(type, updatedObject)
     this.setState({ filterStateMap: updatedMap })
     this.filterMap = updatedMap
     this.querySearchTasksFromDB(type)
@@ -297,19 +294,16 @@ class Edit extends Component {
   }
 
   getCollapsableHeaderButtons(activeFilters, searchCallback, addCallback, filterCallback, searchBarID) {
-    let filterButton = null
-    if (filterCallback !== null) {
-      filterButton = <Button style={{ position: "relative", width: '100%', height: '100%', minWidth: 0, minHeight: 0 }}
-        className="collapsableHeaderBtns" size="small" onClick={filterCallback} >
-        <FilterList color={activeFilters ? "secondary" : "inherit"} fontSize="large" />
-      </Button>
-    }
-
-    return(
+    return (
       <div className="collapsableHeaderBtnsContainer">
         <div className="searchWrapperDiv"><SearchBar onChange={searchCallback} searchID={searchBarID} /></div>
         <div className="collapsableBtns">
-          {filterButton}
+          { (filterCallback !== null) ?
+            <Button style={{ position: "relative", width: '100%', height: '100%', minWidth: 0, minHeight: 0 }}
+              className="collapsableHeaderBtns" size="small" onClick={filterCallback} >
+              <FilterList color={activeFilters ? "secondary" : "inherit"} fontSize="large" />
+            </Button> : null
+          }
           <Button style={{ position: "relative", width: '100%', height: '100%', minWidth: 0, minHeight: 0 }} size="small" onClick={addCallback} >
             <AddCircleOutline fontSize="large" />
           </Button>
@@ -319,9 +313,7 @@ class Edit extends Component {
   }
 
   getTaskTypeContainer(taskType, taskMap) {
-    let dragEnabled = false
-    if (this.state.assetEditorObject && this.state.assetEditorObject.type === EditSet)
-      dragEnabled = true
+    const dragEnabled = (this.state.assetEditorObject && this.state.assetEditorObject.type === EditSet) ? true : false
 
     let containerContent = []
     let selectedTask = null
@@ -347,7 +339,7 @@ class Edit extends Component {
       selectTask={selectCallback} selectedTask={selectedTask}
       itemType={taskType} droppableId={taskType} idSuffix={""} />
 
-    return(
+    return (
       <CollapsableContainer headerTitle={taskType} useMediaQuery={true}
         headerComponents={collapsableHeaderButtons} hideHeaderComponents={true} open={true}>
         {containerContent}
@@ -364,12 +356,10 @@ class Edit extends Component {
 */
 
   render() {
-    let leftBG = this.props.theme.palette.type === "light" ? this.props.theme.palette.primary.dark : this.props.theme.palette.primary.main
-
     return (
       <DragDropContext onDragEnd={this.onDragEnd}>
         <div className="editorScreenContainer">
-          <div style={{ backgroundColor: leftBG }} className="AssetViewer">
+          <div style={{ backgroundColor: (this.props.theme.palette.type === "light" ? this.props.theme.palette.primary.dark : this.props.theme.palette.primary.main) }} className="AssetViewer">
             <div className="AssetViewerContent">
               {this.getTaskTypeContainer(db_objects.ObjectTypes.TASK, this.state.synquestitaskList)}
               {this.getTaskTypeContainer(db_objects.ObjectTypes.SET, this.state.taskSetList)}
