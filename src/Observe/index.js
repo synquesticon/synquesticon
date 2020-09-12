@@ -42,7 +42,6 @@ const Observe = props => {
       const updatedParticipants = participants.slice()
       setParticipants(updatedParticipants)
     } else {
-      console.log('There is at least one existed participant', checkExistedParticipant)
       const updatedParticipants = participants.slice()
       const participant = participants.find(participant => participant.participantId === mqttMessage.session.uid)
       participant.messagesQueue.push(mqttMessage.event.observerMessage)
@@ -53,34 +52,19 @@ const Observe = props => {
   const onClickedTab = newValue => setCurrentParticipant(newValue)
 
   const getPlayPauseButton = () => {
-    let buttonIcon = null
-    let buttonLabel = ""
-    if (allPaused) {
-      buttonIcon = <PauseIcon fontSize="large" />
-      buttonLabel = "Pause all participants"
-    } else {
-      buttonIcon = <PlayIcon fontSize="large" />
-      buttonLabel = "Resume all participants"
-    }
-
     let playPauseButton = <Button style={{
       display: 'flex', position: 'relative', width: '100%', height: '55px',
       borderRadius: 10, borderColor: '#BDBDBD', borderWidth: 'thin', borderRightStyle: 'solid'
     }}
       onClick={onPausePlayPressed}>
-      {buttonLabel}
-      {buttonIcon}
+      {(allPaused) ? "Pause all participants": "Resume all participants"}
+      {(allPaused) ? <PauseIcon fontSize="large" /> : <PlayIcon fontSize="large" />}
     </Button>
     return playPauseButton
   }
 
-  let observerBgColor = props.theme.palette.type === "light" ? props.theme.palette.primary.main : props.theme.palette.primary.dark
-  let messagesQueue = []
-  if (participants.length > 0)
-    messagesQueue = participants[currentParticipant].messagesQueue
-
   return (
-    <div className="ObserverViewerContent" style={{ backgroundColor: observerBgColor }}>
+    <div className="ObserverViewerContent" style={{ backgroundColor: observerBgColor = props.theme.palette.type === "light" ? props.theme.palette.primary.main : props.theme.palette.primary.dark }}>
       <div className="ObserverHeader">
         <div className="ObserverPlayPauseContainer">
           {getPlayPauseButton()}
@@ -102,7 +86,7 @@ const Observe = props => {
         </div>
       </div>
       <div className="ObserverMessageLog">
-        <MessageBoard messages={messagesQueue} />
+        <MessageBoard messages={(participants.length > 0) ? participants[currentParticipant].messagesQueue : []} />
       </div>
     </div>
   )
