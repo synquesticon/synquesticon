@@ -16,11 +16,10 @@ class CollapsableContainer extends Component {
   }
 
   onCollapseExpand() {
-    let newState = !this.state.open
     if (this.props.stateChangeCallback)
-      this.props.stateChangeCallback(this.props.index, newState)
+      this.props.stateChangeCallback(this.props.index, !this.state.open)
     else
-      this.setState(state => ({ open: newState }))
+      this.setState(state => ({ open: !this.state.open }))
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -44,9 +43,8 @@ class CollapsableContainer extends Component {
     let useMediaQuery = this.props.useMediaQuery ? this.props.useMediaQuery : false
     let containerHeaderStyles = null
     let customHeaderComponentsStyles = null
-    let storeState = store.getState()
-
-    if (useMediaQuery && storeState.windowSize.width < 1100) {
+  
+    if (useMediaQuery && store.getState().windowSize.width < 1100) {
       containerHeaderStyles = { flexDirection: 'column' }
       customHeaderComponentsStyles = { paddingLeft: 20, marginBottom: 10 }
     }
