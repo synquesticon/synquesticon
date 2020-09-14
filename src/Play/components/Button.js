@@ -57,32 +57,32 @@ const buttonList = props => {
           })
       }
 
-      let observerMessageString = ''
+      let observerMessage = ''
       componentObject.responseCountArray = responseCountArray
 
       if (!props.task.resetResponses) {
         componentObject.responsesArray = responsesArray
-        componentObject.isCorrect = 
-          (props.task.correctResponses && props.task.correctResponses.length !== 0) 
+        componentObject.isCorrect =
+          (props.task.correctResponses && props.task.correctResponses.length !== 0)
             ? arrayEquals(props.task.correctResponses, responsesArray) ? "correct" : "incorrect"
             : "notApplicable"
 
-        observerMessageString = (componentObject.isCorrect !== 'notApplicable') 
+        observerMessage = (componentObject.isCorrect !== 'notApplicable')
           ? componentObject.isCorrect.toUpperCase() + ' Final answer: ' + responsesArray.filter(el => el !== null).toString() + ' (' + componentObject.text + 'Answer ' + props.task.correctResponses.toString() + ')'
           : 'Final answer: ' + responsesArray.filter(el => el !== null).toString() + ' (' + componentObject.text + ')'
       } else {
         componentObject.responsesArray = undefined
         componentObject.isCorrect = undefined
-        observerMessageString += 'Final answer '
+        observerMessage += 'Final answer '
 
         let stringObject = []
-        componentObject.responseOptions.map( (opt, i) => {
-          if (!opt.includes('//') && !opt.includes('\\n')) 
+        componentObject.responseOptions.map((opt, i) => {
+          if (!opt.includes('//') && !opt.includes('\\n'))
             stringObject.push(' ' + componentObject.responseOptions[i] + ' : ' + componentObject.responseCountArray[i])
         })
-        observerMessageString += stringObject.toString() + ' (' + componentObject.text + ')'
+        observerMessage += stringObject.toString() + ' (' + componentObject.text + ')'
       }
-      mqtt.broadcastEvents(makeLogObject(taskObject, componentObject, { observerMessage: observerMessageString }))
+      mqtt.broadcastEvents(makeLogObject(taskObject, componentObject, { observerMessage: observerMessage }))
     }
   }, [])
 
@@ -120,7 +120,9 @@ const buttonList = props => {
   return (
     <div className={props.className}>
       <div>
-        <Typography ref={textRef} variant="h3" color="textPrimary" align="center" style={{ whiteSpace: "pre-line" }}>{props.task.displayText}</Typography>
+        <Typography ref={textRef} variant="h3" color="textPrimary" align="center" style={{ whiteSpace: "pre-line" }}>
+          {props.task.displayText}
+        </Typography>
       </div>
 
       <div className="responsesButtons" style={{ whiteSpace: "pre-wrap" }}>
@@ -128,26 +130,22 @@ const buttonList = props => {
           props.task.responses.map((item, index) => {
             if (item.includes("//")) {
               item = item.replace(/\/\//g, "")  // Remove leading slashes
-              item = item.replace(/\\n/g, "\n") // insert new-line characters
+              item = item.replace(/\\n/g, "\n") // Insert new-line characters
               return (
-                <Typography
-                  variant="h5"
-                  style={{ display: 'inline-block', padding: '5px', whiteSpace: 'pre-wrap' }}
-                  ref={textRef}
-                  key={index}
-                  color="textPrimary"
-                  align="center">{item}
+                <Typography variant="h5" style={{ display: 'inline-block', padding: '5px', whiteSpace: 'pre-wrap' }} color="textPrimary" align="center"
+                  ref={textRef} key={index}>
+                  {item}
                 </Typography>)
-            } else if (item === "\\n") { //line break
+            } else if (item === "\\n") {        // Line break
               return (<br key={index}></br>)
-            } else { //render as buttons
+            } else {                            // Render as buttons
               item = item.split("##")
               return (
                 <span className="inputButton" key={index}>
                   <Button
                     content={item[0]}
                     command={item[1]}
-                    commandCallback={ (commandObj) => props.commandCallback(commandObj)}
+                    commandCallback={ commandObj => props.commandCallback(commandObj)}
                     reset={props.task.resetResponses}
                     isSingleChoice={props.task.singleChoice}
                     id={index}
