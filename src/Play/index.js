@@ -147,12 +147,7 @@ const Play = props => {
 
   const onNewCommandEvent = () => {
     let args = JSON.parse(eventStore.getCurrentCommand())
-    let shouldProcess = false
-
-    if (args.participantId === -1 || args.participantId === store.getState().experimentInfo.participantId)
-      shouldProcess = true
-
-    if (shouldProcess) {
+    if (args.participantId === -1 || args.participantId === store.getState().experimentInfo.participantId) {
       switch (args.commandType) {
         case "PAUSE":
           setIsPaused(true)
@@ -168,9 +163,8 @@ const Play = props => {
 
   if (taskSet !== null) {
     eventStore.addNewCommandListener(onNewCommandEvent)
-    let rightBG = props.theme.palette.type === "light" ? props.theme.palette.primary.main : props.theme.palette.primary.dark
 
-    return <div style={{ backgroundColor: rightBG }} className="page" ref={frameDiv}>
+    return <div style={{ backgroundColor: props.theme.palette.type === "light" ? props.theme.palette.primary.main : props.theme.palette.primary.dark }} className="page" ref={frameDiv}>
       {<RunSet
         familyTree={[store.getState().experimentInfo.mainTaskSetId]}
         set={taskSet}

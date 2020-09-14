@@ -16,7 +16,7 @@ const ShowTask = props => {
     if (!taskList) return null
 
     let hideNext = false
-    let components = taskList.map((item, i) => {
+    let components = taskList.map( (item, i) => {
       if ((store.getState().multipleScreens && (item.screenIDS.includes(store.getState().screenID)
         || item.screenIDS.length === 0)) || !store.getState().multipleScreens) {
         if (store.getState().multipleScreens && item.hideNext) 
@@ -59,20 +59,17 @@ const ShowTask = props => {
 
   const contentObject = getDisplayedContent(props.task.childObj, props.task._id, 0)
 
-  let nextButton = null
-  if (!contentObject.hideNext) {
-    nextButton =
-      <div style={{ position: 'fixed', bottom: 20, right: 20, zIndex: 99 }}>
-        <ButtonUI className="nextButton" variant="contained" onClick={() => props.nextPressed(props.setID, props.set)}>
-          Next
-      </ButtonUI>
-      </div>
-  }
-
   return (
     <div key={props.renderKey} className="multiItemContent">
       {contentObject.components}
-      {nextButton}
+      {contentObject.hideNext ? null :
+        <div style={{ position: 'fixed', bottom: 20, right: 20, zIndex: 99 }}>
+          <ButtonUI className="nextButton" variant="contained" 
+          onClick={() => props.nextPressed(props.setID, props.set)}>
+            Next
+          </ButtonUI>
+        </div>
+      }
     </div>
   )
 }
