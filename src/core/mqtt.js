@@ -102,6 +102,9 @@ module.exports = {
   broadcastDeviceMotion(msg) {
     (mqttClient) ? mqttClient.publish(DeviceMotionTopic, msg) : console.log("Tried to publish, but MQTT client was null")
   },
+  broadcastMessage(msg, topic) {
+    (mqttClient) ? mqttClient.publish(topic, msg) : console.log("Tried to publish, but MQTT client was null")
+  },
   startMQTT(config, restart) {
     _startMQTT(config, restart)
   }

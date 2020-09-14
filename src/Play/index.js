@@ -173,19 +173,27 @@ const Play = props => {
   }
 
   const commandCallback = commandObj => {
-    const commandArray = commandObj.command.split(';')
-    commandArray.forEach( command => {
+    console.log(commandObj.command)
+    commandObj.command.forEach(command => {
       command = command.split('=')
       command[1] = command[1] ? command[1] : commandObj.content
       switch (command[0]) {
         case "recordMotion":
-          (commandObj.isClicked)
+          commandObj.isClicked
             ? window.addEventListener('devicemotion', handleDeviceMotionEvent)
             : window.removeEventListener('devicemotion', handleDeviceMotionEvent)
           break
-        case "label":
-          motionObj.label = (commandObj.isClicked) ? command[1] : null
+        case "tag":
+          motionObj.label = commandObj.isClicked ? command[1] : null
           break
+        case "mqtt":
+          if (commandObj.isClicked) {
+            const msgArray = command[1].split(',')
+            msgArray.forEach( msg => {
+              msg = msg.split('@')
+              mqtt.broadcastMessage(msg[0], msg[1])  // broadcastMessage(message, topic)
+            })
+          }
       }
       console.log(JSON.stringify(motionObj))
     })
