@@ -160,6 +160,9 @@ const Play = props => {
       }
     }
   }
+  const commandCallback = commandObj => {
+    console.log("command received in playIndex: " + commandObj.command)
+  }
 
   if (taskSet !== null) {
     eventStore.addNewCommandListener(onNewCommandEvent)
@@ -170,6 +173,7 @@ const Play = props => {
         set={taskSet}
         onFinished={props.history.goBack}
         saveGazeData={saveGazeData}
+        commandCallback={ (commandObj) => commandCallback(commandObj)} 
       />}
       <PauseDialog openDialog={isPaused} pauseMessage="Task paused." />
     </div>

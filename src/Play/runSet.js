@@ -43,6 +43,8 @@ const runSet = props => {
     }))
   }
 
+
+
   if (task[0].objType === dbObjects.ObjectTypes.SET) {
     let familyTree = props.familyTree.slice()
     familyTree.push(task[0].name)
@@ -52,6 +54,7 @@ const runSet = props => {
       set={task[0]}
       parentID={props.set._id}
       onFinished={startNextTask}
+      commandCallback={ (commandObj) => props.commandCallback(commandObj)} 
     />
   } else {
     return <div className="page" key={uuid()}>
@@ -63,7 +66,9 @@ const runSet = props => {
           set={task[1]}
           parentSet={props.familyTree[props.familyTree.length - 1]}
           renderKey={task._id + "_" + task}
-          nextPressed={nextPressed} />
+          nextPressed={nextPressed}
+          commandCallback={ (commandObj) => props.commandCallback(commandObj)} 
+        />
       </div>
     </div>
   }

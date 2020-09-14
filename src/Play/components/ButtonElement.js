@@ -9,7 +9,9 @@ const buttonElement = props => {
         (props.id === props.clickedButton) ? setIsClicked(true) : setIsClicked(false)
     }, [props.clickedButton])
 
-    const onButtonPressed = () => {
+    const onButtonPressed = e => {
+        if (!isClicked && props.command)
+            props.commandCallback({command: props.command, content: props.content, event: e})
         if (props.reset) {                      //Auto-reset buttons
             if (!isClicked) {
                 setIsClicked(true)
@@ -28,7 +30,7 @@ const buttonElement = props => {
         <Button
             variant="contained"
             key={props.id}
-            onClick={(event) => onButtonPressed(event)}
+            onClick={(e) => onButtonPressed(e)}
             style={isClicked ? clickedButtonStyle : null}>
             {props.content}
         </Button>

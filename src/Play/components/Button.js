@@ -13,7 +13,7 @@ const buttonList = props => {
   let [responseCountArray, setResponseCountArray] = useState(new Array(props.task.responses.length).fill(0))
   let [responsesArray, setResponsesArray] = useState(new Array(props.task.responses.length).fill(null))
 
-  let buttonVariant = null;
+  let buttonVariant = null
   if (props.task.resetResponses)
     buttonVariant = "RESET_BUTTON"
   else if (props.task.singleChoice)
@@ -49,13 +49,12 @@ const buttonList = props => {
     return () => {
       if (props.tags.length > 0 && props.tags.includes("setScreenID")) {
         const screenIDs = responsesArray.filter(response => response !== null)
-        if (screenIDs && screenIDs.length === 1) {       //Update the local screenID
+        if (screenIDs && screenIDs.length === 1)        //Update the local screenID
           store.dispatch({
             type: 'SET_MULTISCREEN',
             multipleScreens: true,
             screenID: screenIDs[0].toString()
           })
-        }
       }
 
       let observerMessageString = ''
@@ -63,12 +62,14 @@ const buttonList = props => {
 
       if (!props.task.resetResponses) {
         componentObject.responsesArray = responsesArray
-        componentObject.isCorrect = checkAnswer()
+        componentObject.isCorrect = 
+          (props.task.correctResponses && props.task.correctResponses.length !== 0) 
+            ? arrayEquals(props.task.correctResponses, responsesArray) ? "correct" : "incorrect"
+            : "notApplicable"
 
-        if (componentObject.isCorrect !== 'notApplicable')
-          observerMessageString = componentObject.isCorrect.toUpperCase() + ' Final answer: ' + responsesArray.filter(el => el !== null).toString() + ' (' + componentObject.text + 'Answer ' + props.task.correctResponses.toString() + ')'
-        else
-          observerMessageString = 'Final answer: ' + responsesArray.filter(el => el !== null).toString() + ' (' + componentObject.text + ')'
+        observerMessageString = (componentObject.isCorrect !== 'notApplicable') 
+          ? componentObject.isCorrect.toUpperCase() + ' Final answer: ' + responsesArray.filter(el => el !== null).toString() + ' (' + componentObject.text + 'Answer ' + props.task.correctResponses.toString() + ')'
+          : 'Final answer: ' + responsesArray.filter(el => el !== null).toString() + ' (' + componentObject.text + ')'
       } else {
         componentObject.responsesArray = undefined
         componentObject.isCorrect = undefined
@@ -113,14 +114,7 @@ const buttonList = props => {
     return Array.isArray(a) &&
       Array.isArray(b) &&
       a.length === b.length &&
-      a.every((val, index) => val.toUpperCase() === b[index].toUpperCase());
-  }
-
-  const checkAnswer = () => {
-    let isCorrect = "notApplicable";
-    if (props.task.correctResponses && props.task.correctResponses.length !== 0)
-      isCorrect = arrayEquals(props.task.correctResponses, responsesArray) ? "correct" : "incorrect"
-    return isCorrect
+      a.every((val, index) => val.toUpperCase() === b[index].toUpperCase())
   }
 
   return (
@@ -147,10 +141,13 @@ const buttonList = props => {
             } else if (item === "\\n") { //line break
               return (<br key={index}></br>)
             } else { //render as buttons
+              item = item.split("##")
               return (
                 <span className="inputButton" key={index}>
                   <Button
-                    content={item}
+                    content={item[0]}
+                    command={item[1]}
+                    commandCallback={ (commandObj) => props.commandCallback(commandObj)}
                     reset={props.task.resetResponses}
                     isSingleChoice={props.task.singleChoice}
                     id={index}

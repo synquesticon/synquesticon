@@ -34,6 +34,7 @@ const ShowTask = props => {
               correctResponses={item.correctResponses}
               image={item.image}
               displayText={item.displayText}
+              commandCallback={ (commandObj) => props.commandCallback(commandObj)}
             />
             </Suspense>
           case dbObjects.TaskTypes.INSTRUCTION.type:
