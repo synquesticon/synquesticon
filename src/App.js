@@ -14,8 +14,7 @@ import Play from './Play'
 import ThemeProvider from '@material-ui/styles/ThemeProvider'
 import './App.css'
 
-//To make MaterialUI use the new variant of typography and avoid the deprecation warning
-window.__MUI_USE_NEXT_TYPOGRAPHY_VARIANTS__ = true
+window.__MUI_USE_NEXT_TYPOGRAPHY_VARIANTS__ = true      //To make MaterialUI use the new variant of typography and avoid the deprecation warning
 
 class App extends Component {
   constructor(props) {
@@ -51,8 +50,7 @@ class App extends Component {
 
   render() {
     let theme = store.getState().theme
-    let scrollBgColor = theme.palette.type === "light" ? "lightscroll" : "darkscroll"
-    document.body.classList.add(scrollBgColor)
+    document.body.classList.add(theme.palette.type === "light" ? "lightscroll" : "darkscroll")
 
     return (
       <Router>

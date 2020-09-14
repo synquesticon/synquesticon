@@ -40,15 +40,13 @@ const Play = props => {
 
     db_helper.getTasksOrTaskSetsWithIDs(parsed.id, (dbQueryResult, count, mainTaskSetName) => {
       setTaskSet(dbQueryResult)
-      if (dbQueryResult.data) {     //Force preload all images
-        playerUtils.getAllImagePaths(dbQueryResult.data).forEach((picture) => {
+      if (dbQueryResult.data)      //Force preload all images
+        playerUtils.getAllImagePaths(dbQueryResult.data).forEach( picture => {
           const img = document.createElement('img')
           img.src = picture
         })
-      }
 
-      //If the participantID is undefined we create a participant and add it to the experiment
-      if (store.getState().experimentInfo.participantId === undefined) {
+      if (store.getState().experimentInfo.participantId === undefined) {         //If the participantID is undefined we create a participant and add it to the experiment
         db_helper.addParticipantToDb(new dbObjects.ParticipantObject(dbQueryResult._id),
           returnedIdFromDB => {
             store.dispatch({
