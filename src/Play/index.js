@@ -173,9 +173,8 @@ const Play = props => {
   }
 
   const commandCallback = commandObj => {
-    console.log("command received in playIndex: " + commandObj.isClicked)
     const commandArray = commandObj.command.split(';')
-    commandArray.forEach(command => {
+    commandArray.forEach( command => {
       command = command.split('=')
       command[1] = command[1] ? command[1] : commandObj.content
       switch (command[0]) {
