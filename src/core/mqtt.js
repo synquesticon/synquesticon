@@ -1,7 +1,6 @@
 const store = require('./store')
 const eventStore = require('./eventStore')
 const playerUtils = require('./player_utility_functions')
-
 const mqtt = require('mqtt')
 let mqttClient = null
 let last_config = null
@@ -27,10 +26,8 @@ const onMQTTEvent = message => {
 
 const onMultipleScreenEvent = message => {
   if (message) {
-    let parsedMessage = JSON.parse(message)
-
     //Only respond to the message if the device ID matches our own and the screenID is different so we don't repeat messages endlessly
-    if (parsedMessage.deviceID === window.localStorage.getItem('deviceID'))
+    if (JSON.parse(message).deviceID === window.localStorage.getItem('deviceID'))
       eventStore.default.emitMultipleScreenEvent(JSON.parse(message))
   }
 }
@@ -78,8 +75,7 @@ const _startMQTT = (config, restart) => {
     mqttClient.subscribe(RemoteEyeTrackingTopic, function (err) { if (err) { console.log(err) } })
   })
 
-  //When the client connects we subscribe to the topics we want to listen to
-  mqttClient.on('message', function (topic, message) {
+  mqttClient.on('message', function (topic, message) {    //When the client connects we subscribe to the topics we want to listen to
     if (topic === SynquesticonTopic) 
       onMQTTEvent(message)
     else if (topic === SynquesticonCommandTopic) 
@@ -94,17 +90,17 @@ const _startMQTT = (config, restart) => {
 }
 
 module.exports = {
-  broadcastEvents(info) {
-    (mqttClient) ? mqttClient.publish(SynquesticonTopic, info) : console.log("Tried to publish, but MQTT client was null")
+  broadcastEvents(msg) {
+    (mqttClient) ? mqttClient.publish(SynquesticonTopic, msg) : console.log("Tried to publish, but MQTT client was null")
   },
-  broadcastCommands(command) {
-    (mqttClient) ? mqttClient.publish(SynquesticonCommandTopic, command) : console.log("Tried to publish, but MQTT client was null")
+  broadcastCommands(msg) {
+    (mqttClient) ? mqttClient.publish(SynquesticonCommandTopic, msg) : console.log("Tried to publish, but MQTT client was null")
   },
-  broadcastMultipleScreen(command) {
-    (mqttClient) ? mqttClient.publish(SynquesticonMultipleScreenTopic, command) : console.log("Tried to publish, but MQTT client was null")
+  broadcastMultipleScreen(msg) {
+    (mqttClient) ? mqttClient.publish(SynquesticonMultipleScreenTopic, msg) : console.log("Tried to publish, but MQTT client was null")
   },
-  broadcastDeviceMotion(info) {
-    (mqttClient) ? mqttClient.publish(DeviceMotionTopic, info) : console.log("Tried to publish, but MQTT client was null")
+  broadcastDeviceMotion(msg) {
+    (mqttClient) ? mqttClient.publish(DeviceMotionTopic, msg) : console.log("Tried to publish, but MQTT client was null")
   },
   startMQTT(config, restart) {
     _startMQTT(config, restart)
