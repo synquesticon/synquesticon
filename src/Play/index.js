@@ -43,7 +43,7 @@ const Play = props => {
     db_helper.getTasksOrTaskSetsWithIDs(parsed.id, (dbQueryResult, count, mainTaskSetName) => {
       setTaskSet(dbQueryResult)
       if (dbQueryResult.data)      //Force preload all images
-        playerUtils.getAllImagePaths(dbQueryResult.data).forEach( picture => {
+        playerUtils.getAllImagePaths(dbQueryResult.data).forEach(picture => {
           const img = document.createElement('img')
           img.src = picture
         })
@@ -97,6 +97,7 @@ const Play = props => {
         showFooter: true
       })
       eventStore.removeNewCommandListener(onNewCommandEvent)
+      window.removeEventListener('devicemotion', handleDeviceMotionEvent)
     }
   }, [])
 
@@ -162,19 +163,33 @@ const Play = props => {
       }
     }
   }
-  const commandCallback = commandObj => {
-    console.log("command received in playIndex: " + commandObj.command)
-    if (commandObj.content == "on") 
-      window.addEventListener('devicemotion', handleDeviceMotionEvent)
-    else if (commandObj.content == "off") 
-      window.removeEventListener('devicemotion', handleDeviceMotionEvent)
-  }
 
   const motionObj = {
     eventType: 'DeviceMotion',
-    user: { uid: uuid()},
+    user: { uid: uuid() },
     position: {},
-    rotation: {}
+    rotation: {},
+    label: ''
+  }
+
+  const commandCallback = commandObj => {
+    console.log("command received in playIndex: " + commandObj.isClicked)
+    const commandArray = commandObj.command.split(';')
+    commandArray.forEach(command => {
+      command = command.split('=')
+      command[1] = command[1] ? command[1] : commandObj.content
+      switch (command[0]) {
+        case "recordMotion":
+          (commandObj.isClicked)
+            ? window.addEventListener('devicemotion', handleDeviceMotionEvent)
+            : window.removeEventListener('devicemotion', handleDeviceMotionEvent)
+          break
+        case "label":
+          motionObj.label = (commandObj.isClicked) ? command[1] : null
+          break
+      }
+      console.log(JSON.stringify(motionObj))
+    })
   }
 
   const handleDeviceMotionEvent = e => {
@@ -185,10 +200,9 @@ const Play = props => {
     }
     motionObj.rotation = {
       a: e.rotationRate.alpha,
-      b: e.rotationRate.alpha,
-      c: e.rotationRate.alpha
+      b: e.rotationRate.beta,
+      c: e.rotationRate.gamma
     }
-    console.log("Motion on" + JSON.stringify(motionObj))
     mqtt.broadcastDeviceMotion(JSON.stringify(motionObj))
   }
 
@@ -201,7 +215,7 @@ const Play = props => {
         set={taskSet}
         onFinished={props.history.goBack}
         saveGazeData={saveGazeData}
-        commandCallback={ (commandObj) => commandCallback(commandObj)} 
+        commandCallback={(commandObj) => commandCallback(commandObj)}
       />}
       <PauseDialog openDialog={isPaused} pauseMessage="Task paused." />
     </div>

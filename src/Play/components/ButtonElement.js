@@ -10,8 +10,6 @@ const buttonElement = props => {
     }, [props.clickedButton])
 
     const onButtonPressed = e => {
-        if (!isClicked && props.command)
-            props.commandCallback({command: props.command, content: props.content, event: e})
         if (props.reset) {                      //Auto-reset buttons
             if (!isClicked) {
                 setIsClicked(true)
@@ -24,6 +22,8 @@ const buttonElement = props => {
             props.logElementData(props.id, !isClicked, props.content)
             setIsClicked(!isClicked)
         }
+        if (props.command)
+        props.commandCallback({command: props.command, content: props.content, isClicked: !isClicked, event: e})
     }
 
     return (

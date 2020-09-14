@@ -53,7 +53,7 @@ const EditSetListItem = props => {
 
     collapsableContent = <div className="collapsedItemListWrapper">{collapsableContent}</div>
 
-    const dragSource = null
+    let dragSource = null
     if (props.componentDepth === 0) {
       dragSource =
         <div>
