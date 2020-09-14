@@ -3,12 +3,14 @@ import { Typography } from '@material-ui/core'
 import { withTheme } from '@material-ui/styles'
 import eventStore from '../core/eventStore'
 import store from '../core/store'
+import mqtt from '../core/mqtt'
 import db_helper from '../core/db_helper'
 import * as dbObjects from '../core/db_objects'
 import * as playerUtils from '../core/player_utility_functions'
 import queryString from 'query-string'
 import RunSet from './runSet'
 import PauseDialog from './PauseDialog'
+import uuid from 'react-uuid'
 import '../core/utility.css'
 import './css/Play.css'
 
@@ -162,6 +164,32 @@ const Play = props => {
   }
   const commandCallback = commandObj => {
     console.log("command received in playIndex: " + commandObj.command)
+    if (commandObj.content == "on") 
+      window.addEventListener('devicemotion', handleDeviceMotionEvent)
+    else if (commandObj.content == "off") 
+      window.removeEventListener('devicemotion', handleDeviceMotionEvent)
+  }
+
+  const motionObj = {
+    eventType: 'DeviceMotion',
+    user: { uid: uuid()},
+    position: {},
+    rotation: {}
+  }
+
+  const handleDeviceMotionEvent = e => {
+    motionObj.position = {
+      x: e.acceleration.x,
+      y: e.acceleration.y,
+      z: e.acceleration.z
+    }
+    motionObj.rotation = {
+      a: e.rotationRate.alpha,
+      b: e.rotationRate.alpha,
+      c: e.rotationRate.alpha
+    }
+    console.log("Motion on" + JSON.stringify(motionObj))
+    mqtt.broadcastDeviceMotion(JSON.stringify(motionObj))
   }
 
   if (taskSet !== null) {

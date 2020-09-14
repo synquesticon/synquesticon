@@ -4,5 +4,5 @@ cd ..
 cd backend
 start node server.js
 cd ..
-start npm start
+set HTTPS=true&&npm start
 exit 0

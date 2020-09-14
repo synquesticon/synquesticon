@@ -11,6 +11,7 @@ const SynquesticonTopic = "Synquesticon.Task"
 const SynquesticonCommandTopic = "Synquesticon.Command"
 const SynquesticonMultipleScreenTopic = "Synquesticon.MultipleScreen"
 const RemoteEyeTrackingTopic = "RETDataSample"
+const DeviceMotionTopic = "SynquesticonDeviceMotion"
 
 const onCommandEvent = message => {
   eventStore.default.setCurrentCommand(message)
@@ -94,22 +95,16 @@ const _startMQTT = (config, restart) => {
 
 module.exports = {
   broadcastEvents(info) {
-    if (mqttClient) 
-      mqttClient.publish(SynquesticonTopic, info)
-    else 
-      console.log("Tried to publish, but MQTT client was null")
+    (mqttClient) ? mqttClient.publish(SynquesticonTopic, info) : console.log("Tried to publish, but MQTT client was null")
   },
   broadcastCommands(command) {
-    if (mqttClient) 
-      mqttClient.publish(SynquesticonCommandTopic, command)
-    else 
-      console.log("Tried to publish, but MQTT client was null")
+    (mqttClient) ? mqttClient.publish(SynquesticonCommandTopic, command) : console.log("Tried to publish, but MQTT client was null")
   },
   broadcastMultipleScreen(command) {
-    if (mqttClient) 
-      mqttClient.publish(SynquesticonMultipleScreenTopic, command)
-    else
-      console.log("Tried to publish, but MQTT client was null")
+    (mqttClient) ? mqttClient.publish(SynquesticonMultipleScreenTopic, command) : console.log("Tried to publish, but MQTT client was null")
+  },
+  broadcastDeviceMotion(info) {
+    (mqttClient) ? mqttClient.publish(DeviceMotionTopic, info) : console.log("Tried to publish, but MQTT client was null")
   },
   startMQTT(config, restart) {
     _startMQTT(config, restart)
