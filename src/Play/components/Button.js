@@ -139,7 +139,7 @@ const buttonList = props => {
             } else if (item === "\\n") {        // Line break
               return (<br key={index}></br>)
             } else {                            // Render as buttons
-              item = item.split("##")
+              item = item.split("??")
               return (
                 <span className="inputButton" key={index}>
                   <Button

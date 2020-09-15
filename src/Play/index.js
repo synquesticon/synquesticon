@@ -169,7 +169,7 @@ const Play = props => {
     user: { uid: uuid() },
     position: {},
     rotation: {},
-    label: ''
+    tag: ''
   }
 
   const commandCallback = commandObj => {
@@ -183,17 +183,19 @@ const Play = props => {
             ? window.addEventListener('devicemotion', handleDeviceMotionEvent)
             : window.removeEventListener('devicemotion', handleDeviceMotionEvent)
           break
-        case "tag":
-          motionObj.label = commandObj.isClicked ? command[1] : null
-          break
+          case "tag":
+            motionObj.tag = commandObj.isClicked ? command[1] : null
+            break
         case "mqtt":
           if (commandObj.isClicked) {
-            const msgArray = command[1].split(',')
+            const msgArray = command[1].split(';;')
             msgArray.forEach( msg => {
               msg = msg.split('@')
               mqtt.broadcastMessage(msg[0], msg[1])  // broadcastMessage(message, topic)
             })
           }
+          break
+        default:
       }
       console.log(JSON.stringify(motionObj))
     })

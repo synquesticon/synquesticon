@@ -23,7 +23,7 @@ const buttonElement = props => {
             setIsClicked(!isClicked)
         }
         if (props.command)
-        props.commandCallback({command: props.command.split(';'), content: props.content, isClicked: !isClicked, event: e})
+        props.commandCallback({command: props.command.split('&&'), content: props.content, isClicked: !isClicked, event: e})
     }
 
     return (
