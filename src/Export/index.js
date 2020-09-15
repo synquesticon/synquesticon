@@ -207,7 +207,7 @@ class Export extends Component {
 
   render() {
     return (
-      <div className="ExportationModeContainer" style={{ backgroundColor: (this.props.theme.palette.type === "light" ? this.props.theme.palette.primary.main : this.props.theme.palette.primary.dark) }}>
+      <div className="ExportContainer" style={{ backgroundColor: (this.props.theme.palette.type === "light" ? this.props.theme.palette.primary.main : this.props.theme.palette.primary.dark) }}>
         <List style={{ display: 'flex', flexDirection: 'column', flexGrow: 1, width: '100%', minHeight: 100, maxHeight: 'calc(100% - 100px)', overflowY: 'auto', overflowX: 'hidden' }}>
           {this.state.participants.map( (p, index) => {
             if (this.pickedParticipants.includes(p)) {

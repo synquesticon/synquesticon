@@ -59,7 +59,6 @@ const SessionList = props => {
 
   const onPlayButtonClick = (taskSet, emitterTriggered) => {
     selectedTaskSet = taskSet
-
     if (emitterTriggered === undefined && store.getState().multipleScreens) {
       db_helper.addParticipantToDb(new db_objects.ParticipantObject(taskSet._id), (dbID) => {
         store.dispatch({
@@ -75,12 +74,12 @@ const SessionList = props => {
           participantID: dbID
         }))
 
-        let url = '/study?id=' + selectedTaskSet._id
+        let url = '/play?id=' + selectedTaskSet._id
         url = appendEyeTrackerInfo(url)
         props.history.push(url)
       })
     } else {
-      let url = '/study?id=' + selectedTaskSet._id
+      let url = '/play?id=' + selectedTaskSet._id
       url = appendEyeTrackerInfo(url)
       props.history.push(url)
     }
@@ -92,7 +91,7 @@ const SessionList = props => {
   }
 
   const copyToClipboard = async () => {
-    let url = window.location.href + 'study?id='
+    let url = window.location.href + 'play?id='
     if (selectedTaskSet) {
       url += selectedTaskSet._id
       url = appendEyeTrackerInfo(url)

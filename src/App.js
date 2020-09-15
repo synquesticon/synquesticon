@@ -63,7 +63,7 @@ class App extends Component {
                 <Route path={"/" + AppModes.EDIT} component={Edit} />
                 <Route path="/Observe" component={Observe} />
                 <Route path="/ExportationMode" component={Export} />
-                <Route path="/study" component={Play} />
+                <Route path="/play" component={Play} />
               </Switch>
             </div>
           </div>

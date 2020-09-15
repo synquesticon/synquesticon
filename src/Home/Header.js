@@ -57,7 +57,7 @@ const Header = props => {
 
     modeButtons.push(
       <Button key="/ExportationMode"
-        onClick={(e) => gotoPage("ExportationMode")}
+        onClick={ e => gotoPage("ExportationMode")}
         style={{
           display: 'flex', position: 'relative', flexGrow: 1, minWidth: 10, maxWidth: 100, width: 0, height: '100%',
           backgroundColor: props.history.location.pathname.includes("/ExportationMode") ? activeColor : ""

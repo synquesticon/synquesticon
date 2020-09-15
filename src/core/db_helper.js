@@ -402,9 +402,9 @@ class db_helper {
   addParticipantToDb(obj, callback) {
     axios.post("/api/addParticipant", { message: JSON.stringify(obj) })
       .then(response => {
-        if (response.status === 200)
+        if (response.status === 200) {
           callback(response.data._id)
-        else {
+        } else {
           alert("Something's wrong! Cannot log the current run into database.")
           throw new Error("Cannot log data")
         }
