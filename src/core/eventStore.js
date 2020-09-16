@@ -1,5 +1,6 @@
 const EventEmitter = require('events')
 const NEW_MESSAGE_EVENT = "MQTTEvent"
+const NEW_MOTION_EVENT = "motionEvent"
 const NEW_PARTICIPANT_EVENT = "ParticipantEvent"
 const NEW_REMOTE_TRACKER_EVENT = "NewRemoteTrackerEvent"
 const NEW_COMMAND_EVENT = "NewCommandEvent"
@@ -17,14 +18,28 @@ class CEventStore extends EventEmitter {
 	addEventListener(callback) {
 		this.addListener(NEW_MESSAGE_EVENT, callback)
   }
-  
+
 	removeEventListener(callback) {
 		this.removeListener(NEW_MESSAGE_EVENT, callback)
   }
   
 	emitMQTTEvent() {
 		this.emit(NEW_MESSAGE_EVENT)
+  }
+  
+  
+  addMotionListener(callback) {
+		this.addListener(NEW_MOTION_EVENT, callback)
+  }
+
+  removeMotionListener(callback) {
+		this.removeListener(NEW_MOTION_EVENT, callback)
+  }
+
+  emitMotionData() {
+		this.emit(NEW_MOTION_EVENT)
 	}
+
 
   addNewParticipantListener(callback) {
     this.addListener(NEW_PARTICIPANT_EVENT, callback)
@@ -45,6 +60,7 @@ class CEventStore extends EventEmitter {
   removeNewCommandListener(callback) {
     this.removeListener(NEW_COMMAND_EVENT, callback)
   }
+
   emitNewCommand() {
     this.emit(NEW_COMMAND_EVENT)
   }
@@ -79,6 +95,10 @@ class CEventStore extends EventEmitter {
 	}
 
   setCurrentMessage(args){
+		this.currentMessage = args
+  }
+  
+  setMotionData(args){
 		this.currentMessage = args
 	}
 

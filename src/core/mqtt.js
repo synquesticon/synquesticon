@@ -10,7 +10,7 @@ const SynquesticonTopic = "Synquesticon.Task"
 const SynquesticonCommandTopic = "Synquesticon.Command"
 const SynquesticonMultipleScreenTopic = "Synquesticon.MultipleScreen"
 const RemoteEyeTrackingTopic = "RETDataSample"
-const DeviceMotionTopic = "SynquesticonDeviceMotion"
+const DeviceMotionTopic = "motion"
 
 const onCommandEvent = message => {
   eventStore.default.setCurrentCommand(message)
@@ -21,6 +21,13 @@ const onMQTTEvent = message => {
   if (message) {
     eventStore.default.setCurrentMessage(message)
     eventStore.default.emitMQTTEvent()
+  }
+}
+
+const onMotionData = message => {
+  if (message) {
+    eventStore.default.setMotionData(message)
+    eventStore.default.emitMotionData()
   }
 }
 
@@ -73,11 +80,14 @@ const _startMQTT = (config, restart) => {
     mqttClient.subscribe(SynquesticonCommandTopic, function (err) { if (err) { console.log(err) } })
     mqttClient.subscribe(SynquesticonMultipleScreenTopic, function (err) { if (err) { console.log(err) } })
     mqttClient.subscribe(RemoteEyeTrackingTopic, function (err) { if (err) { console.log(err) } })
+    mqttClient.subscribe(DeviceMotionTopic, function (err) { if (err) { console.log(err) } })
   })
 
   mqttClient.on('message', function (topic, message) {    //When the client connects we subscribe to the topics we want to listen to
     if (topic === SynquesticonTopic) 
       onMQTTEvent(message)
+    else if (topic === DeviceMotionTopic) 
+      onMotionData(message)      
     else if (topic === SynquesticonCommandTopic) 
       onCommandEvent(message)
     else if (topic === RemoteEyeTrackingTopic) 

@@ -7,6 +7,7 @@ import mqtt from '../core/mqtt'
 import eventStore from '../core/eventStore'
 import ObserverTab from './Messages/ObserverTab'
 import MessageBoard from './Messages/MessageBoard'
+import MqttMessage from './Messages/MqttMessage'
 import './css/Observe.css'
 
 const Observe = props => {
@@ -85,7 +86,8 @@ const Observe = props => {
           </div>
         </div>
       </div>
-      <div className="ObserverMessageLog">
+      <MqttMessage/>
+      <div className="ObserverMessageLog"> 
         <MessageBoard messages={(participants.length > 0) ? participants[currentParticipant].messagesQueue : []} />
       </div>
     </div>

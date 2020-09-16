@@ -173,7 +173,6 @@ const Play = props => {
   }
 
   const commandCallback = commandObj => {
-    console.log(commandObj.command)
     commandObj.command.forEach(command => {
       command = command.split('=')
       command[1] = command[1] ? command[1] : commandObj.content
@@ -197,7 +196,6 @@ const Play = props => {
           break
         default:
       }
-      console.log(JSON.stringify(motionObj))
     })
   }
 
