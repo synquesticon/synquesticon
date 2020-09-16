@@ -40,12 +40,11 @@ const TaskList = props => {
               const highlightBG = 
                 (props.selectedTask && item && item._id === props.selectedTask._id) ? true : false
 
-              const content = listUtils.getTaskContent(item)
               const clonedContent = <div
                 className={"listItem"} style={{ backgroundColor: bgColor }}>
                 <div className="listItemTextContainer" >
                   <div className="listItemText">
-                    <Typography color="textPrimary" noWrap> {content} </Typography>
+                    <Typography color="textPrimary" noWrap> {item.name} </Typography>
                   </div>
                 </div>
                 <div className="listItemDragBtnContainer" style={{ backgroundColor: bgColor }}>
@@ -61,10 +60,19 @@ const TaskList = props => {
                   index={index} shouldRespectForceTouch={false} isDragDisabled={!props.dragEnabled}>
                   {(provided, snapshot) => (
                     <React.Fragment>
-                      <TaskItem domRef={provided.innerRef} provided={provided} dragEnabled={props.dragEnabled}
-                        isDragging={snapshot.isDragging} snapshot={snapshot}
-                        highlight={highlightBG} placeholder={false} task={item} itemType={props.itemType}
-                        handleDrop={props.dragDropCallback} onSelectedCallback={onSelectTask} content={content}
+                      <TaskItem
+                        domRef={provided.innerRef}
+                        provided={provided}
+                        dragEnabled={props.dragEnabled}
+                        isDragging={snapshot.isDragging}
+                        snapshot={snapshot}
+                        highlight={highlightBG}
+                        placeholder={false}
+                        task={item}
+                        itemType={props.itemType}
+                        handleDrop={props.dragDropCallback}
+                        onSelectedCallback={onSelectTask}
+                        content={item.name}
                       />
                       {snapshot.isDragging && (
                         <Clone>{clonedContent}</Clone>

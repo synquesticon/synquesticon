@@ -14,7 +14,7 @@ export function arrayMove(arr, fromIndex, toIndex) {
  */
 export function getTaskContent(task){
   return(
-    (task.objType === dbObjects.ObjectTypes.SET)
-      ? task.name : null
+//    (task.objType === dbObjects.ObjectTypes.SET)
+      task.name
   )
 }
