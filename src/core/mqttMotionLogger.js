@@ -5,10 +5,11 @@ const Schema = mongoose.Schema
 
 const DeviceMotionSchema = new Schema(
     {
-        eventType: String,
         user: {
             uid: String
         },
+        timestamp: String,
+        count: String,
         position: {
             x: String,
             y: String,
@@ -28,7 +29,6 @@ const DeviceMotion = mongoose.model("DeviceMotion", DeviceMotionSchema)
 
 let mongodbClient = mongodb.MongoClient
 const mongodbURI = "mongodb://localhost:27017/SensorData"
-
 
 mongodbClient.connect(mongodbURI,
     { useNewUrlParser: true, useUnifiedTopology: true },

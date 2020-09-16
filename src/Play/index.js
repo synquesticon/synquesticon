@@ -164,9 +164,11 @@ const Play = props => {
     }
   }
 
+  let count = 0
   const motionObj = {
-    eventType: 'DeviceMotion',
     user: { uid: uuid() },
+    timestamp: 0,
+    count: count,
     position: {},
     rotation: {},
     tag: ''
@@ -200,6 +202,7 @@ const Play = props => {
   }
 
   const handleDeviceMotionEvent = e => {
+    motionObj.count = count++
     motionObj.position = {
       x: e.acceleration.x,
       y: e.acceleration.y,
@@ -210,6 +213,7 @@ const Play = props => {
       b: e.rotationRate.beta,
       c: e.rotationRate.gamma
     }
+    motionObj.timestamp = Date.now()
     mqtt.broadcastDeviceMotion(JSON.stringify(motionObj))
   }
 

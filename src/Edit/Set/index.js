@@ -17,9 +17,9 @@ class EditSet extends Component {
 
     //If we got a taskObject passed as a prop we use it, otherwise we init with a default constructed object
     //Clone the array via JSON. Otherwise we would operate directly on the original objects which we do not want
-    this.set = this.props.isEditing ? JSON.parse(JSON.stringify(this.props.setObject)) : new dbObjects.TaskSetObject();
-    if (this.set.repeatSetThreshold === undefined)
-      this.set.repeatSetThreshold = 0
+    this.set = this.props.isEditing ? JSON.parse(JSON.stringify(this.props.setObject)) : new dbObjects.TaskSetObject()
+ //   if (this.set.repeatSetThreshold === undefined)
+   //   this.set.repeatSetThreshold = 0
     
     this.state = {      //We keep these fields in the state as they affect how the component is rendered
       taskList: this.set.childIds ? this.set.childIds : [],

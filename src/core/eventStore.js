@@ -40,7 +40,10 @@ class CEventStore extends EventEmitter {
 		this.emit(NEW_MOTION_EVENT)
 	}
 
-
+  setMotionData(args){
+		this.currentMessage = args
+  }
+  
   addNewParticipantListener(callback) {
     this.addListener(NEW_PARTICIPANT_EVENT, callback)
   }
@@ -97,10 +100,6 @@ class CEventStore extends EventEmitter {
   setCurrentMessage(args){
 		this.currentMessage = args
   }
-  
-  setMotionData(args){
-		this.currentMessage = args
-	}
 
   getCurrentCommand(){
     return this.currentCommand

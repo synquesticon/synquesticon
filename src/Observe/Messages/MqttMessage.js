@@ -3,23 +3,39 @@ import eventStore from '../../core/eventStore'
 import { withTheme } from '@material-ui/styles'
 
 const mqttMessage = props => {
-    const [mqttMessage, setMqttMessage] = useState("No mqtt data")
+    const [mqttMessage, setMqttMessage] = useState(
+        {
+            user: { uid: 0 },
+            timestamp: 0,
+            count: 0,
+            position: { x: 0, y: 0, z: 0 },
+            rotation: { a: 0, b: 0, c: 0 },
+            tag: "no tag"
+        })
     useEffect(() => {
         eventStore.addMotionListener(onNewEvent)
         return () => eventStore.removeMotionListener(onNewEvent)
     }, [])
 
-    let x = 3
     const onNewEvent = () => {
         const msg = JSON.parse(eventStore.getCurrentMessage())
         console.log(msg)
-        setMqttMessage(msg.position.x)
+        setMqttMessage(msg)
     }
 
     return (
-        <div>
-            {mqttMessage}
-        </div>
+        <>
+            <div>tag: {mqttMessage.tag}</div>
+            <div>user: {mqttMessage.user.uid}</div>
+            <div>time: {mqttMessage.timestamp}</div>
+            <div>count: {mqttMessage.count}</div>
+            <div>x: {mqttMessage.position.x}</div>
+            <div>y: {mqttMessage.position.y}</div>
+            <div>z: {mqttMessage.position.z}</div>
+            <div>a: {mqttMessage.rotation.a}</div>
+            <div>b: {mqttMessage.rotation.b}</div>
+            <div>c: {mqttMessage.rotation.c}</div>
+        </>
     )
 }
 
