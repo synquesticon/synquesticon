@@ -86,7 +86,7 @@ const SessionList = props => {
   }
 
   const onGetLinkCallback = (taskSet) => {
-    selectedTaskSet = taskSet;
+    selectedTaskSet = taskSet
     copyToClipboard()
   }
 

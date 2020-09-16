@@ -9,9 +9,8 @@ import * as dnd from '../../core/beautifulDND.js'
 const EditSetList = props => {
   const taskBgColor = props.theme.palette.type === "light" ? props.theme.palette.primary.main : props.theme.palette.primary.dark
 
-  if (props.taskListObjects.length === 0) {
+  if (props.taskListObjects.length === 0) 
     return <Typography variant='h5' color='textPrimary' style={{ opacity: 0.5, padding: 5, marginLeft: 5 }}>{props.displayIfEmpty ? props.displayIfEmpty : ''}</Typography>
-  }
 
   const collapsableContent = props.taskListObjects.map((item, index) => {
     if (item === null) return item

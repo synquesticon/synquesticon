@@ -13,12 +13,8 @@ export function arrayMove(arr, fromIndex, toIndex) {
  * @param  {object} task The object to extract content from.
  */
 export function getTaskContent(task){
-  let content = null
-
-  if (task.objType === dbObjects.ObjectTypes.SET)
-    content = task.name
-  else
-    content = task.name
-
-  return content
+  return(
+    (task.objType === dbObjects.ObjectTypes.SET)
+      ? task.name : null
+  )
 }
