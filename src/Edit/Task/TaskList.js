@@ -5,8 +5,8 @@ import { withTheme } from '@material-ui/styles'
 import Button from '@material-ui/core/Button'
 import DragIcon from '@material-ui/icons/ControlCamera'
 import { Typography } from '@material-ui/core'
-import TaskTypeItem from './TypeItem'
-import './css/TypeList.css'
+import TaskItem from './TaskItem'
+import './css/TaskList.css'
 
 const TaskClone = styled.div`
     display: flex;
@@ -21,7 +21,7 @@ const Clone = styled(TaskClone)`
     }
 `
 
-const EditTaskTypeList = props => {
+const TaskList = props => {
   const taskList = props.taskList
   let bgColor = props.theme.palette.type === "light" ? props.theme.palette.primary.dark : props.theme.palette.primary.main
 
@@ -51,7 +51,7 @@ const EditTaskTypeList = props => {
                 <Draggable key={index} draggableId={item + index} index={index} shouldRespectForceTouch={false} isDragDisabled={!props.dragEnabled}>
                   {(provided, snapshot) => (
                     <React.Fragment>
-                      <TaskTypeItem domRef={provided.innerRef} provided={provided} dragEnabled={props.dragEnabled}
+                      <TaskItem domRef={provided.innerRef} provided={provided} dragEnabled={props.dragEnabled}
                         isDragging={snapshot.isDragging} snapshot={snapshot}
                         placeholder={false} task={item} itemType={props.itemType}
                         handleDrop={props.dragDropCallback} content={item.label} marginClass={margin}
@@ -71,4 +71,4 @@ const EditTaskTypeList = props => {
   )
 }
 
-export default withTheme(EditTaskTypeList)
+export default withTheme(TaskList)

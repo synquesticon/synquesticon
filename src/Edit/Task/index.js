@@ -5,7 +5,7 @@ import * as db_utils from '../../core/db_objects_utility_functions'
 import store from '../../core/store'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
-import TaskTypeList from './TypeList'
+import TaskList from './TaskList'
 import TaskComponentList from './ComponentList'
 import { Droppable, DragDropContext } from 'react-beautiful-dnd'
 import './css/Task.css'
@@ -180,16 +180,6 @@ class Task extends Component {
         />
       </div>
 
-    const taskTypes = <TaskTypeList dragEnabled={true} taskList={Object.values(dbObjects.TaskTypes)}
-      itemType={dbObjects.ObjectTypes.TASK} droppableId="synquestitasks" />
-
-    let deleteTaskBtn = null
-    if (this.props.isEditing) {
-      deleteTaskBtn = <Button onClick={this.removeTask.bind(this)} variant="outlined">
-        Delete
-      </Button>
-    }
-
     return (
       <DragDropContext onDragEnd={this.onDragEnd}>
         <div className="synquestiComponentContainer">
@@ -198,7 +188,13 @@ class Task extends Component {
           </form>
 
           <div className="synquestiTaskOptions">
-            {taskTypes}
+            {
+              <TaskList 
+                dragEnabled={true}
+                taskList={Object.values(dbObjects.TaskTypes)}
+                itemType={dbObjects.ObjectTypes.TASK} 
+                droppableId="synquestitasks" />
+            }
           </div>
 
           <div className="synquestitaskListContainer">
@@ -219,7 +215,12 @@ class Task extends Component {
             <Button onClick={this.onChangeTaskSettings.bind(this)} variant="outlined">
               {this.props.isEditing ? "Save" : "Create"}
             </Button>
-            {deleteTaskBtn}
+            {
+              (this.props.isEditing) ?
+                <Button onClick={this.removeTask.bind(this)} variant="outlined">
+                  Delete
+                </Button> : null
+            }
           </div>
         </div>
       </DragDropContext>
