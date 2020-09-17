@@ -34,7 +34,7 @@ const _startMQTT = (config, restart) => {
   mqttClient = mqtt.connect(wsURL)
   last_config = config
 
-  // SUBSCRIBE TO TOPICS
+// SUBSCRIBE TO TOPICS
   const topicObj = {
     task: 'taskEvent',
     command: 'command',
@@ -50,7 +50,7 @@ const _startMQTT = (config, restart) => {
     console.log('Connected to mqtt broker')
   })
 
-  // RESPOND TO TOPICS
+// RESPOND TO TOPICS
   mqttClient.on('message', (topic, message) => {
     switch (topic) {
       case topicObj.motion:
@@ -77,10 +77,6 @@ const _startMQTT = (config, restart) => {
 
 //SEND MESSAGES
 module.exports = {
-  sendMqttMessage(topic, msg) {
-    mqttClient.publish(topic, msg)
-  },
-  startMQTT(config, restart) {
-    _startMQTT(config, restart)
-  }
+  sendMqttMessage(topic, msg) { mqttClient.publish(topic, msg) },
+  startMQTT(config, restart)  { _startMQTT(config, restart) }
 }
