@@ -37,20 +37,28 @@ const textEntryComponent = props => {
       }
 
       let observerMessageString = ''
-      if (componentObject.isCorrect !== 'notApplicable') 
+      if (componentObject.isCorrect !== 'notApplicable')
         observerMessageString = componentObject.isCorrect.toUpperCase() + ' Final answer: ' + textRef.current + ' (' + componentObject.text + ' Answer ' + props.task.correctResponses[0] + ')'
       else
         observerMessageString = 'Final answer: ' + textRef.current + ' (' + componentObject.text + ')'
-      mqtt.broadcastEvents(makeLogObject(taskObject, componentObject, { observerMessage: observerMessageString }))
+
+      mqtt.sendMqttMessage(
+        'taskEvent',
+        makeLogObject(
+          taskObject,
+          componentObject,
+          { observerMessage: observerMessageString }
+        )
+      )
     }
   }, [])
 
   const checkAnswer = () => {
-    if (props.task.correctResponses === undefined || props.task.correctResponses.length === 0) 
+    if (props.task.correctResponses === undefined || props.task.correctResponses.length === 0)
       return "notApplicable"
 
-    props.task.correctResponses.forEach( item => {
-      if (textRef.current.toLowerCase() === item.toLowerCase()) 
+    props.task.correctResponses.forEach(item => {
+      if (textRef.current.toLowerCase() === item.toLowerCase())
         return "correct"
     })
 

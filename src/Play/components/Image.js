@@ -52,7 +52,7 @@ const Image = props => {
 
         AOICount['Background '] = 0
 
-        clicksRef.current.map( click => click.hitAOIs.forEach(aoi => AOICount[aoi]++) )
+        clicksRef.current.map(click => click.hitAOIs.forEach(aoi => AOICount[aoi]++))
 
         const componentObject = {
           uid: uuid(),
@@ -63,14 +63,21 @@ const Image = props => {
         }
 
         let observerMessageString = 'Final answer '
-        componentObject.AOICount.map( (count, i) => {
+        componentObject.AOICount.map((count, i) => {
           observerMessageString += count[0] + ': ' + count[1]
           if (i === componentObject.AOICount.length - 1)
             observerMessageString += ' '
           else
             observerMessageString += ', '
         })
-        mqtt.broadcastEvents(makeLogObject(taskObject, componentObject, { observerMessage: observerMessageString }))
+        mqtt.sendMqttMessage(
+          'taskEvent',
+          makeLogObject(
+            taskObject,
+            componentObject,
+            { observerMessage: observerMessageString }
+          )
+        )
       }
       window.removeEventListener("resize", handleImageLoaded)
     }
@@ -118,9 +125,9 @@ const Image = props => {
         pointInsideAOIs.push(a.name)
     })
 
-    if (pointInsideAOIs.length > 0) 
+    if (pointInsideAOIs.length > 0)
       return pointInsideAOIs
-    else 
+    else
       return ["Background"]
   }
 
@@ -178,7 +185,7 @@ const Image = props => {
 
   return (
     <div className="imagePreviewContainer">
-      <img className={props.task.fullScreenImage ? "fullScreenImage" : "imageCanvas"} 
+      <img className={props.task.fullScreenImage ? "fullScreenImage" : "imageCanvas"}
         src={"/Images/" + props.task.image} alt="" ref={imageRef}
         onLoad={handleImageLoaded} />
       {(imageElement) ? getClickableComponent() : null}

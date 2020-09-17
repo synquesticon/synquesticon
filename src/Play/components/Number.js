@@ -53,7 +53,14 @@ const Number = props => {
         observerMessageString = componentObject.isCorrect.toUpperCase() + ' Final answer: ' + numpadRef.current + ' (' + componentObject.text + ' Answer ' + props.task.correctResponses[0] + '+-' + props.task.correctResponses[1] + ')'
       else
         observerMessageString = 'Final answer: ' + numpadRef.current + ' (' + componentObject.text + ')'
-      mqtt.broadcastEvents(makeLogObject(taskObject, componentObject, { observerMessage: observerMessageString }))
+      mqtt.sendMqttMessage(
+        'taskEvent',
+        makeLogObject(
+          taskObject,
+          componentObject,
+          { observerMessage: observerMessageString }
+        )
+      )
     }
   }, [])
 

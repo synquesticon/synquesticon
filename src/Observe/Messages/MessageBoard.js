@@ -22,7 +22,7 @@ const MessageBoard = props => {
     setCommentDialogOpen(false)
     if (comment !== "") onCommentRecieved(comment)
   }
-  
+
   const onCommentRecieved = comment => {
     db_helper.addNewObserverMessageToDb(new dbObjects.ObserverMessage(window.localStorage.getItem('deviceID'),
       window.localStorage.getItem('deviceRole'),
@@ -31,17 +31,20 @@ const MessageBoard = props => {
       pickedEvent.lineOfData.startTimestamp,
       comment))
 
-    mqtt.broadcastEvents(JSON.stringify({
-      eventType: "COMMENT",
-      observerName: window.localStorage.getItem('deviceID'),
-      observerRole: window.localStorage.getItem('deviceRole'),
-      timestamp: playerUtils.getCurrentTime(),
-      participantId: pickedEvent.participantId,
-      participantLabel: pickedEvent.participantLabel,
-      startTimestamp: pickedEvent.startTimestamp,
-      lineOfData: pickedEvent.lineOfData,
-      comment: comment
-    }))
+    mqtt.sendMqttMessage(
+      'taskEvent',
+      JSON.stringify({
+        eventType: "COMMENT",
+        observerName: window.localStorage.getItem('deviceID'),
+        observerRole: window.localStorage.getItem('deviceRole'),
+        timestamp: playerUtils.getCurrentTime(),
+        participantId: pickedEvent.participantId,
+        participantLabel: pickedEvent.participantLabel,
+        startTimestamp: pickedEvent.startTimestamp,
+        lineOfData: pickedEvent.lineOfData,
+        comment: comment
+      })
+    )
   }
 
   return (

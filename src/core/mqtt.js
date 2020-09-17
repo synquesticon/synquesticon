@@ -4,14 +4,6 @@ const mqtt = require('mqtt')
 let mqttClient = null
 let last_config = null
 
-const topicObj = {
-  task: 'Synquesticon.Task',
-  command: 'command',
-  sessionControl: 'sessionControl',
-  motion: 'motion',
-  eyeTracker: 'RETDataSample'
-}
-
 const onRETData = newMessage => {
   let gazeData = JSON.parse(newMessage)[1]
   store.default.dispatch({
@@ -43,14 +35,23 @@ const _startMQTT = (config, restart) => {
   last_config = config
 
   // SUBSCRIBE TO TOPICS
+  const topicObj = {
+    task: 'taskEvent',
+    command: 'command',
+    sessionControl: 'sessionControl',
+    motion: 'motion',
+    eyeTracker: 'RETDataSample'
+  }
+
   mqttClient.on('connect', () => {
-    for (const topic in topicObj)
+    Object.values(topicObj).forEach( topic =>
       mqttClient.subscribe(topic, err => { if (err) console.log(err) })
+    )
     console.log('Connected to mqtt broker')
   })
 
   // RESPOND TO TOPICS
-  mqttClient.on('message', (topic, message) => {    //When the client connects we subscribe to the topics we want to listen to
+  mqttClient.on('message', (topic, message) => {
     switch (topic) {
       case topicObj.motion:
         eventStore.default.sendMotionData(message)
@@ -64,7 +65,7 @@ const _startMQTT = (config, restart) => {
       case topicObj.command:
         eventStore.default.sendCurrentCommand(message)
         break
-      case topicObj.sessionControl: 
+      case topicObj.sessionControl:
         if (JSON.parse(message).deviceID === window.localStorage.getItem('deviceID'))         //Only respond to the message if the device ID matches our own and the screenID is different so we don't repeat messages endlessly
           eventStore.default.sendSessionControlMsg(JSON.parse(message))
         break
@@ -76,9 +77,6 @@ const _startMQTT = (config, restart) => {
 
 //SEND MESSAGES
 module.exports = {
-  broadcastEvents(msg) {
-    (mqttClient) ? mqttClient.publish(topicObj.task, msg) : console.log("Tried to publish, but MQTT client was null")
-  },
   sendMqttMessage(topic, msg) {
     (mqttClient) ? mqttClient.publish(topic, msg) : console.log("Tried to publish, but MQTT client was null")
   },

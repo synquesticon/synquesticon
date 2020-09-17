@@ -82,7 +82,14 @@ const buttonList = props => {
         })
         observerMessage += stringObject.toString() + ' (' + componentObject.text + ')'
       }
-      mqtt.broadcastEvents(makeLogObject(taskObject, componentObject, { observerMessage: observerMessage }))
+      mqtt.sendMqttMessage(
+        'taskEvent',
+        makeLogObject(
+          taskObject,
+          componentObject,
+          { observerMessage: observerMessage }
+        )
+      )
     }
   }, [])
 
@@ -101,7 +108,14 @@ const buttonList = props => {
       observerMessage: (responseCountArray[id] % 2 === 0 && !props.task.resetResponses) ? "Un-click " + content + " (" + componentObject.text + ")" : content + " (" + componentObject.text + ")"
     }
 
-    mqtt.broadcastEvents(makeLogObject(taskObject, componentObject, eventObject))
+    mqtt.sendMqttMessage(
+      'taskEvent',
+      makeLogObject(
+        taskObject,
+        componentObject,
+        eventObject
+      )
+    )
     isClicked ? responsesArray[id] = content : responsesArray[id] = null
 
     console.log(props.task.correctResponses + " " + responsesArray + " " + responseCountArray)
@@ -145,7 +159,7 @@ const buttonList = props => {
                   <Button
                     content={item[0]}
                     command={item[1]}
-                    commandCallback={ commandObj => props.commandCallback(commandObj)}
+                    commandCallback={commandObj => props.commandCallback(commandObj)}
                     reset={props.task.resetResponses}
                     isSingleChoice={props.task.singleChoice}
                     id={index}
