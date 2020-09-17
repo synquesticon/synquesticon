@@ -23,47 +23,48 @@ const _startMQTT = (config, restart) => {
   if (restart) {
     if (mqttClient)
       mqttClient.end()
-      console.log("restarting mqtt client")
-  } else if (last_config && (last_config.ip === config.ip && last_config.port === config.port)) 
+    console.log("restarting mqtt client")
+  } else if (last_config && (last_config.ip === config.ip && last_config.port === config.port))
     return
 
   let wsURL = config.bUseWSS ? "wss://" : "ws://"
   wsURL += config.ip + ":" + config.port
 
-  //Attempt to connect the client to the mqtt broker
   console.log("Attmpting to connect to the mqtt broker ", wsURL)
   mqttClient = mqtt.connect(wsURL)
   last_config = config
 
-  //When the client connects we subscribe to the topics we want to listen to
-  mqttClient.on('connect', function () {
-    const topicArray = ['Synquesticon.Task','command','sessionControl','motion','RETDataSample']
-    topicArray.forEach( topic => mqttClient.subscribe(topic, err => { if (err) console.log(err)}) )
+  // SUBSCRIBE TO TOPICS
+  mqttClient.on('connect', () => {
+    const topicArray = ['Synquesticon.Task', 'command', 'sessionControl', 'motion', 'RETDataSample']
+    topicArray.forEach(topic => mqttClient.subscribe(topic, err => { if (err) console.log(err) }))
     console.log('Connected to mqtt broker')
   })
 
-  mqttClient.on('message', function (topic, message) {    //When the client connects we subscribe to the topics we want to listen to
-    if (topic === 'Synquesticon.Task') 
+  // RESPOND TO TOPICS
+  mqttClient.on('message', (topic, message) => {    //When the client connects we subscribe to the topics we want to listen to
+    if (topic === 'Synquesticon.Task')
       eventStore.default.sendCurrentMessage(message)
-    else if (topic === 'motion') 
+    else if (topic === 'motion')
       eventStore.default.sendMotionData(message)
-    else if (topic === 'command') 
+    else if (topic === 'command')
       eventStore.default.sendCurrentCommand(message)
-    else if (topic === 'RETDataSample') 
+    else if (topic === 'RETDataSample')
       onRETData(message)
-    else if (topic === 'sessionControl')  {
-        if (JSON.parse(message).deviceID === window.localStorage.getItem('deviceID'))         //Only respond to the message if the device ID matches our own and the screenID is different so we don't repeat messages endlessly
-          eventStore.default.sendSessionControlMsg(JSON.parse(message))
-    } else 
+    else if (topic === 'sessionControl') {
+      if (JSON.parse(message).deviceID === window.localStorage.getItem('deviceID'))         //Only respond to the message if the device ID matches our own and the screenID is different so we don't repeat messages endlessly
+        eventStore.default.sendSessionControlMsg(JSON.parse(message))
+    } else
       console.log("message from unknown topic recieved: ", topic)
   })
 }
 
+//SEND MESSAGES
 module.exports = {
   broadcastEvents(msg) {
     (mqttClient) ? mqttClient.publish("Synquesticon.Task", msg) : console.log("Tried to publish, but MQTT client was null")
   },
-  broadcastMessage(msg, topic) {
+  sendMqttMessage(topic, msg) {
     (mqttClient) ? mqttClient.publish(topic, msg) : console.log("Tried to publish, but MQTT client was null")
   },
   startMQTT(config, restart) {

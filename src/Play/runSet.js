@@ -33,7 +33,8 @@ const runSet = props => {
   }
 
   const nextPressed = (setID, set) => {
-    mqtt.broadcastMessage(
+    mqtt.sendMqttMessage(
+      'sessionControl',
       JSON.stringify({
         type: 'nextTask',
         setID: setID,
@@ -41,7 +42,7 @@ const runSet = props => {
         deviceID: window.localStorage.getItem('deviceID'),
         screenID: store.getState().screenID
       })
-    , 'sessionControl')
+    )
   }
 
   if (task[0].objType === dbObjects.ObjectTypes.SET) {

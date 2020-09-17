@@ -66,15 +66,16 @@ const SessionList = props => {
           participantId: dbID
         })
 
-        mqtt.broadcastMessage(
+        mqtt.sendMqttMessage(
+          'sessionControl',
           JSON.stringify({
-          type: "StartExperiment",
-          taskSet: taskSet,
-          deviceID: window.localStorage.getItem('deviceID'),
-          screenID: store.getState().screenID,
-          participantID: dbID
-        })
-        , 'sessionControl')
+            type: "StartExperiment",
+            taskSet: taskSet,
+            deviceID: window.localStorage.getItem('deviceID'),
+            screenID: store.getState().screenID,
+            participantID: dbID
+          })
+        )
 
         let url = '/play?id=' + selectedTaskSet._id
         url = appendEyeTrackerInfo(url)

@@ -21,10 +21,13 @@ const Observe = props => {
   }, [])
 
   const onPausePlayPressed = () => {
-    mqtt.broadcastMessage(JSON.stringify({
-      commandType: allPaused ? "PAUSE" : "RESUME",
-      participantId: -1
-    }, 'command'))
+    mqtt.sendMqttMessage(
+      'command',
+      JSON.stringify({
+        commandType: allPaused ? "PAUSE" : "RESUME",
+        participantId: -1
+      })
+    )
     setAllPaused(prevAllPaused => !prevAllPaused)
   }
 
@@ -32,7 +35,7 @@ const Observe = props => {
     const mqttMessage = JSON.parse(eventStore.getCurrentMessage())
     const checkExistedParticipant = participants.filter(participant => participant.participantId === mqttMessage.session.uid)
 
-    if (checkExistedParticipant.length !== 1) { 
+    if (checkExistedParticipant.length !== 1) {
       participants.push({
         participantId: mqttMessage.session.uid,
         participantLabel: mqttMessage.user.name,
@@ -58,7 +61,7 @@ const Observe = props => {
       borderRadius: 10, borderColor: '#BDBDBD', borderWidth: 'thin', borderRightStyle: 'solid'
     }}
       onClick={onPausePlayPressed}>
-      {(allPaused) ? "Pause all participants": "Resume all participants"}
+      {(allPaused) ? "Pause all participants" : "Resume all participants"}
       {(allPaused) ? <PauseIcon fontSize="large" /> : <PlayIcon fontSize="large" />}
     </Button>
     return playPauseButton
@@ -86,8 +89,8 @@ const Observe = props => {
           </div>
         </div>
       </div>
-      <MqttMessage/>
-      <div className="ObserverMessageLog"> 
+      <MqttMessage />
+      <div className="ObserverMessageLog">
         <MessageBoard messages={(participants.length > 0) ? participants[currentParticipant].messagesQueue : []} />
       </div>
     </div>

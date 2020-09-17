@@ -197,7 +197,7 @@ const Play = props => {
             const msgArray = command[1].split(';;')
             msgArray.forEach( msg => {
               msg = msg.split('@')
-              mqtt.broadcastMessage(msg[0], msg[1])  // broadcastMessage(message, topic)
+              mqtt.sendMqttMessage(msg[1], msg[0])  // sendMqttMessage(topic, message)
             })
           }
           break
@@ -219,7 +219,7 @@ const Play = props => {
       c: e.rotationRate.gamma
     }
     motionObj.timestamp = Date.now()
-    mqtt.broadcastMessage(JSON.stringify(motionObj), "motion")
+    mqtt.sendMqttMessage('motion', JSON.stringify(motionObj))
   }
 
   if (taskSet !== null) {
