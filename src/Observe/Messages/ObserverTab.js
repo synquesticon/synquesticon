@@ -22,10 +22,10 @@ const ObserverTab = props => {
   const onButtonPressed = evt => {
     evt.stopPropagation()
     evt.preventDefault()
-    mqtt.broadcastCommands(JSON.stringify({
+    mqtt.broadcastMessage(JSON.stringify({
       commandType: !isParticipantPaused ? "PAUSE" : "RESUME",
       participantId: props.participantObject.participantID
-    }))
+    }), 'command')
 
     if (!allPaused)
       setIsParticipantPaused(!isParticipantPaused)

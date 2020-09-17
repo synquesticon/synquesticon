@@ -11,7 +11,7 @@ import * as mqtt from '../../../core/mqtt'
 
 const mqttDialog = (props) => {
   const [useWSS, setUseWSS] = useState(true)
-  const [ipAddress, setIpAddress] = useState('127.0.0.1')
+  const [ipAddress, setIpAddress] = useState('syn.ife.no/mqttproxy')
   const [port, setPort] = useState('9001')
 
   const mqttObject = {

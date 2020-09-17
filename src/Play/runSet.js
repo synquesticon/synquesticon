@@ -16,34 +16,33 @@ const runSet = props => {
   const [task, setTask] = useState(() => getTask(props.set.data))
 
   useEffect(() => {
-    eventStore.addControlMsgListener(onControlMsg)
-    return () => eventStore.removeControlMsgListener(onControlMsg)
+    eventStore.setSessionControlListener("on", onSessionControlMsg)
+    return () => eventStore.setSessionControlListener("off", onSessionControlMsg)
   }, [])
 
-  const onControlMsg = payload => {
-    if (payload.type === 'nextTask' && payload.setID === props.set._id) 
+  const onSessionControlMsg = payload => {
+    if (payload.type === 'nextTask' && payload.setID === props.set._id)
       startNextTask(payload.set)
   }
 
   const startNextTask = (taskSet = task[1]) => {
-    if (taskSet.length > 0) 
+    if (taskSet.length > 0)
       setTask(getTask(taskSet))
     else
       props.onFinished()
   }
 
   const nextPressed = (setID, set) => {
-    console.log("mqtt nextTask")
-    mqtt.broadcastMultipleScreen(JSON.stringify({
-      type: "nextTask",
-      setID: setID,
-      set: set,
-      deviceID: window.localStorage.getItem('deviceID'),
-      screenID: store.getState().screenID
-    }))
+    mqtt.broadcastMessage(
+      JSON.stringify({
+        type: 'nextTask',
+        setID: setID,
+        set: set,
+        deviceID: window.localStorage.getItem('deviceID'),
+        screenID: store.getState().screenID
+      })
+    , 'sessionControl')
   }
-
-
 
   if (task[0].objType === dbObjects.ObjectTypes.SET) {
     let familyTree = props.familyTree.slice()
@@ -54,7 +53,7 @@ const runSet = props => {
       set={task[0]}
       parentID={props.set._id}
       onFinished={startNextTask}
-      commandCallback={ (commandObj) => props.commandCallback(commandObj)} 
+      commandCallback={(commandObj) => props.commandCallback(commandObj)}
     />
   } else {
     return <div className="page" key={uuid()}>
@@ -67,7 +66,7 @@ const runSet = props => {
           parentSet={props.familyTree[props.familyTree.length - 1]}
           renderKey={task._id + "_" + task}
           nextPressed={nextPressed}
-          commandCallback={ (commandObj) => props.commandCallback(commandObj)} 
+          commandCallback={(commandObj) => props.commandCallback(commandObj)}
         />
       </div>
     </div>

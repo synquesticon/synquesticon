@@ -18,8 +18,8 @@ const SessionList = props => {
   useEffect(() => {
     //save data into DB before closing
     db_helper.queryTasksFromDb(db_objects.ObjectTypes.SET, ["experiment"], "OR", dbTaskSetCallback)
-    eventStore.addControlMsgListener(onControlMsg)
-    return () => { eventStore.removeControlMsgListener(onControlMsg) }
+    eventStore.setSessionControlListener("on", onSessionControlMsg)
+    return () => { eventStore.setSessionControlListener("off", onSessionControlMsg) }
   }, [])
 
   //query all tasksets with experiment tag
@@ -66,13 +66,15 @@ const SessionList = props => {
           participantId: dbID
         })
 
-        mqtt.broadcastMultipleScreen(JSON.stringify({
+        mqtt.broadcastMessage(
+          JSON.stringify({
           type: "StartExperiment",
           taskSet: taskSet,
           deviceID: window.localStorage.getItem('deviceID'),
           screenID: store.getState().screenID,
           participantID: dbID
-        }))
+        })
+        , 'sessionControl')
 
         let url = '/play?id=' + selectedTaskSet._id
         url = appendEyeTrackerInfo(url)
@@ -106,8 +108,7 @@ const SessionList = props => {
     })
   }
 
-  const onControlMsg = payload => {
-    console.log(payload);
+  const onSessionControlMsg = payload => {
     //Was checking if multipe screen. With the new change we should just check for same device ID instead
     if (window.localStorage.getItem('deviceID') === payload.deviceID && payload.type === 'StartExperiment') {
       //if(store.getState().multipleScreens && payload.type === 'StartExperiment'){

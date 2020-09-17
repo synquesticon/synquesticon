@@ -96,7 +96,7 @@ const Play = props => {
         showHeader: true,
         showFooter: true
       })
-      eventStore.removeNewCommandListener(onNewCommandEvent)
+      eventStore.setNewCommandListener("off", onNewCommandEvent)
       window.removeEventListener('devicemotion', handleDeviceMotionEvent)
     }
   }, [])
@@ -219,11 +219,11 @@ const Play = props => {
       c: e.rotationRate.gamma
     }
     motionObj.timestamp = Date.now()
-    mqtt.broadcastDeviceMotion(JSON.stringify(motionObj))
+    mqtt.broadcastMessage(JSON.stringify(motionObj), "motion")
   }
 
   if (taskSet !== null) {
-    eventStore.addNewCommandListener(onNewCommandEvent)
+    eventStore.setNewCommandListener("on", onNewCommandEvent)
 
     return <div style={{ backgroundColor: props.theme.palette.type === "light" ? props.theme.palette.primary.main : props.theme.palette.primary.dark }} className="page" ref={frameDiv}>
       {<RunSet

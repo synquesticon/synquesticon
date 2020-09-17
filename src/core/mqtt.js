@@ -1,57 +1,18 @@
 const store = require('./store')
 const eventStore = require('./eventStore')
-const playerUtils = require('./player_utility_functions')
 const mqtt = require('mqtt')
 let mqttClient = null
 let last_config = null
 
-//Publication topics
-const SynquesticonTopic = "Synquesticon.Task"
-const SynquesticonCommandTopic = "Synquesticon.Command"
-const SynquesticonMultipleScreenTopic = "Synquesticon.MultipleScreen"
-const RemoteEyeTrackingTopic = "RETDataSample"
-const DeviceMotionTopic = "motion"
-
-const onCommandEvent = message => {
-  eventStore.default.setCurrentCommand(message)
-  eventStore.default.emitNewCommand()
-}
-
-const onMQTTEvent = message => {
-  if (message) {
-    eventStore.default.setCurrentMessage(message)
-    eventStore.default.emitMQTTEvent()
-  }
-}
-
-const onMotionData = message => {
-  if (message) {
-    eventStore.default.setMotionData(message)
-    eventStore.default.emitMotionData()
-  }
-}
-
-const onMultipleScreenEvent = message => {
-  if (message) {
-    //Only respond to the message if the device ID matches our own and the screenID is different so we don't repeat messages endlessly
-    if (JSON.parse(message).deviceID === window.localStorage.getItem('deviceID'))
-      eventStore.default.emitMultipleScreenEvent(JSON.parse(message))
-  }
-}
-
 const onRETData = newMessage => {
-  let message = JSON.parse(newMessage)
-  let gazeData = message[1]
-  let gazeX = gazeData[12]
-  let gazeY = gazeData[13]
-
+  let gazeData = JSON.parse(newMessage)[1]
   store.default.dispatch({
     type: 'SET_GAZE_DATA',
-    tracker: message[0],
+    tracker: JSON.parse(newMessage)[0],
     gazeData: {
-      timestamp: playerUtils.getCurrentTime(),
-      locX: gazeX,
-      locY: gazeY,
+      timestamp: Date.now(),
+      locX: gazeData[12],
+      locY: gazeData[13],
       leftPupilRadius: gazeData[0] / 2,
       rightPupilRadius: gazeData[3] / 2
     }
@@ -60,8 +21,9 @@ const onRETData = newMessage => {
 
 const _startMQTT = (config, restart) => {
   if (restart) {
-    console.log("restarting mqtt client")
-    if (mqttClient) {mqttClient.end()}
+    if (mqttClient)
+      mqttClient.end()
+      console.log("restarting mqtt client")
   } else if (last_config && (last_config.ip === config.ip && last_config.port === config.port)) 
     return
 
@@ -75,42 +37,31 @@ const _startMQTT = (config, restart) => {
 
   //When the client connects we subscribe to the topics we want to listen to
   mqttClient.on('connect', function () {
-    console.log("Connected to mqtt broker")
-    mqttClient.subscribe(SynquesticonTopic, function (err) { if (err) {console.log(err)} })
-    mqttClient.subscribe(SynquesticonCommandTopic, function (err) { if (err) { console.log(err) } })
-    mqttClient.subscribe(SynquesticonMultipleScreenTopic, function (err) { if (err) { console.log(err) } })
-    mqttClient.subscribe(RemoteEyeTrackingTopic, function (err) { if (err) { console.log(err) } })
-    mqttClient.subscribe(DeviceMotionTopic, function (err) { if (err) { console.log(err) } })
+    const topicArray = ['Synquesticon.Task','command','sessionControl','motion','RETDataSample']
+    topicArray.forEach( topic => mqttClient.subscribe(topic, err => { if (err) console.log(err)}) )
+    console.log('Connected to mqtt broker')
   })
 
   mqttClient.on('message', function (topic, message) {    //When the client connects we subscribe to the topics we want to listen to
-    if (topic === SynquesticonTopic) 
-      onMQTTEvent(message)
-    else if (topic === DeviceMotionTopic) 
-      onMotionData(message)      
-    else if (topic === SynquesticonCommandTopic) 
-      onCommandEvent(message)
-    else if (topic === RemoteEyeTrackingTopic) 
+    if (topic === 'Synquesticon.Task') 
+      eventStore.default.sendCurrentMessage(message)
+    else if (topic === 'motion') 
+      eventStore.default.sendMotionData(message)
+    else if (topic === 'command') 
+      eventStore.default.sendCurrentCommand(message)
+    else if (topic === 'RETDataSample') 
       onRETData(message)
-    else if (topic === SynquesticonMultipleScreenTopic) 
-      onMultipleScreenEvent(message)
-    else 
+    else if (topic === 'sessionControl')  {
+        if (JSON.parse(message).deviceID === window.localStorage.getItem('deviceID'))         //Only respond to the message if the device ID matches our own and the screenID is different so we don't repeat messages endlessly
+          eventStore.default.sendSessionControlMsg(JSON.parse(message))
+    } else 
       console.log("message from unknown topic recieved: ", topic)
   })
 }
 
 module.exports = {
   broadcastEvents(msg) {
-    (mqttClient) ? mqttClient.publish(SynquesticonTopic, msg) : console.log("Tried to publish, but MQTT client was null")
-  },
-  broadcastCommands(msg) {
-    (mqttClient) ? mqttClient.publish(SynquesticonCommandTopic, msg) : console.log("Tried to publish, but MQTT client was null")
-  },
-  broadcastMultipleScreen(msg) {
-    (mqttClient) ? mqttClient.publish(SynquesticonMultipleScreenTopic, msg) : console.log("Tried to publish, but MQTT client was null")
-  },
-  broadcastDeviceMotion(msg) {
-    (mqttClient) ? mqttClient.publish(DeviceMotionTopic, msg) : console.log("Tried to publish, but MQTT client was null")
+    (mqttClient) ? mqttClient.publish("Synquesticon.Task", msg) : console.log("Tried to publish, but MQTT client was null")
   },
   broadcastMessage(msg, topic) {
     (mqttClient) ? mqttClient.publish(topic, msg) : console.log("Tried to publish, but MQTT client was null")

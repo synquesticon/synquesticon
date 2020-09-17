@@ -1,10 +1,10 @@
 const EventEmitter = require('events')
-const NEW_MESSAGE_EVENT = "MQTTEvent"
-const NEW_MOTION_EVENT = "motionEvent"
-const NEW_PARTICIPANT_EVENT = "ParticipantEvent"
-const NEW_REMOTE_TRACKER_EVENT = "NewRemoteTrackerEvent"
-const NEW_COMMAND_EVENT = "NewCommandEvent"
-const MULTIPLE_SCREEN_EVENT = "MuiltipleScreenEvent"
+const MESSAGE_EVENT         = "MQTTEvent"
+const MOTION_EVENT          = "MotionEvent"
+const PARTICIPANT_EVENT     = "ParticipantEvent"
+const REMOTE_TRACKER_EVENT  = "NewRemoteTrackerEvent"
+const COMMAND_EVENT         = "CommandEvent"
+const SESSION_CONTROL_EVENT = "SessionControlEvent"
 
 class CEventStore extends EventEmitter {
   constructor() {
@@ -15,98 +15,86 @@ class CEventStore extends EventEmitter {
     this.receivedRemoteTrackers = []
   }
 
-	addEventListener(callback) {
-		this.addListener(NEW_MESSAGE_EVENT, callback)
+//MESSAGE_EVENT
+  setEventListener(status, callback) {
+    (status === "on") 
+    ? this.addListener(MESSAGE_EVENT, callback)
+    : this.removeListener(MESSAGE_EVENT, callback)
   }
 
-	removeEventListener(callback) {
-		this.removeListener(NEW_MESSAGE_EVENT, callback)
-  }
-  
-	emitMQTTEvent() {
-		this.emit(NEW_MESSAGE_EVENT)
-  }
-  
-  
-  addMotionListener(callback) {
-		this.addListener(NEW_MOTION_EVENT, callback)
-  }
-
-  removeMotionListener(callback) {
-		this.removeListener(NEW_MOTION_EVENT, callback)
-  }
-
-  emitMotionData() {
-		this.emit(NEW_MOTION_EVENT)
-	}
-
-  setMotionData(args){
+  sendCurrentMessage(args) {
 		this.currentMessage = args
-  }
-  
-  addNewParticipantListener(callback) {
-    this.addListener(NEW_PARTICIPANT_EVENT, callback)
+    this.emit(MESSAGE_EVENT)
   }
 
-  removeNewParticipantListener(callback) {
-    this.removeListener(NEW_PARTICIPANT_EVENT, callback)
-  }
-
-  emitNewParticipant() {
-    this.emit(NEW_PARTICIPANT_EVENT)
-  }
-
-  addNewCommandListener(callback) {
-    this.addListener(NEW_COMMAND_EVENT, callback)
-  }
-
-  removeNewCommandListener(callback) {
-    this.removeListener(NEW_COMMAND_EVENT, callback)
-  }
-
-  emitNewCommand() {
-    this.emit(NEW_COMMAND_EVENT)
-  }
-
-  addControlMsgListener(callback) {
-    this.addListener(MULTIPLE_SCREEN_EVENT, callback)
-  }
-
-  removeControlMsgListener(callback) {
-    this.removeListener(MULTIPLE_SCREEN_EVENT, callback)
-  }
-
-  emitMultipleScreenEvent(payload) {
-    this.emit(MULTIPLE_SCREEN_EVENT, payload)
-  }
-
-  addNewRemoteTrackerListener(callback) {
-    this.addListener(NEW_REMOTE_TRACKER_EVENT, callback)
-  }
-
-  removeNewRemoteTrackerListener(callback) {
-    this.removeListener(NEW_REMOTE_TRACKER_EVENT, callback)
-  }
-
-  emitNewRemoteTrackerListener() {
-    if (!this.receivedRemoteTrackers.includes(this.currentRemoteTracker)) 
-      this.emit(NEW_REMOTE_TRACKER_EVENT)
-  }
-
-	getCurrentMessage(){
+  getCurrentMessage(){
 		return this.currentMessage
-	}
+  }
 
-  setCurrentMessage(args){
-		this.currentMessage = args
+//MOTION_EVENT
+  setMotionListener(status, callback) {
+    (status === "on") 
+      ? this.addListener(MOTION_EVENT, callback)
+      : this.removeListener(MOTION_EVENT, callback)
+  }
+
+  sendMotionData(args){
+    this.currentMessage = args
+    this.emit(MOTION_EVENT)
+  }
+
+//SESSION_CONTROL_EVENT
+  setSessionControlListener(status, callback) {
+    (status === "on")
+      ? this.addListener(SESSION_CONTROL_EVENT, callback)
+      : this.removeListener(SESSION_CONTROL_EVENT, callback)
+  }
+
+  sendSessionControlMsg(payload) {
+    this.emit(SESSION_CONTROL_EVENT, payload)
+  }
+
+//COMMAND_EVENT
+  setNewCommandListener(status, callback) {
+    (status === "on")
+      ? this.addListener(COMMAND_EVENT, callback)
+      : this.removeListener(COMMAND_EVENT, callback)
+  }
+
+  sendCurrentCommand(args){
+    this.currentCommand = args
+    this.emit(COMMAND_EVENT)
   }
 
   getCurrentCommand(){
     return this.currentCommand
   }
 
-  setCurrentCommand(args){
-    this.currentCommand = args
+//PARTICIPANT_EVENT
+  addNewParticipantListener(callback) {
+    this.addListener(PARTICIPANT_EVENT, callback)
+  }
+
+  removeNewParticipantListener(callback) {
+    this.removeListener(PARTICIPANT_EVENT, callback)
+  }
+
+  emitNewParticipant() {
+    this.emit(PARTICIPANT_EVENT)
+  }
+
+//REMOTE_TRACKER_EVENT
+  addNewRemoteTrackerListener(callback) {
+    this.addListener(REMOTE_TRACKER_EVENT, callback)
+  }
+
+  removeNewRemoteTrackerListener(callback) {
+    this.removeListener(REMOTE_TRACKER_EVENT, callback)
+  }
+
+  emitNewRemoteTrackerListener() {
+    if (!this.receivedRemoteTrackers.includes(this.currentRemoteTracker)) 
+      this.emit(REMOTE_TRACKER_EVENT)
   }
 
   getCurrentRemoteTracker(){

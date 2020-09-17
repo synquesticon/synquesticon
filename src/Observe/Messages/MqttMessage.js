@@ -15,8 +15,8 @@ const mqttMessage = props => {
             tag: "no tag"
         })
     useEffect(() => {
-        eventStore.addMotionListener(onNewEvent)
-        return () => eventStore.removeMotionListener(onNewEvent)
+        eventStore.setMotionListener("on", onNewEvent)
+        return () => eventStore.setMotionListener("off", onNewEvent)
     }, [])
 
     const onNewEvent = () => {

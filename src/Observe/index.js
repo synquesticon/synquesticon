@@ -16,15 +16,15 @@ const Observe = props => {
   const [allPaused, setAllPaused] = useState(false)
 
   useEffect(() => {
-    eventStore.addEventListener(onNewEvent)
-    return () => eventStore.removeEventListener(onNewEvent)
+    eventStore.setEventListener("on", onNewEvent)
+    return () => eventStore.setEventListener("off", onNewEvent)
   }, [])
 
   const onPausePlayPressed = () => {
-    mqtt.broadcastCommands(JSON.stringify({
+    mqtt.broadcastMessage(JSON.stringify({
       commandType: allPaused ? "PAUSE" : "RESUME",
       participantId: -1
-    }))
+    }, 'command'))
     setAllPaused(prevAllPaused => !prevAllPaused)
   }
 
