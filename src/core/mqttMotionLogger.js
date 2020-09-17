@@ -10,7 +10,7 @@ const DeviceMotionSchema = new Schema(
         },
         timestamp: String,
         startTime: String,
-        recourdingCount: String,
+        recordingCount: String,
         sampleCount: String,
         position: {
             x: String,
