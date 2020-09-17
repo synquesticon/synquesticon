@@ -78,7 +78,7 @@ const _startMQTT = (config, restart) => {
 //SEND MESSAGES
 module.exports = {
   sendMqttMessage(topic, msg) {
-    (mqttClient) ? mqttClient.publish(topic, msg) : console.log("Tried to publish, but MQTT client was null")
+    mqttClient.publish(topic, msg)
   },
   startMQTT(config, restart) {
     _startMQTT(config, restart)
