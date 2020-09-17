@@ -4,6 +4,14 @@ const mqtt = require('mqtt')
 let mqttClient = null
 let last_config = null
 
+const topicObject = {
+  task: 'Synquesticon.Task',
+  command: 'command',
+  sessionControl: 'sessionControl',
+  motion: 'motion',
+  eyeTracker: 'RETDataSample'
+}
+
 const onRETData = newMessage => {
   let gazeData = JSON.parse(newMessage)[1]
   store.default.dispatch({
@@ -36,33 +44,40 @@ const _startMQTT = (config, restart) => {
 
   // SUBSCRIBE TO TOPICS
   mqttClient.on('connect', () => {
-    const topicArray = ['Synquesticon.Task', 'command', 'sessionControl', 'motion', 'RETDataSample']
-    topicArray.forEach(topic => mqttClient.subscribe(topic, err => { if (err) console.log(err) }))
+    for (const topic in topicObject)
+      mqttClient.subscribe(topic, err => { if (err) console.log(err) })
     console.log('Connected to mqtt broker')
   })
 
   // RESPOND TO TOPICS
   mqttClient.on('message', (topic, message) => {    //When the client connects we subscribe to the topics we want to listen to
-    if (topic === 'Synquesticon.Task')
-      eventStore.default.sendCurrentMessage(message)
-    else if (topic === 'motion')
-      eventStore.default.sendMotionData(message)
-    else if (topic === 'command')
-      eventStore.default.sendCurrentCommand(message)
-    else if (topic === 'RETDataSample')
-      onRETData(message)
-    else if (topic === 'sessionControl') {
-      if (JSON.parse(message).deviceID === window.localStorage.getItem('deviceID'))         //Only respond to the message if the device ID matches our own and the screenID is different so we don't repeat messages endlessly
-        eventStore.default.sendSessionControlMsg(JSON.parse(message))
-    } else
-      console.log("message from unknown topic recieved: ", topic)
+    switch (topic) {
+      case topicObject.motion:
+        eventStore.default.sendMotionData(message)
+        break
+      case topicObject.eyeTracker:
+        onRETData(message)
+        break
+      case topicObject.task:
+        eventStore.default.sendCurrentMessage(message)
+        break
+      case topicObject.command:
+        eventStore.default.sendCurrentCommand(message)
+        break
+      case topicObject.sessionControl: 
+        if (JSON.parse(message).deviceID === window.localStorage.getItem('deviceID'))         //Only respond to the message if the device ID matches our own and the screenID is different so we don't repeat messages endlessly
+          eventStore.default.sendSessionControlMsg(JSON.parse(message))
+        break
+      default:
+        console.log("message from unknown topic recieved: ", topic)
+    }
   })
 }
 
 //SEND MESSAGES
 module.exports = {
   broadcastEvents(msg) {
-    (mqttClient) ? mqttClient.publish("Synquesticon.Task", msg) : console.log("Tried to publish, but MQTT client was null")
+    (mqttClient) ? mqttClient.publish(topicObject.task, msg) : console.log("Tried to publish, but MQTT client was null")
   },
   sendMqttMessage(topic, msg) {
     (mqttClient) ? mqttClient.publish(topic, msg) : console.log("Tried to publish, but MQTT client was null")
