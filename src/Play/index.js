@@ -164,11 +164,12 @@ const Play = props => {
     }
   }
 
-  let count = 0
   const motionObj = {
     user: { uid: uuid() },
     timestamp: 0,
-    count: count,
+    startTime: 0,
+    recordingCount: 0,
+    sampleCount: 0,
     position: {},
     rotation: {},
     tag: ''
@@ -180,9 +181,13 @@ const Play = props => {
       command[1] = command[1] ? command[1] : commandObj.content
       switch (command[0]) {
         case "recordMotion":
-          commandObj.isClicked
-            ? window.addEventListener('devicemotion', handleDeviceMotionEvent)
-            : window.removeEventListener('devicemotion', handleDeviceMotionEvent)
+          if (commandObj.isClicked) {
+                window.addEventListener('devicemotion', handleDeviceMotionEvent)
+                motionObj.startTime = Date.now()
+                motionObj.recordingCount++
+                motionObj.sampleCount = 0
+          } else 
+            window.removeEventListener('devicemotion', handleDeviceMotionEvent)
           break
           case "tag":
             motionObj.tag = commandObj.isClicked ? command[1] : null
@@ -202,7 +207,7 @@ const Play = props => {
   }
 
   const handleDeviceMotionEvent = e => {
-    motionObj.count = count++
+    motionObj.sampleCount++
     motionObj.position = {
       x: e.acceleration.x,
       y: e.acceleration.y,

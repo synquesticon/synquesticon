@@ -7,7 +7,9 @@ const mqttMessage = props => {
         {
             user: { uid: 0 },
             timestamp: 0,
-            count: 0,
+            startTime: 0,
+            recordingCount: 0,
+            sampleCount: 0,
             position: { x: 0, y: 0, z: 0 },
             rotation: { a: 0, b: 0, c: 0 },
             tag: "no tag"
@@ -27,8 +29,9 @@ const mqttMessage = props => {
         <>
             <div>tag: {mqttMessage.tag}</div>
             <div>user: {mqttMessage.user.uid}</div>
-            <div>time: {mqttMessage.timestamp}</div>
-            <div>count: {mqttMessage.count}</div>
+            <div>elapsed: {((mqttMessage.timestamp - mqttMessage.startTime)/1000).toFixed(1)}</div>
+            <div>recordingCcount: {mqttMessage.recordingCount}</div>
+            <div>sampleCount: {mqttMessage.sampleCount}</div>
             <div>x: {mqttMessage.position.x}</div>
             <div>y: {mqttMessage.position.y}</div>
             <div>z: {mqttMessage.position.z}</div>
