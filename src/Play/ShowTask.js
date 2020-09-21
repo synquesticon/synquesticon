@@ -24,17 +24,18 @@ const ShowTask = props => {
         switch (item.objType) {
           case dbObjects.TaskTypes.MCHOICE.type:
             return <Suspense key={uuid()} fallback={<div></div>}><Button className="itemContainer"
-              key={uuid()}
-              task={item}
-              tags={props.task.tags}
-              parentSet={props.task.name}
-              taskID={props.task._id}
-              familyTree={props.familyTree}
-              objType={item.objType}
-              correctResponses={item.correctResponses}
-              image={item.image}
-              displayText={item.displayText}
-              commandCallback={ (commandObj) => props.commandCallback(commandObj)}
+              key = { uuid() }
+              task = { item}
+              tags = { props.task.tags }
+              parentSet = { props.task.name }
+              taskID = { props.task._id }
+              familyTree = { props.familyTree }
+              objType = { item.objType }
+              correctResponses = { item.correctResponses }
+              image = { item.image }
+              displayText = { item.displayText }
+              logCallback = { logObj => props.logCallback(logObj) }
+              commandCallback = { commandObj => props.commandCallback(commandObj)}
             />
             </Suspense>
           case dbObjects.TaskTypes.INSTRUCTION.type:

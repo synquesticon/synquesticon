@@ -49,25 +49,27 @@ const runSet = props => {
     let familyTree = props.familyTree.slice()
     familyTree.push(task[0].name)
     return <RunSet
-      key={uuid()}
-      familyTree={familyTree}
-      set={task[0]}
-      parentID={props.set._id}
-      onFinished={startNextTask}
-      commandCallback={(commandObj) => props.commandCallback(commandObj)}
+      key = { uuid() }
+      familyTree = { familyTree }
+      set = { task[0] }
+      parentID = { props.set._id }
+      onFinished = { startNextTask }
+      logCallback = { logObj => props.logCallback(logObj) }
+      commandCallback = { commandObj => props.commandCallback(commandObj) }
     />
   } else {
     return <div className="page" key={uuid()}>
       <div className="mainDisplay">
         <ShowTask key={uuid()}
-          setID={props.set._id}
-          familyTree={props.familyTree}
-          task={task[0]}
-          set={task[1]}
-          parentSet={props.familyTree[props.familyTree.length - 1]}
-          renderKey={task._id + "_" + task}
-          nextPressed={nextPressed}
-          commandCallback={(commandObj) => props.commandCallback(commandObj)}
+          setID = { props.set._id }
+          familyTree = { props.familyTree }
+          task = { task[0] }
+          set  = { task[1] }
+          parentSet = { props.familyTree[props.familyTree.length - 1] }
+          renderKey = { task._id + "_" + task }
+          nextPressed = { nextPressed }
+          logCallback = { logObj => props.logCallback(logObj) }
+          commandCallback = { commandObj => props.commandCallback(commandObj)}
         />
       </div>
     </div>

@@ -1,40 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { Typography } from '@material-ui/core'
-import mqtt from '../../core/mqtt'
 import Button from './ButtonElement'
 import store from '../../core/store'
-import * as playerUtils from '../../core/player_utility_functions'
 import makeLogObject from '../../core/makeLogObject'
-import uuid from 'react-uuid'
 
 const buttonList = props => {
   const textRef = React.createRef()
   let [clickedButton, setClickedButton] = useState(null)
   let [responseCountArray, setResponseCountArray] = useState(new Array(props.task.responses.length).fill(0))
   let [responsesArray, setResponsesArray] = useState(new Array(props.task.responses.length).fill(null))
-
-  let buttonVariant = null
-  if (props.task.resetResponses)
-    buttonVariant = "RESET_BUTTON"
-  else if (props.task.singleChoice)
-    buttonVariant = "SINGLE_CHOICE"
-  else
-    buttonVariant = "MULTIPLE_CHOICE"
-
-  const taskObject = {
-    uid: props.taskID,
-    name: props.parentSet,
-    tags: props.tags
-  }
-
-  const componentObject = {
-    uid: uuid(),
-    type: "BUTTON",
-    variant: buttonVariant,
-    text: props.displayText,
-    correctResponses: props.correctResponses,
-    responseOptions: props.task.responses
-  }
 
   useEffect(() => {
     store.dispatch({
@@ -47,79 +21,100 @@ const buttonList = props => {
     })
 
     return () => {
-      if (props.tags.length > 0 && props.tags.includes("setScreenID")) {
-        const screenIDs = responsesArray.filter(response => response !== null)
-        if (screenIDs && screenIDs.length === 1)        //Update the local screenID
-          store.dispatch({
-            type: 'SET_MULTISCREEN',
-            multipleScreens: true,
-            screenID: screenIDs[0].toString()
-          })
-      }
-
-      let observerMessage = ''
-      componentObject.responseCountArray = responseCountArray
-
-      if (!props.task.resetResponses) {
-        componentObject.responsesArray = responsesArray
-        componentObject.isCorrect =
-          (props.task.correctResponses && props.task.correctResponses.length !== 0)
-            ? arrayEquals(props.task.correctResponses, responsesArray) ? "correct" : "incorrect"
-            : "notApplicable"
-
-        observerMessage = (componentObject.isCorrect !== 'notApplicable')
-          ? componentObject.isCorrect.toUpperCase() + ' Final answer: ' + responsesArray.filter(el => el !== null).toString() + ' (' + componentObject.text + 'Answer ' + props.task.correctResponses.toString() + ')'
-          : 'Final answer: ' + responsesArray.filter(el => el !== null).toString() + ' (' + componentObject.text + ')'
-      } else {
-        componentObject.responsesArray = undefined
-        componentObject.isCorrect = undefined
-        observerMessage += 'Final answer '
-
-        let stringObject = []
-        componentObject.responseOptions.map((opt, i) => {
-          if (!opt.includes('//') && !opt.includes('\\n'))
-            stringObject.push(' ' + componentObject.responseOptions[i] + ' : ' + componentObject.responseCountArray[i])
-        })
-        observerMessage += stringObject.toString() + ' (' + componentObject.text + ')'
-      }
-      mqtt.sendMqttMessage(
-        'taskEvent',
+      props.logCallback(
         makeLogObject(
-          taskObject,
-          componentObject,
-          { observerMessage: observerMessage }
+          props,
+          getComponentData(),
+          getComponentVariant()
         )
       )
+      if (props.tags.length > 0 && props.tags.includes("setScreenID"))
+        setScreenID()
     }
   }, [])
 
-  const logElementData = (id, isClicked, content) => {
+  const setScreenID = () => {
+    const screenIDs = responsesArray.filter(response => response !== null)
+    if (screenIDs && screenIDs.length === 1)        //Update the local screenID
+      store.dispatch({
+        type: 'SET_MULTISCREEN',
+        multipleScreens: true,
+        screenID: screenIDs[0].toString()
+      })
+  }
+
+  const getComponentData = () => {
+    const data = {}
+    data.eventType = 'COMPONENT'
+    data.responseCountArray = responseCountArray
+
+    if (!props.task.resetResponses) {   //check if the button is an auto-resetting button
+      data.responsesArray = responsesArray
+      data.isCorrect =
+        (props.task.correctResponses && props.task.correctResponses.length !== 0)
+          ? arrayEquals(props.task.correctResponses, responsesArray)
+            ? "correct"
+            : "incorrect"
+          : "notApplicable"
+
+      data.observerMessage = (data.isCorrect !== 'notApplicable')
+        ? data.isCorrect.toUpperCase()
+          + ' Final answer: '
+          + responsesArray.filter(el => el !== null).toString()
+          + ' (' + props.displayText + 'Answer '
+          + props.task.correctResponses.toString() + ')'
+        : 'Final answer: '
+          + responsesArray.filter(el => el !== null).toString()
+          + ' (' + props.displayText + ')'
+    } else {    // Button is an auto-reset button
+      data.responsesArray = undefined
+      data.isCorrect = undefined
+      data.observerMessage = 'Final answer '
+
+      let stringObject = []
+      props.task.responses.map( (opt, i) => {
+        if (!opt.includes('//') && !opt.includes('\\n'))
+          stringObject.push(' ' + opt + ' : ' + data.responseCountArray[i])
+      })
+      data.observerMessage += stringObject.toString() + ' (' + props.displayText + ')'
+    }
+    return data
+  }
+
+  const clickCallback = (id, isClicked, content) => {
     clickedButton = id
     responseCountArray[id] += 1
     if (props.task.singleChoice) {
       responsesArray.fill(null)
-      isClicked ? setClickedButton(id) : setClickedButton(null)
+      isClicked
+        ? setClickedButton(id)
+        : setClickedButton(null)
     }
 
-    const eventObject = {
-      source: "BUTTON_CLICK",
-      timestamp: playerUtils.getCurrentTime(),
-      content: content,
-      observerMessage: (responseCountArray[id] % 2 === 0 && !props.task.resetResponses) ? "Un-click " + content + " (" + componentObject.text + ")" : content + " (" + componentObject.text + ")"
-    }
+    isClicked
+    ? responsesArray[id] = content
+    : responsesArray[id] = null
 
-    mqtt.sendMqttMessage(
-      'taskEvent',
-      makeLogObject(
-        taskObject,
-        componentObject,
-        eventObject
-      )
-    )
-    isClicked ? responsesArray[id] = content : responsesArray[id] = null
+    const data = {}
+    data.eventType = 'ELEMENT'
+    data.buttonText = content
+    data.observerMessage = (!isClicked && !props.task.resetResponses)
+      ? "Un-click " + content + " (" + props.displayText + ")"
+      : content + " (" + props.displayText + ")"
+
+    props.logCallback( makeLogObject( props, data, getComponentVariant() ))
 
     console.log(props.task.correctResponses + " " + responsesArray + " " + responseCountArray)
     console.log("Total responses: " + responseCountArray.reduce((a, b) => { return a + b }, 0))
+  }
+
+  const getComponentVariant = () => {
+    if (props.task.resetResponses)
+      return "RESET_BUTTON"
+    else if (props.task.singleChoice)
+      return "SINGLE_CHOICE"
+    else
+      return "MULTIPLE_CHOICE"
   }
 
   const arrayEquals = (a, b) => {
@@ -165,7 +160,7 @@ const buttonList = props => {
                     id={index}
                     key={index}
                     clickedButton={clickedButton}
-                    logElementData={logElementData}
+                    clickCallback={clickCallback}
                   />
                 </span>
               )

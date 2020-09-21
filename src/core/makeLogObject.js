@@ -1,28 +1,46 @@
 import store from "./store"
+import uuid from 'react-uuid'
 
-const makeLogObject = (task = null, component = null, event = null) => {
-    const session = {
-        uid: store.getState().experimentInfo.participantId,
-        name: store.getState().experimentInfo.mainTaskSetId,
-        startTime: store.getState().experimentInfo.startTimestamp
+const makeLogObject = (props = null, data = null, componentType = null) => {
+    const logObj = {
+        session: {
+            uid: store.getState().experimentInfo.participantId,
+            name: store.getState().experimentInfo.mainTaskSetId,
+            startTime: store.getState().experimentInfo.startTimestamp
+        },
+        user: {
+            name: window.localStorage.getItem("deviceID")
+        },
+        screen: {
+            id: store.getState().screenID,
+            uuid: store.getState().screen_uuid
+        },
+        set: {
+            uid: store.getState().experimentInfo.taskSet._id,
+            familyTree: null,
+            tags: store.getState().experimentInfo.taskSet.tags
+        },
+        task: {
+            uid: props.taskID,
+            name: props.parentSet,
+            tags: props.tags
+        },
+        component: {
+            type: componentType, 
+            text: props.displayText,
+            correctResponses: props.correctResponses,
+            responseOptions: props.task.responses
+        },
+        event: {
+            eventTime: Date.now(),
+            eventType: data.eventType,
+            uid: uuid(),
+            data: data
+        },
+        observerMessage: data.observerMessage 
     }
 
-    const screen = {
-        id: store.getState().screenID,
-        uuid: store.getState().screen_uuid
+    return logObj
     }
 
-    const user = {
-        name: window.localStorage.getItem("deviceID")
-    }
-
-    const set = {
-        uid: store.getState().experimentInfo.taskSet._id,
-        familyTree: null,
-        tags: store.getState().experimentInfo.taskSet.tags
-    }
-
-    return JSON.stringify({ session, screen, user, set, task, component, event })
-}
-
-export default makeLogObject
+    export default makeLogObject

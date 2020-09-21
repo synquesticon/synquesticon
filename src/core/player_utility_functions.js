@@ -44,10 +44,12 @@ export function pointIsInPoly(p, polygon) {
 }
 
 export function getAllImagePaths(taskList) {
+  console.log("tasklist " + taskList)
   return getImagePath(taskList, [])
 }
 
 function getImagePath(dataList, imageFiles) {
+  console.log("DataList " + dataList)
   dataList.forEach(function (data) {
     if (data.taskType === dbObjects.ObjectTypes.SET) 
       getImagePath(data.data, imageFiles)

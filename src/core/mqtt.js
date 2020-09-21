@@ -36,11 +36,11 @@ const _startMQTT = (config, restart) => {
 
 // SUBSCRIBE TO TOPICS
   const topicObj = {
-    task: 'taskEvent',
-    command: 'command',
+    task:           'taskEvent',
+    command:        'command',
     sessionControl: 'sessionControl',
-    motion: 'motion',
-    eyeTracker: 'RETDataSample'
+    motion:         'motion',
+    eyeTracker:     'RETDataSample'
   }
 
   mqttClient.on('connect', () => {

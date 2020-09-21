@@ -42,11 +42,13 @@ const Play = props => {
 
     db_helper.getTasksOrTaskSetsWithIDs(parsed.id, (dbQueryResult, count, mainTaskSetName) => {
       setTaskSet(dbQueryResult)
-      if (dbQueryResult.data)      //Force preload all images
+      if (dbQueryResult.data) {      //Force preload all images
+        console.log("dbQueryResult" + dbQueryResult.data)
         playerUtils.getAllImagePaths(dbQueryResult.data).forEach(picture => {
           const img = document.createElement('img')
           img.src = picture
         })
+      }
 
       if (store.getState().experimentInfo.participantId === undefined) {         //If the participantID is undefined we create a participant and add it to the experiment
         db_helper.addParticipantToDb(new dbObjects.ParticipantObject(dbQueryResult._id),
@@ -54,10 +56,10 @@ const Play = props => {
             store.dispatch({
               type: 'SET_EXPERIMENT_INFO',
               experimentInfo: {
-                participantLabel: playerUtils.getDeviceName(),
+                participantLabel: window.localStorage.getItem('deviceID'),
                 participantId: returnedIdFromDB,
                 shouldSave: true,
-                startTimestamp: playerUtils.getCurrentTime(),
+                startTimestamp: Date.now(),
                 mainTaskSetId: mainTaskSetName,
                 taskSet: dbQueryResult,
                 taskSetCount: count,
@@ -69,10 +71,10 @@ const Play = props => {
         store.dispatch({
           type: 'SET_EXPERIMENT_INFO',
           experimentInfo: {
-            participantLabel: playerUtils.getDeviceName(),
+            participantLabel: window.localStorage.getItem('deviceID'),
             participantId: store.getState().experimentInfo.participantId,
             shouldSave: true,
-            startTimestamp: playerUtils.getCurrentTime(),
+            startTimestamp: Date.now(),
             mainTaskSetId: mainTaskSetName,
             taskSet: dbQueryResult,
             taskSetCount: count,
@@ -164,15 +166,10 @@ const Play = props => {
     }
   }
 
-  const motionObj = {
-    user: { uid: uuid() },
-    timestamp: 0,
-    startTime: 0,
-    recordingCount: 0,
-    sampleCount: 0,
-    position: {},
-    rotation: {},
-    tag: ''
+
+
+  const logCallback = logObj => {
+    mqtt.sendMqttMessage('taskEvent', logObj)
   }
 
   const commandCallback = commandObj => {
@@ -206,6 +203,17 @@ const Play = props => {
     })
   }
 
+  const motionObj = {
+    user: { uid: uuid() },
+    timestamp: 0,
+    startTime: 0,
+    recordingCount: 0,
+    sampleCount: 0,
+    position: {},
+    rotation: {},
+    tag: ''
+  }
+
   const handleDeviceMotionEvent = e => {
     motionObj.sampleCount++
     motionObj.position = {
@@ -227,11 +235,12 @@ const Play = props => {
 
     return <div style={{ backgroundColor: props.theme.palette.type === "light" ? props.theme.palette.primary.main : props.theme.palette.primary.dark }} className="page" ref={frameDiv}>
       {<RunSet
-        familyTree={[store.getState().experimentInfo.mainTaskSetId]}
-        set={taskSet}
-        onFinished={props.history.goBack}
-        saveGazeData={saveGazeData}
-        commandCallback={(commandObj) => commandCallback(commandObj)}
+        familyTree = { [store.getState().experimentInfo.mainTaskSetId] }
+        set = { taskSet }
+        onFinished = { props.history.goBack }
+        saveGazeData = { saveGazeData }
+        logCallback = { logObj => logCallback(logObj) }
+        commandCallback = { commandObj  => commandCallback(commandObj) }
       />}
       <PauseDialog openDialog={isPaused} pauseMessage="Task paused." />
     </div>
