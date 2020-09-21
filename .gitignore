@@ -9,3 +9,9 @@ certificate/*
 backend/exported_data/*
 backend/raw_gaze_data/*
 documentations/~$Player.docx
+Tobii_RemoteEyeTrackingServer/.vs/*
+Tobii_RemoteEyeTrackingServer/TobiiRemoteEyeTrackingServer/[Dd]ebug/*
+Tobii_RemoteEyeTrackingServer/TobiiRemoteEyeTrackingServer/[Rr]elease/*
+Tobii_RemoteEyeTrackingServer/TobiiRemoteEyeTrackingServer/bin/*
+Tobii_RemoteEyeTrackingServer/TobiiRemoteEyeTrackingServer/obj/*
+Tobii_RemoteEyeTrackingServer/packages/*
