@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import AOIComponent from './AOIComponent'
 import './AOIEditorComponent.css'
 
-const imageRef = React.createRef()
 const AOIImageViewComponent = props => {
   const [imageWidth, setImageWidth] = useState(100);
   const [imageHeight, setImageHeight] = useState(100);
   const [imageElement, setImageElement] = useState(null);
 
+  const imageRef = useRef()
+
   const onSelectAOI = aoi => {
-    if (props.onSelectAOI !== undefined) {
+    if (props.onSelectAOI !== undefined) 
       props.onSelectAOI(aoi)
-    }
   }
 
   useEffect(() => {
@@ -30,16 +30,18 @@ const AOIImageViewComponent = props => {
     setImageElement(image)
   }
 
-  const tempAOI = props.mode !== "SELECT" ? <AOIComponent aoi={props.tempAOI} /> : null
-  let url = "/Images/" + props.imageName
-  if (props.image) {
-    url = URL.createObjectURL(props.image)
-  }
+  const tempAOI = props.mode !== "SELECT" 
+    ? <AOIComponent aoi={props.tempAOI} /> 
+    : null
 
-  let left = 0
-  if (imageElement) {
-    left = parseInt(imageElement.offsetLeft)
-  }
+  const url = (props.image) 
+    ? url = URL.createObjectURL(props.image)
+    :"/Images/" + props.imageName
+
+  const left = (imageElement) 
+    ? left = parseInt(imageElement.offsetLeft)
+    : 0
+  
 
   return (
     <div className="imagePreviewContainer"
@@ -47,7 +49,7 @@ const AOIImageViewComponent = props => {
       onMouseUp={props.onMouseUp}
       onMouseMove={props.onMouseMove}>
       <img className="imageCanvas" src={url} alt="Task" ref={imageRef}
-        onLoad={handleImageLoaded.bind(this)} />
+        onLoad={handleImageLoaded} />
       <svg style={{ left: left }} id="AOICanvas" className="AOICanvas" width={imageWidth} height={imageHeight} viewBox="0 0 100 100" preserveAspectRatio="none">
         {tempAOI}
         {props.aois.map((aoi, index) => {

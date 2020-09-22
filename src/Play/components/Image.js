@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import mqtt from '../../core/mqtt'
 import store from '../../core/store'
 import * as playerUtils from '../../core/player_utility_functions'
@@ -11,9 +11,9 @@ let CLICK_RADIUS = "1"
 let OPACITY = "0.5"
 let COLOR = "red"
 
-const Image = props => {
-  const imageRef = React.useRef()
-  const clicksRef = React.useRef()
+const ImageComponent = props => {
+  const imageRef = useRef()
+  const clicksRef = useRef()
   const [imageWidth, setImageWidth] = useState(100)
   const [imageHeight, setImageHeight] = useState(100)
   const [imageElement, setImageElement] = useState(null)
@@ -194,4 +194,4 @@ const Image = props => {
   )
 }
 
-export default Image
+export default ImageComponent

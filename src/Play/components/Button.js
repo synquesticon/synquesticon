@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Typography } from '@material-ui/core'
 import Button from './ButtonElement'
 import store from '../../core/store'
 import makeLogObject from '../../core/makeLogObject'
 
 const buttonList = props => {
-  const textRef = React.createRef()
+  const textRef = useRef()
   let [clickedButton, setClickedButton] = useState(null)
   let [responseCountArray, setResponseCountArray] = useState(new Array(props.task.responses.length).fill(0))
   let [responsesArray, setResponsesArray] = useState(new Array(props.task.responses.length).fill(null))
@@ -16,7 +16,7 @@ const buttonList = props => {
       aois: {
         name: props.parentSet + '_' + props.task.displayText,
         boundingbox: [],
-        imageRef: textRef
+        imageRef: textRef.current
       }
     })
 

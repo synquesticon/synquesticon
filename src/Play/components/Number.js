@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { Typography } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
 import store from '../../core/store'
@@ -16,7 +16,7 @@ const Number = props => {
   const numpadRef = React.useRef()
   const [numpadEntry, setNumpadEntry] = useState('')
   const [decimalWasPressed, setdecimalWasPressed] = useState(false)
-  const [textRef] = useState(React.createRef())
+  const textRef = useRef()
 
   useEffect(() => {
     numpadRef.current = numpadEntry
@@ -28,7 +28,7 @@ const Number = props => {
       aois: {
         name: props.parentSet + '_' + props.task.displayText,
         boundingbox: [],
-        imageRef: textRef
+        imageRef: textRef.current
       }
     })
 

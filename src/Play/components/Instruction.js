@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Typography } from '@material-ui/core'
 import store from '../../core/store'
 
 const InstructionViewComponent = props => {
-  const textRef = React.createRef()
+  const textRef = useRef()
 
   if (props.newTask) {
     props.answerCallback({
@@ -19,7 +19,7 @@ const InstructionViewComponent = props => {
       aois: {
         name: props.parentSet + '_' + props.task.displayText,
         boundingbox: [],
-        imageRef: textRef
+        imageRef: textRef.current
       }
     })
   }, [])

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Typography } from '@material-ui/core'
 import { withTheme } from '@material-ui/styles'
 import eventStore from '../core/eventStore'
@@ -18,7 +18,7 @@ const Play = props => {
   const [isPaused, setIsPaused] = useState(false)
   const [taskSet, setTaskSet] = useState(null)
 
-  const frameDiv = React.createRef()
+  const frameDiv = useRef()
   const cursorRadius = 20
   let gazeDataArray = []
   let timer = null
@@ -166,8 +166,6 @@ const Play = props => {
     }
   }
 
-
-
   const logCallback = logObj => {
     mqtt.sendMqttMessage('taskEvent', logObj)
   }
@@ -179,20 +177,20 @@ const Play = props => {
       switch (command[0]) {
         case "recordMotion":
           if (commandObj.isClicked) {
-                window.addEventListener('devicemotion', handleDeviceMotionEvent)
-                motionObj.startTime = Date.now()
-                motionObj.recordingCount++
-                motionObj.sampleCount = 0
-          } else 
+            window.addEventListener('devicemotion', handleDeviceMotionEvent)
+            motionObj.startTime = Date.now()
+            motionObj.recordingCount++
+            motionObj.sampleCount = 0
+          } else
             window.removeEventListener('devicemotion', handleDeviceMotionEvent)
           break
-          case "tag":
-            motionObj.tag = commandObj.isClicked ? command[1] : null
-            break
+        case "tag":
+          motionObj.tag = commandObj.isClicked ? command[1] : null
+          break
         case "mqtt":
           if (commandObj.isClicked) {
             const msgArray = command[1].split(';;')
-            msgArray.forEach( msg => {
+            msgArray.forEach(msg => {
               msg = msg.split('@')
               mqtt.sendMqttMessage(msg[1], msg[0])  // sendMqttMessage(topic, message)
             })
@@ -233,14 +231,20 @@ const Play = props => {
   if (taskSet !== null) {
     eventStore.setNewCommandListener("on", onNewCommandEvent)
 
-    return <div style={{ backgroundColor: props.theme.palette.type === "light" ? props.theme.palette.primary.main : props.theme.palette.primary.dark }} className="page" ref={frameDiv}>
+    return <div style={{
+      backgroundColor: props.theme.palette.type === "light"
+        ? props.theme.palette.primary.main
+        : props.theme.palette.primary.dark
+    }}
+      className="page"
+      ref={frameDiv}>
       {<RunSet
-        familyTree = { [store.getState().experimentInfo.mainTaskSetId] }
-        set = { taskSet }
-        onFinished = { props.history.goBack }
-        saveGazeData = { saveGazeData }
-        logCallback = { logObj => logCallback(logObj) }
-        commandCallback = { commandObj  => commandCallback(commandObj) }
+        familyTree={[store.getState().experimentInfo.mainTaskSetId]}
+        set={taskSet}
+        onFinished={props.history.goBack}
+        saveGazeData={saveGazeData}
+        logCallback={logObj => logCallback(logObj)}
+        commandCallback={commandObj => commandCallback(commandObj)}
       />}
       <PauseDialog openDialog={isPaused} pauseMessage="Task paused." />
     </div>

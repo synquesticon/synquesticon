@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Typography, TextField } from '@material-ui/core'
 import store from '../../core/store'
 import mqtt from '../../core/mqtt'
@@ -7,7 +7,7 @@ import makeLogObject from '../../core/makeLogObject'
 import './css/Text.css'
 
 const textEntryComponent = props => {
-  const textRef = React.createRef()
+  const textRef = useRef()
 
   useEffect(() => {
     textRef.current = ""
@@ -16,7 +16,7 @@ const textEntryComponent = props => {
       aois: {
         name: props.parentSet + '_' + props.task.displayText,
         boundingbox: [],
-        imageRef: textRef
+        imageRef: textRef.current
       }
     })
 
