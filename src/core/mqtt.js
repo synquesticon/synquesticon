@@ -31,12 +31,8 @@ const _startMQTT = (config, restart) => {
   wsURL += config.ip + ":" + config.port
 
   console.log("Attmpting to connect to the mqtt broker ", wsURL)
-  const connect_options = {
-    keepalive: 6000,
-    clean: true,
-    clientId: process.pid
-  }
-  mqttClient = mqtt.connect(wsURL, connect_options)
+
+  mqttClient = mqtt.connect(wsURL)
   last_config = config
 
 // SUBSCRIBE TO TOPICS
@@ -54,10 +50,6 @@ const _startMQTT = (config, restart) => {
       mqttClient.subscribe(topic, err => { if (err) console.log(err) })
     )
     console.log('mqtt.js connected to mqtt broker'+ Object.keys(mqttClient))
-  })
-
-  mqttClient.on('disconnect', function () {
-    console.log('disconnected')
   })
 
 // RESPOND TO TOPICS
