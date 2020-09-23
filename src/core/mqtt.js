@@ -31,7 +31,12 @@ const _startMQTT = (config, restart) => {
   wsURL += config.ip + ":" + config.port
 
   console.log("Attmpting to connect to the mqtt broker ", wsURL)
-  mqttClient = mqtt.connect(wsURL)
+  const connect_options = {
+    keepalive: 6000,
+    clean: true,
+    clientId: process.pid
+  }
+  mqttClient = mqtt.connect(wsURL, connect_options)
   last_config = config
 
 // SUBSCRIBE TO TOPICS
@@ -43,15 +48,21 @@ const _startMQTT = (config, restart) => {
     eyeTracker:     'RETDataSample'
   }
 
+  console.log('startMqtt')
   mqttClient.on('connect', () => {
     Object.values(topicObj).forEach( topic =>
       mqttClient.subscribe(topic, err => { if (err) console.log(err) })
     )
-    console.log('Connected to mqtt broker')
+    console.log('mqtt.js connected to mqtt broker'+ Object.keys(mqttClient))
+  })
+
+  mqttClient.on('disconnect', function () {
+    console.log('disconnected')
   })
 
 // RESPOND TO TOPICS
   mqttClient.on('message', (topic, message) => {
+    console.log("Message on topic: " + topic)
     switch (topic) {
       case topicObj.motion:
         eventStore.default.sendMotionData(message)
@@ -77,6 +88,8 @@ const _startMQTT = (config, restart) => {
 
 //SEND MESSAGES
 module.exports = {
-  sendMqttMessage(topic, msg) { mqttClient.publish(topic, msg) },
+  sendMqttMessage(topic, msg) { 
+    mqttClient.publish(topic, msg) 
+  },
   startMQTT(config, restart)  { _startMQTT(config, restart) }
 }

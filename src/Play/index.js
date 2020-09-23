@@ -167,12 +167,15 @@ const Play = props => {
   }
 
   const logCallback = logObj => {
-    mqtt.sendMqttMessage('taskEvent', logObj)
+    mqtt.sendMqttMessage('taskEvent', JSON.stringify(logObj))
   }
 
   const commandCallback = commandObj => {
+    
     commandObj.command.forEach(command => {
+      
       command = command.split('=')
+     
       command[1] = command[1] ? command[1] : commandObj.content
       switch (command[0]) {
         case "recordMotion":
@@ -181,6 +184,7 @@ const Play = props => {
             motionObj.startTime = Date.now()
             motionObj.recordingCount++
             motionObj.sampleCount = 0
+            console.log(command)
           } else
             window.removeEventListener('devicemotion', handleDeviceMotionEvent)
           break
@@ -213,6 +217,7 @@ const Play = props => {
   }
 
   const handleDeviceMotionEvent = e => {
+    console.log( e.acceleration.x)
     motionObj.sampleCount++
     motionObj.position = {
       x: e.acceleration.x,
