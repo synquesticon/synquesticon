@@ -54,15 +54,15 @@ const _startMQTT = (config, restart) => {
 // RESPOND TO TOPICS
   mqttClient.on('message', (topic, message) => {
     console.log(topic)
-    if (topic.includes(topicObj.motion)) 
+    if (topic.startsWith(topicObj.motion)) 
         eventStore.default.sendMotionData(message)
-    else if (topic.includes(topicObj.eyeTracker))
+    else if (topic.startsWith(topicObj.eyeTracker))
         onRETData(message)
-    else if (topic.includes(topicObj.task))
+    else if (topic.startsWith(topicObj.task))
       eventStore.default.sendCurrentMessage(message)
-    else if (topic.includes(topicObj.command))
+    else if (topic.startsWith(topicObj.command))
       eventStore.default.sendCurrentCommand(message)
-    else if (topic.includes(topicObj.sessionControl))
+    else if (topic.startsWith(topicObj.sessionControl))
       if (JSON.parse(message).deviceID === window.localStorage.getItem('deviceID'))         //Only respond to the message if the device ID matches our own and the screenID is different so we don't repeat messages endlessly
         eventStore.default.sendSessionControlMsg(JSON.parse(message))
     else 
