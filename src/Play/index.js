@@ -10,7 +10,6 @@ import * as playerUtils from '../core/player_utility_functions'
 import queryString from 'query-string'
 import RunSet from './runSet'
 import PauseDialog from './PauseDialog'
-import uuid from 'react-uuid'
 import '../core/utility.css'
 import './css/Play.css'
 
@@ -22,6 +21,7 @@ const Play = props => {
   const cursorRadius = 20
   let gazeDataArray = []
   let timer = null
+  
 
   useEffect(() => {
     store.dispatch({
@@ -171,11 +171,8 @@ const Play = props => {
   }
 
   const commandCallback = commandObj => {
-    
     commandObj.command.forEach(command => {
-      
       command = command.split('=')
-     
       command[1] = command[1] ? command[1] : commandObj.content
       switch (command[0]) {
         case "recordMotion":
@@ -206,7 +203,7 @@ const Play = props => {
   }
 
   const motionObj = {
-    user: { uid: uuid() },
+    user: { uid: window.localStorage.getItem('deviceID') },
     timestamp: 0,
     startTime: 0,
     recordingCount: 0,
@@ -217,7 +214,6 @@ const Play = props => {
   }
 
   const handleDeviceMotionEvent = e => {
-    console.log( e.acceleration.x)
     motionObj.sampleCount++
     motionObj.position = {
       x: e.acceleration.x,
@@ -230,7 +226,7 @@ const Play = props => {
       c: e.rotationRate.gamma
     }
     motionObj.timestamp = Date.now()
-    mqtt.sendMqttMessage('motion', JSON.stringify(motionObj))
+    mqtt.sendMqttMessage('sensor/motion/' + motionObj.user.uid, JSON.stringify(motionObj))
   }
 
   if (taskSet !== null) {

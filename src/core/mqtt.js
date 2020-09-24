@@ -37,44 +37,36 @@ const _startMQTT = (config, restart) => {
 
 // SUBSCRIBE TO TOPICS
   const topicObj = {
-    task:           'taskEvent',
-    command:        'command',
-    sessionControl: 'sessionControl',
-    motion:         'motion',
-    eyeTracker:     'RETDataSample'
+    task:           'taskEvent/',
+    command:        'command/',
+    sessionControl: 'sessionControl/',
+    motion:         'sensor/motion/',
+    eyeTracker:     'sensor/gaze/'
   }
 
-  console.log('startMqtt')
   mqttClient.on('connect', () => {
     Object.values(topicObj).forEach( topic =>
-      mqttClient.subscribe(topic, err => { if (err) console.log(err) })
+      mqttClient.subscribe(topic + "#", err => { if (err) console.log(err) })
     )
-    console.log('mqtt.js connected to mqtt broker'+ Object.keys(mqttClient))
+    console.log('Connected to mqtt broker')
   })
 
 // RESPOND TO TOPICS
   mqttClient.on('message', (topic, message) => {
-    console.log("Message on topic: " + topic)
-    switch (topic) {
-      case topicObj.motion:
+    console.log(topic)
+    if (topic.includes(topicObj.motion)) 
         eventStore.default.sendMotionData(message)
-        break
-      case topicObj.eyeTracker:
+    else if (topic.includes(topicObj.eyeTracker))
         onRETData(message)
-        break
-      case topicObj.task:
-        eventStore.default.sendCurrentMessage(message)
-        break
-      case topicObj.command:
-        eventStore.default.sendCurrentCommand(message)
-        break
-      case topicObj.sessionControl:
-        if (JSON.parse(message).deviceID === window.localStorage.getItem('deviceID'))         //Only respond to the message if the device ID matches our own and the screenID is different so we don't repeat messages endlessly
-          eventStore.default.sendSessionControlMsg(JSON.parse(message))
-        break
-      default:
+    else if (topic.includes(topicObj.task))
+      eventStore.default.sendCurrentMessage(message)
+    else if (topic.includes(topicObj.command))
+      eventStore.default.sendCurrentCommand(message)
+    else if (topic.includes(topicObj.sessionControl))
+      if (JSON.parse(message).deviceID === window.localStorage.getItem('deviceID'))         //Only respond to the message if the device ID matches our own and the screenID is different so we don't repeat messages endlessly
+        eventStore.default.sendSessionControlMsg(JSON.parse(message))
+    else 
         console.log("message from unknown topic recieved: ", topic)
-    }
   })
 }
 

@@ -12,7 +12,7 @@ import Button from '@material-ui/core/Button'
 import store from '../../../core/store'
 
 const DeviceIDDialog = props => {
-  const [deviceName, setDeviceName] = useState(props.myStorage.getItem('deviceID'))
+  const [deviceName, setDeviceName] = useState(props.myStorage.setItem('deviceID', uuid()))
   const [screenID, setScreenID] = useState(store.getState().screenID)
   const [multipleScreens, setMultipleScreens] = useState(store.getState().multipleScreens)
 
