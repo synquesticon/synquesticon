@@ -41,7 +41,9 @@ const _startMQTT = (config, restart) => {
     command:        'command/',
     sessionControl: 'sessionControl/',
     motion:         'sensor/motion/',
-    eyeTracker:     'sensor/gaze/'
+    eyeTracker:     'sensor/gaze/',
+    requestStatus:  'requestStatus/',
+    statusUpdate:   'statusUpdate/'
   }
 
   mqttClient.on('connect', () => {
@@ -53,7 +55,7 @@ const _startMQTT = (config, restart) => {
 
 // RESPOND TO TOPICS
   mqttClient.on('message', (topic, message) => {
-    console.log(topic)
+    //console.log("received " +topic+message)
     if (topic.startsWith(topicObj.motion)) 
         eventStore.default.sendMotionData(message)
     else if (topic.startsWith(topicObj.eyeTracker))
@@ -62,11 +64,18 @@ const _startMQTT = (config, restart) => {
       eventStore.default.sendCurrentMessage(message)
     else if (topic.startsWith(topicObj.command))
       eventStore.default.sendCurrentCommand(message)
-    else if (topic.startsWith(topicObj.sessionControl))
+    else if (topic.startsWith(topicObj.requestStatus))
+      mqttClient.publish(topicObj.statusUpdate, window.localStorage.getItem('statusObj'))
+    else if (topic.startsWith(topicObj.statusUpdate)) {
+      if (JSON.parse(message).recording)
+        console.log(JSON.parse(message).user.uid + " recording")
+      else 
+        console.log(JSON.parse(message).user.uid + " not recording")
+    } else if (topic.startsWith(topicObj.sessionControl)) {
       if (JSON.parse(message).deviceID === window.localStorage.getItem('deviceID'))         //Only respond to the message if the device ID matches our own and the screenID is different so we don't repeat messages endlessly
         eventStore.default.sendSessionControlMsg(JSON.parse(message))
-    else 
-        console.log("message from unknown topic recieved: ", topic)
+    } else 
+        console.log("message " + message + " from unknown topic recieved: ", topic)
   })
 }
 

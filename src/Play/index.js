@@ -167,8 +167,14 @@ const Play = props => {
   }
 
   const logCallback = logObj => {
-    mqtt.sendMqttMessage('taskEvent', JSON.stringify(logObj))
+    mqtt.sendMqttMessage('taskEvent/', JSON.stringify(logObj))
   }
+
+  const statusObj = {
+    user: { uid: window.localStorage.getItem('deviceID') },
+    recording: false
+  }
+  window.localStorage.setItem('statusObj', JSON.stringify(statusObj))
 
   const commandCallback = commandObj => {
     commandObj.command.forEach(command => {
@@ -181,9 +187,16 @@ const Play = props => {
             motionObj.startTime = Date.now()
             motionObj.recordingCount++
             motionObj.sampleCount = 0
-            console.log(command)
-          } else
+            statusObj.recording = true
+            window.localStorage.setItem('statusObj', JSON.stringify(statusObj))
+          } else {
             window.removeEventListener('devicemotion', handleDeviceMotionEvent)
+            statusObj.recording = false
+            window.localStorage.setItem('statusObj', JSON.stringify(statusObj))
+          }
+          break
+        case "requestStatus":
+          mqtt.sendMqttMessage("requestStatus/", "requestStatus") 
           break
         case "tag":
           motionObj.tag = commandObj.isClicked ? command[1] : null
