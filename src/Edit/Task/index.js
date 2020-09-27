@@ -16,15 +16,21 @@ class Task extends Component {
 
     //If we got a taskObject passed as a prop we use it, otherwise we init with a default constructed object
     //Clone the array via JSON. Otherwise we would operate directly on the original objects which we do not want
-    this.synquestitask = this.props.isEditing ? JSON.parse(JSON.stringify(this.props.synquestitask)) : new dbObjects.SynquestitaskObject()
+    // this.taskObj = this.props.isEditing 
+    //   ? JSON.parse(JSON.stringify(this.props.taskObj)) 
+    //   : new dbObjects.TaskObj()
 
-    for (var i = 0; i < this.synquestitask.childObj.length; i++) {
-      this.synquestitask.childObj[i] = { ...new dbObjects.SynquestitaskChildComponent(this.synquestitask.childObj[i].objType), ...this.synquestitask.childObj[i] }
-      this.synquestitask.childObj[i].openState = true
+      this.taskObj = this.props.isEditing 
+      ? this.props.taskObj 
+      : new dbObjects.TaskObj()
+
+    for (var i = 0; i < this.taskObj.components.length; i++) {
+      this.taskObj.components[i] = { ...new dbObjects.Component(this.taskObj.components[i].objType), ...this.taskObj.components[i] }
+      this.taskObj.components[i].openState = true
     }
 
     //We keep these fields in the state as they affect how the component is rendered
-    this.state = { taskComponents: this.synquestitask.childObj, }
+    this.state = { taskComponents: this.taskObj.components, }
     this.updateChildOpenStateCallback = this.updateChildOpenState.bind(this)
     this.removeComponentCallback = this.removeComponent.bind(this)
     this.moveComponentCallback = this.moveComponent.bind(this)
@@ -40,13 +46,13 @@ class Task extends Component {
     this.setState({ taskComponents: updatedComponents })
   }
 
-  onDBCallback(synquestitaskID) {
+  onDBCallback(taskID) {
     if (this.shouldReopen) {
       this.shouldReopen = false
       store.dispatch({
         type: 'SET_SHOULD_EDIT',
         shouldEdit: true,
-        objectToEdit: { ...this.synquestitask, ...{ _id: synquestitaskID } },
+        objectToEdit: { ...this.taskObj, ...{ _id: taskID } },
         typeToEdit: dbObjects.ObjectTypes.TASK
       })
     }
@@ -56,7 +62,7 @@ class Task extends Component {
   onChangeTaskSettings() {
     if (this.props.isEditing) {
       this.shouldCloseAsset = false
-      db_helper.updateTaskFromDb(this.synquestitask._id, this.synquestitask, this.handleDBCallback)
+      db_helper.updateTaskFromDb(this.taskObj._id, this.taskObj, this.handleDBCallback)
       store.dispatch({
         type: 'TOAST_SNACKBAR_MESSAGE',
         snackbarOpen: true,
@@ -65,7 +71,7 @@ class Task extends Component {
     } else {
       this.shouldCloseAsset = true
       this.shouldReopen = true
-      db_helper.addTaskToDb(this.synquestitask, this.handleDBCallback)
+      db_helper.addTaskToDb(this.taskObj, this.handleDBCallback)
       store.dispatch({
         type: 'TOAST_SNACKBAR_MESSAGE',
         snackbarOpen: true,
@@ -82,12 +88,12 @@ class Task extends Component {
       return value.trim()
     })
     response = response.filter(Boolean) //Remove empty values
-    if (target === "Tags") this.synquestitask.tags = response
+    if (target === "Tags") this.taskObj.tags = response
   }
 
 
   addComponent(sourceIndex, destinationIndex) {  //Add a task to the list of tasks in the set
-    let newComponent = new dbObjects.SynquestitaskChildComponent(Object.values(dbObjects.TaskTypes)[sourceIndex])
+    let newComponent = new dbObjects.Component(Object.values(dbObjects.TaskTypes)[sourceIndex])
     newComponent.openState = true
     if (newComponent) {
       let updatedComponents = this.state.taskComponents.slice()        //Insert the new component at the index stored when add task was called
@@ -98,7 +104,7 @@ class Task extends Component {
         snackbarMessage: "Task component added successfully"
       })
       this.setState({ taskComponents: updatedComponents, })
-      this.synquestitask.childObj = updatedComponents
+      this.taskObj.components = updatedComponents
     }
   }
 
@@ -111,14 +117,14 @@ class Task extends Component {
       snackbarMessage: "Component removed"
     })
     this.setState({ taskComponents: newObjectList, })
-    this.synquestitask.childObj = newObjectList
+    this.taskObj.components = newObjectList
   }
 
   moveComponent(dragIndex, hoverIndex) {
     const updatedObjectList = this.state.taskComponents.slice()
     db_utils.arrayMove(updatedObjectList, dragIndex, hoverIndex)
     this.setState({ taskComponents: updatedObjectList, })
-    this.synquestitask.childObj = updatedObjectList
+    this.taskObj.components = updatedObjectList
   }
 
   removeTask() {     //Removes the selected task from the database
@@ -128,7 +134,7 @@ class Task extends Component {
       snackbarOpen: true,
       snackbarMessage: "Task deleted"
     })
-    db_helper.deleteTaskFromDb(this.synquestitask._id, this.handleDBCallback)
+    db_helper.deleteTaskFromDb(this.taskObj._id, this.handleDBCallback)
   }
 
   //Calls the provided callback function that handles the closing of this component
@@ -160,18 +166,18 @@ class Task extends Component {
         <TextField id="nameText"
           required
           padding="dense"
-          defaultValue={this.synquestitask.name}
+          defaultValue={this.taskObj.name}
           placeholder="Demographics"
           label="Name"
           ref="setTextRef"
           style={{ width: 'calc(50% - 10px)', marginRight: 10 }}
           rows="1"
-          onChange={(e) => { this.synquestitask.name = e.target.value }}
+          onChange={(e) => { this.taskObj.name = e.target.value }}
         />
         <TextField id="tags"
           required
           padding="dense"
-          defaultValue={this.synquestitask.tags.join(',')}
+          defaultValue={this.taskObj.tags.join(',')}
           placeholder="Pump, Steam"
           label="Tags(comma-separated)"
           style={{ width: '50%' }}
@@ -193,13 +199,13 @@ class Task extends Component {
                 dragEnabled={true}
                 taskList={Object.values(dbObjects.TaskTypes)}
                 itemType={dbObjects.ObjectTypes.TASK} 
-                droppableId="synquestitasks" />
+                droppableId="tasks" />
             }
           </div>
 
-          <div className="synquestitaskListContainer">
-            <div className="synquestitaskListViewer">
-              <Droppable droppableId="synquestitaskListId" >
+          <div className="taskListContainer">
+            <div className="taskListViewer">
+              <Droppable droppableId="taskListId" >
                 {(provided, snapshot) => (
                   <div ref={provided.innerRef} style={{ width: '100%', height: '100%', minHeight: 0 }}>
                     < TaskComponentList removeCallback={this.removeComponentCallback} toggleChildCallback={this.updateChildOpenState.bind(this)}

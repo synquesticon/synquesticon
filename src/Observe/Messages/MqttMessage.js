@@ -20,7 +20,7 @@ const mqttMessage = props => {
     }, [])
 
     const onNewEvent = () => {
-        const msg = JSON.parse(eventStore.getCurrentMessage())
+        const msg = JSON.parse(eventStore.getMotionData())
         console.log(msg)
         setMqttMessage(msg)
     }

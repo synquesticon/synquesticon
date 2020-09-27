@@ -1,8 +1,9 @@
-import React, { Component } from 'react'
+import React, { useState, useEffect } from 'react'
 import db_helper from '../../core/db_helper'
 import * as db_utils from '../../core/db_objects_utility_functions'
 import * as dbObjects from '../../core/db_objects'
 import store from '../../core/store'
+import eventStore from '../../core/eventStore'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import Checkbox from '@material-ui/core/Checkbox'
@@ -11,94 +12,81 @@ import EditSetList from './SetList'
 import { Droppable } from 'react-beautiful-dnd'
 import './Set.css'
 
-class EditSet extends Component {
-  constructor(props) {
-    super(props)
+const EditSet = props => {
+  //If we got a taskObject passed as a prop we use it, otherwise we init with a default constructed object
+  //Clone the array via JSON. Otherwise we would operate directly on the original objects which we do not want
+  const set = props.isEditing
+    ? JSON.parse(JSON.stringify(props.setObject))
+    : new dbObjects.SetObject()
 
-    //If we got a taskObject passed as a prop we use it, otherwise we init with a default constructed object
-    //Clone the array via JSON. Otherwise we would operate directly on the original objects which we do not want
-    this.set = this.props.isEditing ? JSON.parse(JSON.stringify(this.props.setObject)) : new dbObjects.TaskSetObject()
- //   if (this.set.repeatSetThreshold === undefined)
-   //   this.set.repeatSetThreshold = 0
-    
-    this.state = {      //We keep these fields in the state as they affect how the component is rendered
-      taskList: this.set.childIds ? this.set.childIds : [],
-      taskListObjects: [],
-      randomizeSet: this.set.setTaskOrder === "Random" ? true : false,
-      logOneLine: this.set.logOneLine,
-    }
+  const [taskList, setTaskList] = useState(set.childIds ? set.childIds : [])
+  const [taskListObjects, setTaskListObjects] = useState([])
+  const [randomizeSet, setRandomizeSet] = useState(set.setTaskOrder === "Random" ? true : false)
 
-    this.removeTaskFromListCallback = this.removeTask.bind(this)
-    this.moveTaskCallback = this.moveTask.bind(this)
-    this.responseHandler = this.onResponsesChanged
-    this.handleDBCallback = this.onDBCallback.bind(this)
-    this.handleRetrieveSetChildTasks = this.onRetrievedSetChildTasks.bind(this)
-    this.handleUpdateSetChildTasks = this.onRetrievedSetChildTasksAddToSet.bind(this)
-    this.handleSetTaskOrderChange = this.onSetTaskOrderChanged.bind(this)
-    this.handleLogOneLineChange = this.onLogOneLineChanged.bind(this)
-    this.destinationIndex = 0           //The index where a new task will be placed
-    this.shouldCloseAsset = false       //Used to determine if the object should be closed
+  let destinationIndex = 0           //The index where a new task will be placed
+  let shouldCloseAsset = false       //Used to determine if the object should be closed
+  let shouldReopen = false
+
+  useEffect(() => {
+    eventStore.setTaskListener("on", addTask);
+
+    (taskList && taskList.length > 0)
+      ? db_helper.getTasksOrSetsWithIDs(set._id, onRetrievedSetChildTasks)
+      : setTaskListObjects([])
+
+    return () => eventStore.setTaskListener("off", addTask)
+  }, [])
+
+  const onRetrievedSetChildTasks = retrievedObjects => {
+    setTaskListObjects(retrievedObjects.data)
   }
 
-  componentDidMount() {
-    this.refreshSetChildList()
-  }
-
-  onRetrievedSetChildTasks(retrievedObjects) {
-    this.setState({ taskListObjects: retrievedObjects.data })
-  }
-
-  refreshSetChildList() {
-    if (this.state.taskList && this.state.taskList.length > 0)
-      db_helper.getTasksOrTaskSetsWithIDs(this.set._id, this.handleRetrieveSetChildTasks)
-    else      //If the list is empty we clear the list in the state
-      this.setState({ taskListObjects: [] })
-  }
-
-  onRetrievedSetChildTasksAddToSet(retrievedObject) {
-    let updatedObjects = this.state.taskListObjects.slice()
-    updatedObjects[this.destinationIndex] = retrievedObject           //Replace the dummy object with the actual object
-    let updatedTaskList = this.state.taskList.slice()
-    updatedTaskList[this.destinationIndex] = 
+  const onRetrievedSetChildTasksAddToSet = retrievedObject => {
+    alert(Object.keys(retrievedObject))
+    let updatedObjects = taskListObjects.slice()
+    updatedObjects[destinationIndex] = retrievedObject           //Replace the dummy object with the actual object
+    let updatedTaskList = taskList.slice()
+    updatedTaskList[destinationIndex] =
       { id: retrievedObject._id, objType: retrievedObject.objType }   //Replace the dummy object with the actual object
-    this.setState({ taskListObjects: updatedObjects, taskList: updatedTaskList })
-    this.set.childIds = updatedTaskList
+    setTaskListObjects(updatedObjects)
+    setTaskList(updatedTaskList)
+    set.childIds = updatedTaskList
   }
 
-  updateSetChildList(taskToAdd) {
-    this.shouldCloseAsset = false
+  const updateSetChildList = taskToAdd => {
+    shouldCloseAsset = false
     if (taskToAdd.objType === dbObjects.ObjectTypes.SET)
-      db_helper.getTasksOrTaskSetsWithIDs(taskToAdd._id, this.handleUpdateSetChildTasks)
+      db_helper.getTasksOrSetsWithIDs(taskToAdd._id, onRetrievedSetChildTasksAddToSet)
     else if (taskToAdd.objType === dbObjects.ObjectTypes.TASK)
-      db_helper.getTaskWithID(taskToAdd._id, this.handleUpdateSetChildTasks)
+      db_helper.getTaskWithID(taskToAdd._id, onRetrievedSetChildTasksAddToSet)
   }
 
-  onDBCallback(setDBID) {
-    if (this.shouldReopen) {
-      this.shouldReopen = false
+  const onDBCallback = setDBID => {
+    if (shouldReopen) {
+      shouldReopen = false
       store.dispatch({
         type: 'SET_SHOULD_EDIT',
         shouldEdit: true,
         typeToEdit: 'set',
-        objectToEdit: { ...this.set, ...{ _id: setDBID } }
+        objectToEdit: { ...set, ...{ _id: setDBID } }
       })
     }
-    this.closeSetComponent(true, this.shouldCloseAsset)
+    closeSetComponent(true, shouldCloseAsset)
   }
 
-  onChangeSetSettings() {
-    if (this.props.isEditing) {
-      this.shouldCloseAsset = false
-      db_helper.updateTaskSetFromDb(this.set._id, this.set, this.handleDBCallback)
+  const onChangeSetSettings = () => {
+    if (props.isEditing) {
+      shouldCloseAsset = false
+      db_helper.updateTaskSetFromDb(set._id, set, onDBCallback)
       store.dispatch({
         type: 'TOAST_SNACKBAR_MESSAGE',
         snackbarOpen: true,
         snackbarMessage: "Set saved"
       })
     } else {
-      this.shouldCloseAsset = true
-      this.shouldReopen = true
-      db_helper.addTaskSetToDb(this.set, this.handleDBCallback)
+      shouldCloseAsset = true
+      shouldReopen = true
+      db_helper.addTaskSetToDb(set, onDBCallback)
       store.dispatch({
         type: 'TOAST_SNACKBAR_MESSAGE',
         snackbarOpen: true,
@@ -107,84 +95,94 @@ class EditSet extends Component {
     }
   }
 
-  onResponsesChanged(e, response, target) {
+  const onResponsesChanged = (e, response, target) => {
     response = response.replace(/\s+/g, " ")
     response = response.trim()
     response = response.split(",")
     response = response.map((value) => { return value.trim() })
     response = response.filter(Boolean) //Remove empty values
 
-    if (target === "Tags") 
-      this.set.tags = response
+    if (target === "Tags")
+      set.tags = response
     else if (target === "Repeat" && response[0]) {
       response = response[0].replace(/\D/g, '')
       response = response === "" ? "0" : response
-      this.set.repeatSetThreshold = Number(response)
     }
   }
 
-  onSetTaskOrderChanged(e, checked) {                   //Callback from checkbox pressed
-    this.set.setTaskOrder = checked ? "Random" : "InOrder"
-    this.setState({ randomizeSet: checked })
+  const onSetTaskOrderChanged = (e, checked) => {                   //Callback from checkbox pressed
+    set.setTaskOrder = checked
+      ? "Random"
+      : "InOrder"
+    setRandomizeSet(checked)
   }
 
-  onLogOneLineChanged(e, checked) {
-    this.set.logOneLine = checked
-    this.setState({ logOneLine: checked })
-  }
-
-  willCauseCircularReference(task) {                    //Returns true if adding the task will result in a circular reference
+  const willCauseCircularReference = task => {                    //Returns true if adding the task will result in a circular reference
     if (task.objType === dbObjects.ObjectTypes.SET) {   //We only need to check if the task we are adding is a TaskSet
       let queryList = []                                //Try to get the data contained in the task set we are trying to add as we need this information to check for a circular reference
       queryList.push({ id: task._id, objType: task.objType })
 
-      db_helper.getTasksOrTaskSetsWithIDsPromise(task).then(data => {
+      db_helper.getTasksOrSetsWithIDsPromise(task).then(data => {
         if (data) {                                     //If the query was successful, extract the child set ids of the set we are trying to add as well as the set id
-          if (this.getChildSetIDs(data, [data._id]).includes(this.set._id)) {    //Check that we are not adding a set containing the set we are editing now. If we are it would cause a circular reference
-            this.handleAddTaskAllowed(false, task, "The set you are trying to add already includes this set and would cause a circular reference")
+          if (getChildSetIDs(data, [data._id]).includes(set._id)) {    //Check that we are not adding a set containing the set we are editing now. If we are it would cause a circular reference
+            handleAddTaskAllowed(false, task, "The set you are trying to add already includes this set and would cause a circular reference")
             return
           }
-          const result_message = task.objType === dbObjects.ObjectTypes.SET ? "Set successfully added" : "Task successfully added"            //No circular reference detected
-          this.handleAddTaskAllowed(true, task, result_message)
-        } else this.handleAddTaskAllowed(false, task, "Unable to query the database, did not add " + task.objType === dbObjects.ObjectTypes.SET ? "set" : "task")  //Otherwise we do not add as we don't know if it will be ok
+          const result_message = task.objType === dbObjects.ObjectTypes.SET
+            ? "Set successfully added"
+            : "Task successfully added"            //No circular reference detected
+          handleAddTaskAllowed(true, task, result_message)
+        } else handleAddTaskAllowed(false, task, "Unable to query the database, did not add " + task.objType === dbObjects.ObjectTypes.SET ? "set" : "task")  //Otherwise we do not add as we don't know if it will be ok
       })
-    } else this.handleAddTaskAllowed(true, task, "Task successfully added")
+    } else handleAddTaskAllowed(true, task, "Task successfully added")
   }
 
-  getChildSetIDs(setObject, childSets) {
+  const getChildSetIDs = (setObject, childSets) => {
     childSets.push(setObject._id)             //Add the object to the list
-    setObject.data.forEach(obj => {           //Iterate over the sets children
-      if (obj.objType === dbObjects.ObjectTypes.SET) 
-        this.getChildSetIDs(obj, childSets)
+    setObject.data.forEach(obj => {          //Iterate over the sets children
+      if (obj.objType === dbObjects.ObjectTypes.SET)
+        getChildSetIDs(obj, childSets)
     })
     return childSets
   }
 
-  addTask(task, destinationIndex) {           //Add a task to the list of tasks in the set
-    if (this.set._id === task._id) {
+  const addTask = () => {           //Add a task to the list of tasks in the set
+    let addObj = eventStore.getTaskData()
+    let task = addObj[0]
+    let destinationIdx = addObj[1]
+    if (set._id === task._id) {
       store.dispatch({
         type: 'TOAST_SNACKBAR_MESSAGE',
         snackbarOpen: true,
         snackbarMessage: "Cannot add the same set to itself"
       })
     } else {
-      this.destinationIndex = destinationIndex
-      this.willCauseCircularReference(task)   //perform a deeper check for circular references. This will in turn add the task if it is ok to do so.
+      destinationIndex = destinationIdx
+      
+      willCauseCircularReference(task)   //perform a deeper check for circular references. This will in turn add the task if it is ok to do so.
     }
   }
 
-  handleAddTaskAllowed(allowed, task, message) {
+  const handleAddTaskAllowed = (allowed, task, message) => {
     if (allowed) {
-      let updatedObjects = this.state.taskListObjects.slice()   //Add a dummy object to the list while we wait for the callback
-      updatedObjects.splice(this.destinationIndex, 0,
-        { _id: task._id, question: "Adding...", objType: "Task", taskType: "Image" })
+      
+      let updatedObjects = taskListObjects.slice()   //Add a dummy object to the list while we wait for the callback
+      updatedObjects.splice(
+        destinationIndex,
+        0,
+        { _id: task._id, question: "Adding...", objType: "Task", taskType: "Image" }
+      )
 
-      let updatedTaskList = this.state.taskList.slice()         //Create a dummy task object for the taskList
-      updatedTaskList.splice(this.destinationIndex, 0,
-        { id: task._id, objType: task.objType })
+      let updatedTaskList = taskList.slice()         //Create a dummy task object for the taskList
+      updatedTaskList.splice(
+        destinationIndex,
+        0,
+        { id: task._id, objType: task.objType }
+      )
 
-      this.set.childIds = updatedTaskList
-      this.updateSetChildList(task)
+      set.childIds = updatedTaskList
+ 
+      updateSetChildList(task)
 
       store.dispatch({
         type: 'TOAST_SNACKBAR_MESSAGE',
@@ -192,10 +190,8 @@ class EditSet extends Component {
         snackbarMessage: message
       })
 
-      this.setState({
-        taskListObjects: updatedObjects,
-        taskList: updatedTaskList,
-      })
+      setTaskListObjects(updatedObjects)
+      setTaskList(updatedTaskList)
     } else {
       store.dispatch({
         type: 'TOAST_SNACKBAR_MESSAGE',
@@ -205,15 +201,15 @@ class EditSet extends Component {
     }
   }
 
-  removeTask(taskId) {   //Remove a task from the list of tasks in the set
-    let newList = [...this.state.taskList]
+  const removeTask = taskId => {   //Remove a task from the list of tasks in the set
+    let newList = [...taskList]
     for (let i = 0; i < newList.length; i++) {
       if (newList[i].id === taskId) {
         newList.splice(i, 1)
         break
       }
     }
-    let newObjectList = [...this.state.taskListObjects]
+    let newObjectList = [...taskListObjects]
     for (let i = 0; i < newObjectList.length; i++) {
       if (newObjectList[i]._id === taskId) {
         newObjectList.splice(i, 1)
@@ -221,7 +217,7 @@ class EditSet extends Component {
       }
     }
 
-    this.set.childIds = newList
+    set.childIds = newList
 
     store.dispatch({
       type: 'TOAST_SNACKBAR_MESSAGE',
@@ -229,28 +225,24 @@ class EditSet extends Component {
       snackbarMessage: "Set removed"
     })
 
-    this.setState({
-      taskList: newList,
-      taskListObjects: newObjectList,
-    })
+    setTaskList(newList)
+    setTaskListObjects(newObjectList)
   }
 
-  moveTask(dragIndex, hoverIndex) {
-    const updatedTaskList = this.state.taskList.slice()
+  const moveTask = (dragIndex, hoverIndex) => {
+    const updatedTaskList = taskList.slice()
     db_utils.arrayMove(updatedTaskList, dragIndex, hoverIndex)
-    const updatedObjectList = this.state.taskListObjects.slice()
+    const updatedObjectList = taskListObjects.slice()
     db_utils.arrayMove(updatedObjectList, dragIndex, hoverIndex)
 
-    this.setState({
-      taskListObjects: updatedObjectList,
-      taskList: updatedTaskList
-    })
+    setTaskListObjects(updatedObjectList)
+    setTaskList(updatedTaskList)
 
-    this.set.childIds = updatedTaskList
+    set.childIds = updatedTaskList
   }
 
-  removeSet() {  //Removes the selected set from the database
-    this.shouldCloseAsset = true
+  const removeSet = () => {  //Removes the selected set from the database
+    shouldCloseAsset = true
 
     store.dispatch({
       type: 'TOAST_SNACKBAR_MESSAGE',
@@ -258,12 +250,14 @@ class EditSet extends Component {
       snackbarMessage: "Set deleted"
     })
 
-    db_helper.deleteTaskSetFromDb(this.set._id, this.handleDBCallback)
+    db_helper.deleteTaskSetFromDb(set._id, onDBCallback)
   }
 
-  closeSetComponent(componentChanged, overrideShouldClose) {   //Calls the provided callback function that handles the closing of this component
-    let shouldClose = overrideShouldClose ? overrideShouldClose : this.shouldCloseAsset
-    this.props.closeSetCallback(componentChanged, shouldClose)
+  const closeSetComponent = (componentChanged, overrideShouldClose) => {   //Calls the provided callback function that handles the closing of this component
+    let shouldClose = overrideShouldClose
+      ? overrideShouldClose
+      : shouldCloseAsset
+    props.closeSetCallback(componentChanged, shouldClose)
   }
 
   /*
@@ -274,75 +268,86 @@ class EditSet extends Component {
 ██   ██ ███████ ██   ████ ██████  ███████ ██   ██
 */
 
-  render() {
-    return (
-      <div className="setComponentContainer">
-        <form className="setFormRoot" autoComplete="off" id="formRootId">
-          {
-            <div>
-              <TextField id="questionText"
-                required
-                padding="dense"
-                defaultValue={this.set.name}
-                placeholder="Valve questions"
-                label="Set Name"
-                ref="setTextRef"
-                style={{ width: 'calc(50% - 10px)', marginRight: 10 }}
-                rows="1"
-                onChange={(e) => { this.set.name = e.target.value }}
-              />
-              <TextField id="tags"
-                required
-                padding="dense"
-                defaultValue={this.set.tags.join(',')}
-                placeholder="Pump, Steam"
-                label="Tags(comma-separated)"
-                style={{ width: '50%' }}
-                ref="tagsRef"
-                onChange={(e) => this.responseHandler(e, e.target.value, "Tags")}
-              />
-            </div>
-          }
-        </form>
-
-        <div className="setTaskListContainer">
-          <div className="setTaskListViewer">
-            <Droppable droppableId="setTaskListId" >
-              {(provided, snapshot) => (
-                <div ref={provided.innerRef} style={{ width: '100%', minHeight: '100%', height: 'auto' }}>
-                  < EditSetList removeCallback={this.removeTaskFromListCallback} taskListObjects={this.state.taskListObjects} reactDND={true}
-                    removeTaskCallback={this.removeTaskFromListCallback} moveTaskCallback={this.moveTaskCallback}
-                    displayIfEmpty={"Drag tasks here"} />
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
+  return (
+    <div className="setComponentContainer">
+      <form className="setFormRoot" autoComplete="off" id="formRootId">
+        {
+          <div>
+            <TextField
+              id="questionText"
+              required
+              padding="dense"
+              defaultValue={set.name}
+              placeholder="Valve questions"
+              label="Set Name"
+              style={{ width: 'calc(50% - 10px)', marginRight: 10 }}
+              rows="1"
+              onChange={(e) => { set.name = e.target.value }}
+            />
+            <TextField
+              id="tags"
+              required
+              padding="dense"
+              defaultValue={set.tags.join(',')}
+              placeholder="Pump, Steam"
+              label="Tags(comma-separated)"
+              style={{ width: '50%' }}
+              onChange={(e) => onResponsesChanged(e, e.target.value, "Tags")}
+            />
           </div>
-        </div>
-        <div className="editSetComponentButtons">
-          <Button onClick={this.onChangeSetSettings.bind(this)} variant="outlined">
-            {this.props.isEditing ? "Save" : "Create"}
-          </Button>
-          {this.props.isEditing ?
-            <Button onClick={this.removeSet.bind(this)} variant="outlined">
-              Delete
-            </Button>
-            : null
-          }
+        }
+      </form>
 
-          <FormControlLabel label="Randomize order"
-            value="start"
-            padding="dense"
-            style={{ marginLeft: 10 }}
-            checked={this.state.randomizeSet}
-            control={<Checkbox color="secondary" />}
-            onChange={this.handleSetTaskOrderChange}
-            labelPlacement="end"
-          />
+      <div className="setTaskListContainer">
+        <div className="setTaskListViewer">
+          <Droppable droppableId="setTaskListId" >
+            {(provided, snapshot) => (
+              <div ref={provided.innerRef} style={{ width: '100%', minHeight: '100%', height: 'auto' }}>
+                <EditSetList
+                  removeCallback={removeTask}
+                  taskListObjects={taskListObjects}
+                  reactDND={true}
+                  removeTaskCallback={removeTask}
+                  moveTaskCallback={moveTask}
+                  displayIfEmpty={"Drag tasks here"}
+                />
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
         </div>
       </div>
-    )
-  }
+      <div className="editSetComponentButtons">
+        <Button
+          onClick={onChangeSetSettings}
+          variant="outlined"
+        >
+          {props.isEditing ? "Save" : "Create"}
+        </Button>
+
+        {props.isEditing
+          ? <Button
+            onClick={removeSet}
+            variant="outlined"
+          >
+            Delete
+            </Button>
+          : null
+        }
+
+        <FormControlLabel
+          label="Randomize order"
+          value="start"
+          padding="dense"
+          style={{ marginLeft: 10 }}
+          checked={randomizeSet}
+          control={<Checkbox color="secondary" />}
+          onChange={onSetTaskOrderChanged}
+          labelPlacement="end"
+        />
+      </div>
+    </div>
+  )
 }
 
 export default EditSet

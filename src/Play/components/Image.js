@@ -143,7 +143,9 @@ const ImageComponent = props => {
 
   const getClickableComponent = () => {
     if (props.task.recordClicks) {
-      const left = (imageElement) ? parseInt(imageElement.offsetLeft) : 0
+      const left = (imageElement) 
+        ? parseInt(imageElement.offsetLeft) 
+        : 0
 
       return (
         <svg onClick={onImageClicked} style={{ left: left }} className="clickableCanvas"

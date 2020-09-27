@@ -68,6 +68,7 @@ class db_helper {
       })
   }
 
+  //not called?
   addTwoTasksToDb(tasks, callback) {
     axios.post("/api/addTwoTasks", { tasks: JSON.stringify(tasks) })
       .then(response => {
@@ -121,12 +122,12 @@ class db_helper {
   */
 
   /**
-   * getAllTaskSetsFromDb - Asynch query the DB for all existing Sets, the results are recieved via callback.
+   * getAllSetsFromDb - Asynch query the DB for all existing Sets, the results are recieved via callback.
    *
    * @param  {function} callback This function will be called with the result of the query. The function should take one parameter.
    */
-  getAllTaskSetsFromDb(callback) {
-    fetch("/api/getAllTaskSets")
+  getAllSetsFromDb(callback) {
+    fetch("/api/getAllSets")
       .then( response => {
         if (response.ok)
           return response.json()
@@ -166,7 +167,7 @@ class db_helper {
    * @param  {function} callback  This function will be called when the object has been retrieved. The function should take one parameter.
    */
   getTaskSetObject(taskSetID, callback) {
-    axios.post("/api/getCompleteTaskSetObject", { objId: JSON.stringify(taskSetID) })
+    axios.post("/api/getCompleteSetObject", { objId: JSON.stringify(taskSetID) })
       .then( response => { callback(response.data.data) })
   }
 
@@ -233,8 +234,8 @@ class db_helper {
       .then( data => { })
   }
 
-  deleteAllTaskSetsFromDb() {    //Deletes all the sets in the DB. Use with care.
-    axios.delete("api/deleteAllTaskSets")
+  deleteAllSetsFromDb() {    //Deletes all the sets in the DB. Use with care.
+    axios.delete("api/deleteAllSets")
   }
 
   deleteAllLegacyTasksFromDb() {
@@ -263,9 +264,9 @@ class db_helper {
   queryAllTagValuesFromDB(queryType, callback) {
     let queryCollection
     if (queryType === db_objects.ObjectTypes.SET)
-      queryCollection = 'TaskSets'
+      queryCollection = 'Sets'
     else if (queryType === db_objects.ObjectTypes.TASK)
-      queryCollection = 'Synquestitasks'
+      queryCollection = 'Tasks'
     else return
 
     axios.post("/api/getAllTagValues", { queryCollection: queryCollection, })
@@ -293,9 +294,9 @@ class db_helper {
   queryTasksFromDb(queryType, queryString, queryCombination, callback) {
     let queryCollection
     if (queryType === db_objects.ObjectTypes.SET)
-      queryCollection = 'TaskSets'
+      queryCollection = 'Sets'
     else if (queryType === db_objects.ObjectTypes.TASK)
-      queryCollection = 'Synquestitasks'
+      queryCollection = 'Tasks'
     else return
 
     axios.post("/api/getAllTasksContaining", {
@@ -315,27 +316,27 @@ class db_helper {
   }
 
   /**
-   * getTasksOrTaskSetsWithIDs - Asynch Get tasks or sets with the specified ids.
+   * getTasksOrSetsWithIDs - Asynch Get tasks or sets with the specified ids.
    * @param  {string}   objIds   The ids to retrieve, should be in a list/array format.
    * @param  {function} callback This function is called with the result of the query. Should take one parameter.
    */
-  getTasksOrTaskSetsWithIDs(wrapperSetId, callback) {
-    axios.post("/api/getTasksOrTaskSetsWithIDs", { wrapperSetId: JSON.stringify(wrapperSetId) })
+  getTasksOrSetsWithIDs(wrapperSetId, callback) {
+    axios.post("/api/getTasksOrSetsWithIDs", { wrapperSetId: JSON.stringify(wrapperSetId) })
       .then( response => {
         callback(response.data.data, response.data.count, response.data.mainTaskSetName)
       })
   }
 
   /**
-   * getTasksOrTaskSetsWithIDsPromise - Async Get tasks or sets with the specified ids. Can be made Synchronous by using await.
+   * getTasksOrSetsWithIDsPromise - Async Get tasks or sets with the specified ids. Can be made Synchronous by using await.
    *
    * @param  {string}   objIds   The ids to retrieve, should be in a list/array format.
    *
    * @return {list} Returns a list of Task and Set objects.
    */
-  async getTasksOrTaskSetsWithIDsPromise(objIds) {
+  async getTasksOrSetsWithIDsPromise(objIds) {
     return new Promise((resolve, reject) => {
-      axios.post("/api/getTasksOrTaskSetsWithIDs", { wrapperSetId: JSON.stringify(objIds) })
+      axios.post("/api/getTasksOrSetsWithIDs", { wrapperSetId: JSON.stringify(objIds) })
         .then(response => { resolve(response.data.data) }, errorResponse => { reject(errorResponse) })
     })
   }
@@ -463,7 +464,7 @@ class db_helper {
   }
 
   /**
-   * getTasksOrTaskSetsWithIDsPromise - Async Get tasks or sets with the specified ids. Can be made Synchronous by using await.
+   * getTasksOrSetsWithIDsPromise - Async Get tasks or sets with the specified ids. Can be made Synchronous by using await.
    *
    * @param  {string}   objIds   The ids to retrieve, should be in a list/array format.
    *
@@ -474,48 +475,6 @@ class db_helper {
       axios.post("/api/deleteParticipant", { id: participantId })
         .then( response => { resolve() }, errorResponse => { reject(errorResponse) })
     })
-  }
-
-  /*
-██████   ██████  ██      ███████ ███████
-██   ██ ██    ██ ██      ██      ██
-██████  ██    ██ ██      █████   ███████
-██   ██ ██    ██ ██      ██           ██
-██   ██  ██████  ███████ ███████ ███████
-*/
-  getAllRolesFromDb(callback) {
-    fetch("/api/getAllRoles")
-      .then(response => {
-        if (response.ok)
-          return response.json()
-        else {
-          alert("Database connection failed!")
-          throw new Error("Database connection failed")
-        }
-      })
-      .then(res => { callback(res.roles) })
-      .catch(error => { console.log(error) })
-  }
-
-  addRoleToDb(name) {
-    axios.post("/api/addRole", { role: name })
-      .then( response => {
-        if (response.status === 200) {
-        } else {
-          alert("Something's wrong! Cannot log the current run into database.")
-          throw new Error("Cannot log data")
-        }
-      })
-  }
-
-  deleteRoleFromDb(role, callback) {
-    axios.post("/api/deleteRole", { role: role })
-      .then( response => { callback() })
-  }
-
-  deleteAllRolesFromDb(callback) {
-    axios.delete("/api/deleteAllRoles")
-      .then( () => callback() )
   }
 
   /*
@@ -550,7 +509,7 @@ class db_helper {
     axios.post("/api/addNewObserverMessage", { observerMessage: JSON.stringify(message) })
       .then( response => { })
   }
-
+//not called?
   deleteAMessageFromDb(info) {
     axios.post("/api/deleteAMessage", { info: JSON.stringify(info) })
       .then( response => { })

@@ -1,9 +1,9 @@
 export const TaskTypes = {
-  INSTRUCTION: { type: 'Instruction', label: 'Instruction' },
-  IMAGE: { type: 'Image', label: 'Image' },
-  MCHOICE: { type: 'Multiple Choice', label: 'Buttons' },
-  TEXTENTRY: { type: 'Text Entry', label: 'Text' },
-  NUMPAD: { type: 'Numpad Entry', label: 'Numbers' }
+  INSTRUCTION:  { type: 'Instruction', label: 'Instruction' },
+  IMAGE:        { type: 'Image', label: 'Image' },
+  BUTTON:       { type: 'Button', label: 'Button' },
+  TEXT:         { type: 'Text', label: 'Text' },
+  NUMBER:       { type: 'Number', label: 'Number' }
 }
 
 function getLabel(type) {
@@ -23,19 +23,19 @@ export const ObjectTypes = {
 }
 
 let childListID = 0;
-// The default object used for Tasks. New tasks should use this as the base.
-export class SynquestitaskObject {
-  constructor() {
-    this.name = "" //The name for the Synquestitask
-    this.tags = [] //A list of searchable tags
-    this.refSets = [] //list of sets that reference this Synquestitask
 
-    this.childObj = [] //A list of child objects
-    this.objType = ObjectTypes.TASK   //"synquestitask"
+export class TaskObj {      // The default object used for Tasks. New tasks should use this as the base.
+  constructor() {
+    this.name = "" 
+    this.tags = []          //A list of searchable tags
+    this.refSets = []       //list of sets that reference this Synquestitask
+
+    this.components = [] 
+    this.objType = ObjectTypes.TASK   
   }
 }
 
-export class SynquestitaskChildComponent {
+export class Component {
   constructor(taskType) {
     this.objType = taskType.type //The type of the object, see enum above
     this.label = taskType.label ? taskType.label : getLabel(taskType)
@@ -64,15 +64,13 @@ export class SynquestitaskChildComponent {
 }
 
 //The default object used for Sets. New sets should use this as the base.
-export class TaskSetObject {
+export class SetObject {
   constructor() {
     this.name = ""
     this.tags = []
     this.childIds = []
     this.setTaskOrder = "InOrder"
-    this.repeatSetThreshold = 0
     this.displayOnePage = false  //If true display all the tasks on one page
-    this.logOneLine = false   //If true log all the tasks in one line
     this.counterbalancingOrder = []
     this.objType = ObjectTypes.SET   //ObjectTypes.SET;
   }

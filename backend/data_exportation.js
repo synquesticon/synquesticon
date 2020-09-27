@@ -6,8 +6,8 @@ const dataSchema = require("./data_schema")
 const ObserverMessages = dataSchema.ObserverMessages
 ObserverMessages.createIndexes({ queryString: "text", tags: "text" })
 
-const Synquestitasks = dataSchema.Synquestitasks;
-Synquestitasks.createIndexes({ queryString: "text", tags: "text" })
+const Tasks = dataSchema.Tasks
+Tasks.createIndexes({ queryString: "text", tags: "text" })
 
 var exports = module.exports = {}
 var DATA_DIRECTORY = "exported_data/"
@@ -15,13 +15,13 @@ var GAZE_DATA_PREFIX = "gaze_data_"
 var RAW_GAZE_DATA_DIRECTORY = "raw_gaze_data/"
 
 function getFormattedTime(dt) {
-  var date = new Date(dt)
-  var hours = date.getHours()
-  var minutes = "0" + date.getMinutes()
-  var seconds = "0" + date.getSeconds()
-  var milliseconds = date.getMilliseconds()
-
-  return(hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2) + '.' + milliseconds)
+  const date = new Date(dt)
+  return(
+    date.getHours() 
+      + ':0' + date.getMinutes().substr(-2) 
+      + ':0' + date.getSeconds().substr(-2) 
+      + '.'  + date.getMilliseconds()
+  )
 }
 
 exports.save_gaze_data = function (participantId, task, gazeData) {
@@ -109,7 +109,7 @@ function handleCorrectlyAnswered(ans) {
 }
 
 function handleAcceptedMargin(line) {
-  if (line.objType === "Numpad Entry") {
+  if (line.objType === "Number") {
     if (line.correctResponses.length > 1) return line.correctResponses[1]
     else return "NULL"
   }
@@ -145,7 +145,7 @@ exports.save_to_csv = async function (p, seperator) {
       async (err, obj) => {
         if (obj.length > 0) line.comments = obj
       })).catch(exp => { console.log("exp 1") })
-    let task = await (Synquestitasks.findOne({ _id: line.taskId },
+    let task = await (Tasks.findOne({ _id: line.taskId },
       async (err, obj) => {
         if (obj) line.tags = obj.tags
         else line.tags = []

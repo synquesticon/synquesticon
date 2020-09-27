@@ -5,12 +5,15 @@ const PARTICIPANT_EVENT     = "ParticipantEvent"
 const REMOTE_TRACKER_EVENT  = "NewRemoteTrackerEvent"
 const COMMAND_EVENT         = "CommandEvent"
 const SESSION_CONTROL_EVENT = "SessionControlEvent"
+const TASK_EVENT            = "TaskEvent"
 
 class CEventStore extends EventEmitter {
   constructor() {
-	  super()
+    super()
+    this.motion = []
 		this.currentMessage = []
     this.currentCommand = []
+    this.currentTask = []
     this.currentRemoteTracker = null
     this.receivedRemoteTrackers = []
   }
@@ -39,8 +42,28 @@ class CEventStore extends EventEmitter {
   }
 
   sendMotionData(args){
-    this.currentMessage = args
+    this.motion = args
     this.emit(MOTION_EVENT)
+  }
+
+  getMotionData() {
+    return this.motion 
+  }
+
+  //TASK_EVENT
+  setTaskListener(status, callback) {
+    (status === "on") 
+      ? this.addListener(TASK_EVENT, callback)
+      : this.removeListener(TASK_EVENT, callback)
+  }
+
+  sendTaskData(args){
+    this.currentTask = args
+    this.emit(TASK_EVENT)
+  }
+
+  getTaskData() {
+    return this.currentTask 
   }
 
 //SESSION_CONTROL_EVENT

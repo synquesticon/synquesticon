@@ -39,7 +39,7 @@ const AOIImageViewComponent = props => {
     :"/Images/" + props.imageName
 
   const left = (imageElement) 
-    ? left = parseInt(imageElement.offsetLeft)
+    ? parseInt(imageElement.offsetLeft)
     : 0
   
 

@@ -12,7 +12,7 @@ import SessionEntry from './SessionEntry.js'
 import './css/SessionList.css'
 
 const SessionList = props => {
-  const [taskSets, setTaskSets] = useState([])
+  const [sets, setSets] = useState([])
   let selectedTaskSet = null
 
   useEffect(() => {
@@ -24,7 +24,7 @@ const SessionList = props => {
 
   //query all tasksets with experiment tag
   const dbTaskSetCallback = (queryTasks, data) => {
-    setTaskSets(data.tasks)
+    setSets(data.tasks)
   }
 
   const appendEyeTrackerInfo = url => {
@@ -124,15 +124,15 @@ const SessionList = props => {
   let viewerBG = props.theme.palette.type === "light" ? props.theme.palette.primary.main : props.theme.palette.primary.dark
 
   let SessionList = (
-    taskSets.map((taskSet, index) => {
+    sets.map((set, index) => {
       return (
         <div key={index}>
           <SessionEntry
-            task={taskSet}
+            task={set}
             runSetCallback={onPlayButtonClick}
             getLinkCallback={onGetLinkCallback}
             editSetCallback={onEditButtonClick}
-            content={listUtils.getTaskContent(taskSet)}
+            content={listUtils.getTaskContent(set)}
             showEditButton={true}>
           </SessionEntry>
         </div>

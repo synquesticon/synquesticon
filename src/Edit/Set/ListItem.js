@@ -17,7 +17,9 @@ const EditSetListItem = props => {
   const headerHeight = 40
   const task = <div className={"editListItemTextContainer "}>
     <div className="editListItemText">
-      <Typography color="textPrimary" noWrap> {props.content} </Typography>
+      <Typography color="textPrimary" noWrap>
+        {props.content}
+      </Typography>
     </div>
   </div>
 
@@ -27,14 +29,13 @@ const EditSetListItem = props => {
         <div className={"editListItem "} >
           {task}
           <div className="editListItemDelBtnContainer">
-            <Button style={{ cursor: 'pointer', width: '100%', height: headerHeight, minWidth: '30px', minHeight: '30px' }}
-              size="small" onClick={removeTask}>
+            <Button style={{ cursor: 'pointer', width: '100%', height: headerHeight, minWidth: '30px', minHeight: '30px' }} size="small" 
+              onClick={removeTask}>
               <DeleteIcon />
             </Button>
           </div>
           <div className="editListItemDragBtnContainer">
-            <Button style={{ cursor: 'move', width: '100%', height: headerHeight, minWidth: '30px', minHeight: '30px' }}
-              size="small" >
+            <Button style={{ cursor: 'move', width: '100%', height: headerHeight, minWidth: '30px', minHeight: '30px' }} size="small" >
               <DragIcon />
             </Button>
           </div>
@@ -47,8 +48,15 @@ const EditSetListItem = props => {
   } else if (props.item.objType === dbOjects.ObjectTypes.SET) { //Is a node with children
     const newDepth = props.componentDepth + 1
     let collapsableContent = props.item.data.map((data, index) => {
-      return <EditSetListItem key={index} removeCallback={props.removeTaskCallback} 
-        item={data} content={listUtils.getTaskContent(data)} componentDepth={newDepth} />
+      return(
+        <EditSetListItem 
+          key={index} 
+          removeCallback={props.removeTaskCallback} 
+          item={data} 
+          content={listUtils.getTaskContent(data)} 
+          componentDepth={newDepth} 
+        />
+      )
     })
 
     collapsableContent = <div className="collapsedItemListWrapper">{collapsableContent}</div>
@@ -58,14 +66,13 @@ const EditSetListItem = props => {
       dragSource =
         <div>
           <div className="editListItemDelBtnContainer">
-            <Button style={{ cursor: 'pointer', width: '100%', height: headerHeight, minWidth: '30px', minHeight: '30px' }}
-              size="small" onClick={removeTask} >
+            <Button style={{ cursor: 'pointer', width: '100%', height: headerHeight, minWidth: '30px', minHeight: '30px' }} size="small" 
+              onClick={removeTask} >
               <DeleteIcon className="delBtnIcon" />
             </Button>
           </div>
           <div className="editListItemDragBtnContainer">
-            <Button style={{ cursor: 'move', width: '100%', height: headerHeight, minWidth: '30px', minHeight: '30px' }}
-              size="small" >
+            <Button style={{ cursor: 'move', width: '100%', height: headerHeight, minWidth: '30px', minHeight: '30px' }} size="small" >
               <DragIcon className="dragBtnIcon" />
             </Button>
           </div>
@@ -73,10 +80,19 @@ const EditSetListItem = props => {
 
       return (
         <div content={props.content} style={{ width: '100%' }}>
-          <CollapsableContainer content={props.content} classNames="editSetCompContainer"
-            contentClassNames="editSetCompContent" headerComponents={dragSource} open={false} headerHeight={headerHeight}
-            headerClassNames="editSetCompHeader" hideHeaderComponents={false} headerTitle={props.item.name}
-            titleVariant="body1" indentContent={20}>
+          <CollapsableContainer 
+            content={props.content} 
+            classNames="editSetCompContainer"
+            contentClassNames="editSetCompContent" 
+            headerComponents={dragSource} 
+            open={false} 
+            headerHeight={headerHeight}
+            headerClassNames="editSetCompHeader" 
+            hideHeaderComponents={false} 
+            headerTitle={props.item.name}
+            titleVariant="body1" 
+            indentContent={20}
+          >
             {collapsableContent}
           </CollapsableContainer>
         </div>)
@@ -84,9 +100,19 @@ const EditSetListItem = props => {
 
     return (
       <div style={{ paddingLeft: 20 * props.componentDepth, width: '100%' }}>
-        <CollapsableContainer classNames="editSetCompContainer" contentClassNames="editSetCompContent" headerComponents={dragSource} open={false}
-          headerClassNames="editSetCompHeader" hideHeaderComponents={false} headerTitle={props.item.name} headerHeight={headerHeight}
-          headerWidth={{ flexGrow: 1 }} titleVariant="body1" indentContent={10}>
+        <CollapsableContainer 
+          classNames="editSetCompContainer" 
+          contentClassNames="editSetCompContent" 
+          headerComponents={dragSource} 
+          open={false}
+          headerClassNames="editSetCompHeader" 
+          hideHeaderComponents={false} 
+          headerTitle={props.item.name} 
+          headerHeight={headerHeight}
+          headerWidth={{ flexGrow: 1 }} 
+          titleVariant="body1" 
+          indentContent={10}
+        >
           {collapsableContent}
         </CollapsableContainer></div>
     )

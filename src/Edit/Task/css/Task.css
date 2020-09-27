@@ -48,14 +48,14 @@
   margin-bottom: 8px;
 }
 
-.synquestitaskListContainer{
+.taskListContainer{
   display: flex;
   flex-grow: 1;
   flex-shrink: 1;
   min-height: 0;
 }
 
-.synquestitaskListViewer{
+.taskListViewer{
   position: relative;
   height: calc(100%);
   width: calc(100% - 6px);

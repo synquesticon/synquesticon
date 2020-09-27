@@ -22,7 +22,7 @@ const ShowTask = props => {
         if (store.getState().multipleScreens && item.hideNext) 
           hideNext = true
         switch (item.objType) {
-          case dbObjects.TaskTypes.MCHOICE.type:
+          case dbObjects.TaskTypes.BUTTON.type:
             return <Suspense key={uuid()} fallback={<div></div>}><Button className="itemContainer"
               key = { uuid() }
               task = { item}
@@ -46,9 +46,9 @@ const ShowTask = props => {
             </Suspense>
           case dbObjects.TaskTypes.IMAGE.type:
             return <Suspense key={uuid()} fallback={<div></div>}><Image className="itemContainer" task={item} taskID={props.task._id} tags={props.task.tags} parentSet={props.task.name} /></Suspense>;
-          case dbObjects.TaskTypes.TEXTENTRY.type:
+          case dbObjects.TaskTypes.TEXT.type:
             return <Suspense key={uuid()} fallback={<div></div>}><Text className="itemContainer" task={item} taskID={props.task._id} tags={props.task.tags} parentSet={props.task.name} /></Suspense>
-          case dbObjects.TaskTypes.NUMPAD.type:
+          case dbObjects.TaskTypes.NUMBER.type:
             return <Suspense key={uuid()} fallback={<div></div>}><Number className="itemContainer" task={item} taskID={props.task._id} tags={props.task.tags} parentSet={props.task.name} /></Suspense>
           default:
             return null
@@ -59,7 +59,7 @@ const ShowTask = props => {
     return { components: components, hideNext: hideNext }
   }
 
-  const contentObject = getDisplayedContent(props.task.childObj, props.task._id, 0)
+  const contentObject = getDisplayedContent(props.task.components, props.task._id, 0)
 
   return (
     <div key={props.renderKey} className="multiItemContent">

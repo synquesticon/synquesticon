@@ -73,7 +73,8 @@ const TaskComponentItem = props => {
             placeholder="1, 2"
             onChange={(e) => onResponsesChanged(e, e.target.value, "ScreenIDs")}
           />
-          <FormControlLabel label="Hide next"
+          <FormControlLabel 
+            label="Hide next"
             value="end"
             padding="dense"
             id={uniqueID + "hideNext"}
@@ -87,10 +88,12 @@ const TaskComponentItem = props => {
       }
       case dbObjects.TaskTypes.IMAGE.type: {
         component = <div>
-          <Image task={props.task}
+          <Image 
+            task={props.task}
             selectImageCallback={onSelectImage}
             uniqueID={uniqueID + "image"} />
-          <TextField label="Screen IDs"
+          <TextField 
+            label="Screen IDs"
             required
             padding="dense"
             style={{ width: "100px" }}
@@ -99,7 +102,8 @@ const TaskComponentItem = props => {
             placeholder="1, 2"
             onChange={(e) => onResponsesChanged(e, e.target.value, "ScreenIDs")}
           />
-          <FormControlLabel label="Hide next"
+          <FormControlLabel 
+            label="Hide next"
             value="end"
             padding="dense"
             id={uniqueID + "hideNext"}
@@ -111,9 +115,10 @@ const TaskComponentItem = props => {
         </div>
         break
       }
-      case dbObjects.TaskTypes.MCHOICE.type: {
+      case dbObjects.TaskTypes.BUTTON.type: {
         component = <div>
-          <TextField label="Question"
+          <TextField 
+            label="Question"
             required
             padding="dense"
             fullWidth
@@ -124,7 +129,8 @@ const TaskComponentItem = props => {
             rows="1"
             onChange={(e) => { props.task.displayText = e.target.value }}
           />
-          <TextField label="Answers(comma-separated)"
+          <TextField 
+            label="Answers(comma-separated)"
             required
             padding="dense"
             style={{ marginRight: "10px", width: "calc(50% - 10px)" }}
@@ -133,7 +139,8 @@ const TaskComponentItem = props => {
             placeholder="Answer A, Answer B, Answer C"
             onChange={(e) => onResponsesChanged(e, e.target.value, "Responses")}
           />
-          <TextField label="Correct answers(comma-separated)"
+          <TextField 
+            label="Correct answers(comma-separated)"
             required
             padding="dense"
             style={{ width: "50%" }}
@@ -142,7 +149,8 @@ const TaskComponentItem = props => {
             placeholder="Answer A, Answer C"
             onChange={(e) => onResponsesChanged(e, e.target.value, "Correct Responses")}
           />
-          <FormControlLabel label="Single Choice"
+          <FormControlLabel 
+            label="Single Choice"
             value="end"
             id={uniqueID + "schoice"}
             padding="dense"
@@ -151,7 +159,8 @@ const TaskComponentItem = props => {
             onChange={onSingleChoiceChanged}
             labelPlacement="end"
           />
-          <FormControlLabel label="Auto-Reset"
+          <FormControlLabel 
+            label="Auto-Reset"
             value="end"
             id={uniqueID + "reset"}
             padding="dense"
@@ -160,7 +169,8 @@ const TaskComponentItem = props => {
             onChange={onResetResponsesChanged}
             labelPlacement="end"
           />
-          <FormControlLabel label="Make Global Variable"
+          <FormControlLabel 
+            label="Make Global Variable"
             value="end"
             padding="dense"
             id={uniqueID + "globalVar"}
@@ -169,7 +179,8 @@ const TaskComponentItem = props => {
             onChange={onGlobalVariableChanged}
             labelPlacement="end"
           />
-          <TextField label="Screen IDs"
+          <TextField 
+            label="Screen IDs"
             required
             padding="dense"
             style={{ width: "100px" }}
@@ -178,7 +189,8 @@ const TaskComponentItem = props => {
             placeholder="1, 2"
             onChange={(e) => onResponsesChanged(e, e.target.value, "ScreenIDs")}
           />
-          <FormControlLabel label="Hide next"
+          <FormControlLabel 
+            label="Hide next"
             value="end"
             padding="dense"
             id={uniqueID + "hideNext"}
@@ -190,9 +202,10 @@ const TaskComponentItem = props => {
         </div>
         break
       }
-      case dbObjects.TaskTypes.NUMPAD.type: {
+      case dbObjects.TaskTypes.NUMBER.type: {
         component = <div>
-          <TextField label="Question"
+          <TextField 
+            label="Question"
             required
             padding="dense"
             fullWidth
@@ -203,7 +216,8 @@ const TaskComponentItem = props => {
             rows="1"
             onChange={(e) => { props.task.displayText = e.target.value }}
           />
-          <TextField label="Correct answer, +-Margin(Optional)"
+          <TextField 
+            label="Correct answer, +-Margin(Optional)"
             required
             padding="dense"
             style={{ marginRight: "10px", width: "calc(40% - 15px)" }}
@@ -212,7 +226,8 @@ const TaskComponentItem = props => {
             placeholder="3, 0.2"
             onChange={(e) => onResponsesChanged(e, e.target.value, "Correct Responses")}
           />
-          <FormControlLabel label="Make Global Variable"
+          <FormControlLabel 
+            label="Make Global Variable"
             value="end"
             padding="dense"
             id={uniqueID + "globalVar"}
@@ -221,7 +236,8 @@ const TaskComponentItem = props => {
             onChange={onGlobalVariableChanged}
             labelPlacement="end"
           />
-          <TextField label="Screen IDs"
+          <TextField 
+            label="Screen IDs"
             required
             padding="dense"
             style={{ width: "100px" }}
@@ -230,7 +246,8 @@ const TaskComponentItem = props => {
             placeholder="1, 2"
             onChange={(e) => onResponsesChanged(e, e.target.value, "ScreenIDs")}
           />
-          <FormControlLabel label="Hide next"
+          <FormControlLabel 
+            label="Hide next"
             value="end"
             padding="dense"
             id={uniqueID + "hideNext"}
@@ -242,9 +259,10 @@ const TaskComponentItem = props => {
         </div>
         break
       }
-      case dbObjects.TaskTypes.TEXTENTRY.type: {
+      case dbObjects.TaskTypes.TEXT.type: {
         component = <div>
-          <TextField label="Question"
+          <TextField 
+            label="Question"
             required
             padding="dense"
             fullWidth
@@ -255,7 +273,8 @@ const TaskComponentItem = props => {
             rows="1"
             onChange={(e) => { props.task.displayText = e.target.value }}
           />
-          <TextField label="Correct answer"
+          <TextField 
+            label="Correct answer"
             padding="dense"
             style={{ marginRight: "10px", width: "calc(40% - 15px)" }}
             id={uniqueID + "textCorrectResponses"}
@@ -263,7 +282,8 @@ const TaskComponentItem = props => {
             placeholder="Answer A, Answer C"
             onChange={(e) => onResponsesChanged(e, e.target.value, "Correct Responses")}
           />
-          <FormControlLabel label="Make Global Variable"
+          <FormControlLabel 
+            label="Make Global Variable"
             value="end"
             padding="dense"
             id={uniqueID + "globalVar"}
@@ -272,7 +292,8 @@ const TaskComponentItem = props => {
             onChange={onGlobalVariableChanged}
             labelPlacement="end"
           />
-          <TextField label="Screen IDs"
+          <TextField 
+            label="Screen IDs"
             required
             padding="dense"
             style={{ width: "100px" }}
@@ -281,7 +302,8 @@ const TaskComponentItem = props => {
             placeholder="1, 2"
             onChange={(e) => onResponsesChanged(e, e.target.value, "ScreenIDs")}
           />
-          <FormControlLabel label="Hide next"
+          <FormControlLabel 
+            label="Hide next"
             value="end"
             padding="dense"
             id={uniqueID + "hideNext"}

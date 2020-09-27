@@ -51,17 +51,17 @@ const TaskList = props => {
                 <Draggable key={index} draggableId={item + index} index={index} shouldRespectForceTouch={false} isDragDisabled={!props.dragEnabled}>
                   {(provided, snapshot) => (
                     <React.Fragment>
-                      <TaskItem 
-                        domRef={provided.innerRef} 
-                        provided={provided} 
+                      <TaskItem
+                        domRef={provided.innerRef}
+                        provided={provided}
                         dragEnabled={props.dragEnabled}
-                        isDragging={snapshot.isDragging} 
+                        isDragging={snapshot.isDragging}
                         snapshot={snapshot}
-                        placeholder={false} 
-                        task={item} 
+                        placeholder={false}
+                        task={item}
                         itemType={props.itemType}
-                        handleDrop={props.dragDropCallback} 
-                        content={item.label} 
+                        handleDrop={props.dragDropCallback}
+                        content={item.label}
                         marginClass={margin}
                       />
                       {snapshot.isDragging && (

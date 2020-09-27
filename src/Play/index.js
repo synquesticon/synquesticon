@@ -40,7 +40,7 @@ const Play = props => {
         participantId: parsed.pid
       })
 
-    db_helper.getTasksOrTaskSetsWithIDs(parsed.id, (dbQueryResult, count, mainTaskSetName) => {
+    db_helper.getTasksOrSetsWithIDs(parsed.id, (dbQueryResult, count, mainTaskSetName) => {
       setTaskSet(dbQueryResult)
       if (dbQueryResult.data) {      //Force preload all images
         console.log("dbQueryResult" + dbQueryResult.data)

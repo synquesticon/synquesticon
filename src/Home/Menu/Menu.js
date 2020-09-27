@@ -79,7 +79,7 @@ const Menu = props => {
             </ListItem>
           </List>
           <List>
-            <ListItem button key="DummySet" onClick={() => db_helper.deleteAllTaskSetsFromDb()}>
+            <ListItem button key="DummySet" onClick={() => db_helper.deleteAllSetsFromDb()}>
               <ListItemText primary="Empty Sets" />
             </ListItem>
             <ListItem button key="DummyLegacy" onClick={() => db_helper.deleteAllLegacyTasksFromDb()}>
