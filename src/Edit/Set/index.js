@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import db_helper from '../../core/db_helper'
 import * as db_utils from '../../core/db_objects_utility_functions'
 import * as dbObjects from '../../core/db_objects'
@@ -15,15 +15,19 @@ import './Set.css'
 const EditSet = props => {
   //If we got a taskObject passed as a prop we use it, otherwise we init with a default constructed object
   //Clone the array via JSON. Otherwise we would operate directly on the original objects which we do not want
-  const set = props.isEditing
+
+  const set = useRef( props.isEditing
     ? JSON.parse(JSON.stringify(props.setObject))
     : new dbObjects.SetObject()
+  )
 
-  const [taskList, setTaskList] = useState(set.childIds ? set.childIds : [])
+  const destinationIndex = useRef(0)           //The index where a new task will be placed
+ 
+  const [taskList, setTaskList] = useState(set.current.childIds ? set.current.childIds : [])
   const [taskListObjects, setTaskListObjects] = useState([])
-  const [randomizeSet, setRandomizeSet] = useState(set.setTaskOrder === "Random" ? true : false)
-
-  let destinationIndex = 0           //The index where a new task will be placed
+  const [randomizeSet, setRandomizeSet] = useState(set.current.setTaskOrder === "Random" ? true : false)
+  
+  console.log ("on rerender " + Object.keys(taskListObjects))
   let shouldCloseAsset = false       //Used to determine if the object should be closed
   let shouldReopen = false
 
@@ -31,7 +35,7 @@ const EditSet = props => {
     eventStore.setTaskListener("on", addTask);
 
     (taskList && taskList.length > 0)
-      ? db_helper.getTasksOrSetsWithIDs(set._id, onRetrievedSetChildTasks)
+      ? db_helper.getTasksOrSetsWithIDs(set.current._id, onRetrievedSetChildTasks)
       : setTaskListObjects([])
 
     return () => eventStore.setTaskListener("off", addTask)
@@ -39,26 +43,9 @@ const EditSet = props => {
 
   const onRetrievedSetChildTasks = retrievedObjects => {
     setTaskListObjects(retrievedObjects.data)
-  }
-
-  const onRetrievedSetChildTasksAddToSet = retrievedObject => {
-    alert(Object.keys(retrievedObject))
-    let updatedObjects = taskListObjects.slice()
-    updatedObjects[destinationIndex] = retrievedObject           //Replace the dummy object with the actual object
-    let updatedTaskList = taskList.slice()
-    updatedTaskList[destinationIndex] =
-      { id: retrievedObject._id, objType: retrievedObject.objType }   //Replace the dummy object with the actual object
-    setTaskListObjects(updatedObjects)
-    setTaskList(updatedTaskList)
-    set.childIds = updatedTaskList
-  }
-
-  const updateSetChildList = taskToAdd => {
-    shouldCloseAsset = false
-    if (taskToAdd.objType === dbObjects.ObjectTypes.SET)
-      db_helper.getTasksOrSetsWithIDs(taskToAdd._id, onRetrievedSetChildTasksAddToSet)
-    else if (taskToAdd.objType === dbObjects.ObjectTypes.TASK)
-      db_helper.getTaskWithID(taskToAdd._id, onRetrievedSetChildTasksAddToSet)
+    console.log("ret objs " + Object.keys(retrievedObjects))
+    console.log("task list " + Object.keys(taskList[0]))    
+    console.log("on retrieved" + taskListObjects)
   }
 
   const onDBCallback = setDBID => {
@@ -68,31 +55,10 @@ const EditSet = props => {
         type: 'SET_SHOULD_EDIT',
         shouldEdit: true,
         typeToEdit: 'set',
-        objectToEdit: { ...set, ...{ _id: setDBID } }
+        objectToEdit: { ...set.current, ...{ _id: setDBID } }
       })
     }
     closeSetComponent(true, shouldCloseAsset)
-  }
-
-  const onChangeSetSettings = () => {
-    if (props.isEditing) {
-      shouldCloseAsset = false
-      db_helper.updateTaskSetFromDb(set._id, set, onDBCallback)
-      store.dispatch({
-        type: 'TOAST_SNACKBAR_MESSAGE',
-        snackbarOpen: true,
-        snackbarMessage: "Set saved"
-      })
-    } else {
-      shouldCloseAsset = true
-      shouldReopen = true
-      db_helper.addTaskSetToDb(set, onDBCallback)
-      store.dispatch({
-        type: 'TOAST_SNACKBAR_MESSAGE',
-        snackbarOpen: true,
-        snackbarMessage: "Set created"
-      })
-    }
   }
 
   const onResponsesChanged = (e, response, target) => {
@@ -103,7 +69,7 @@ const EditSet = props => {
     response = response.filter(Boolean) //Remove empty values
 
     if (target === "Tags")
-      set.tags = response
+      set.current.tags = response
     else if (target === "Repeat" && response[0]) {
       response = response[0].replace(/\D/g, '')
       response = response === "" ? "0" : response
@@ -111,10 +77,30 @@ const EditSet = props => {
   }
 
   const onSetTaskOrderChanged = (e, checked) => {                   //Callback from checkbox pressed
-    set.setTaskOrder = checked
+    set.current.setTaskOrder = checked
       ? "Random"
       : "InOrder"
     setRandomizeSet(checked)
+  }
+
+  const addTask = () => {           //Add a task to the list of tasks in the set
+    let addObj = eventStore.getTaskData()
+    let task = addObj[0]
+    let destinationIdx = addObj[1]
+    console.log("destIdx " + destinationIdx)
+    console.log("set len " + set.current.childIds.length)
+    console.log("tasklist len " + taskList.length)
+    if (set.current._id === task._id) {
+      store.dispatch({
+        type: 'TOAST_SNACKBAR_MESSAGE',
+        snackbarOpen: true,
+        snackbarMessage: "Cannot add the same set to itself"
+      })
+    } else {
+      destinationIndex.current = destinationIdx
+      
+      willCauseCircularReference(task)   //perform a deeper check for circular references. This will in turn add the task if it is ok to do so.
+    }
   }
 
   const willCauseCircularReference = task => {                    //Returns true if adding the task will result in a circular reference
@@ -124,7 +110,7 @@ const EditSet = props => {
 
       db_helper.getTasksOrSetsWithIDsPromise(task).then(data => {
         if (data) {                                     //If the query was successful, extract the child set ids of the set we are trying to add as well as the set id
-          if (getChildSetIDs(data, [data._id]).includes(set._id)) {    //Check that we are not adding a set containing the set we are editing now. If we are it would cause a circular reference
+          if (getChildSetIDs(data, [data._id]).includes(set.current._id)) {    //Check that we are not adding a set containing the set we are editing now. If we are it would cause a circular reference
             handleAddTaskAllowed(false, task, "The set you are trying to add already includes this set and would cause a circular reference")
             return
           }
@@ -137,53 +123,30 @@ const EditSet = props => {
     } else handleAddTaskAllowed(true, task, "Task successfully added")
   }
 
-  const getChildSetIDs = (setObject, childSets) => {
-    childSets.push(setObject._id)             //Add the object to the list
-    setObject.data.forEach(obj => {          //Iterate over the sets children
-      if (obj.objType === dbObjects.ObjectTypes.SET)
-        getChildSetIDs(obj, childSets)
-    })
-    return childSets
-  }
-
-  const addTask = () => {           //Add a task to the list of tasks in the set
-    let addObj = eventStore.getTaskData()
-    let task = addObj[0]
-    let destinationIdx = addObj[1]
-    if (set._id === task._id) {
-      store.dispatch({
-        type: 'TOAST_SNACKBAR_MESSAGE',
-        snackbarOpen: true,
-        snackbarMessage: "Cannot add the same set to itself"
-      })
-    } else {
-      destinationIndex = destinationIdx
-      
-      willCauseCircularReference(task)   //perform a deeper check for circular references. This will in turn add the task if it is ok to do so.
-    }
-  }
-
   const handleAddTaskAllowed = (allowed, task, message) => {
     if (allowed) {
       
       let updatedObjects = taskListObjects.slice()   //Add a dummy object to the list while we wait for the callback
       updatedObjects.splice(
-        destinationIndex,
+        destinationIndex.current,
         0,
         { _id: task._id, question: "Adding...", objType: "Task", taskType: "Image" }
       )
 
       let updatedTaskList = taskList.slice()         //Create a dummy task object for the taskList
       updatedTaskList.splice(
-        destinationIndex,
+        destinationIndex.current,
         0,
         { id: task._id, objType: task.objType }
       )
-
-      set.childIds = updatedTaskList
+      set.current.childIds = updatedTaskList
  
-      updateSetChildList(task)
-
+      shouldCloseAsset = false
+      if (task.objType === dbObjects.ObjectTypes.SET)
+        db_helper.getTasksOrSetsWithIDs(task._id, onRetrievedSetChildTasksAddToSet)
+      else if (task.objType === dbObjects.ObjectTypes.TASK)
+        db_helper.getTaskWithID(task._id, onRetrievedSetChildTasksAddToSet)
+    
       store.dispatch({
         type: 'TOAST_SNACKBAR_MESSAGE',
         snackbarOpen: true,
@@ -199,6 +162,52 @@ const EditSet = props => {
         snackbarMessage: message
       })
     }
+  }
+
+  const onRetrievedSetChildTasksAddToSet = retrievedObject => {
+    let updatedObjects = taskListObjects.slice()
+    console.log("before" + taskListObjects)
+    updatedObjects[destinationIndex.current] = retrievedObject           //Replace the dummy object with the actual object
+    console.log("before" + updatedObjects)
+    let updatedTaskList = taskList.slice()
+    updatedTaskList[destinationIndex.current] =
+      { id: retrievedObject._id, objType: retrievedObject.objType }   //Replace the dummy object with the actual object
+    setTaskListObjects(updatedObjects)
+    setTaskList(updatedTaskList)
+    set.current.childIds = updatedTaskList
+  }
+
+  const onChangeSetSettings = () => {
+    if (props.isEditing) {
+      shouldCloseAsset = false
+      console.log("onChangeSetSettings " + set.current.childIds[0].id)
+
+      db_helper.updateTaskSetFromDb(set.current._id, set.current, onDBCallback)
+      
+      store.dispatch({
+        type: 'TOAST_SNACKBAR_MESSAGE',
+        snackbarOpen: true,
+        snackbarMessage: "Set saved"
+      })
+    } else {
+      shouldCloseAsset = true
+      shouldReopen = true
+      db_helper.addTaskSetToDb(set.current, onDBCallback)
+      store.dispatch({
+        type: 'TOAST_SNACKBAR_MESSAGE',
+        snackbarOpen: true,
+        snackbarMessage: "Set created"
+      })
+    }
+  }
+
+  const getChildSetIDs = (setObject, childSets) => {
+    childSets.push(setObject._id)             //Add the object to the list
+    setObject.data.forEach(obj => {          //Iterate over the sets children
+      if (obj.objType === dbObjects.ObjectTypes.SET)
+        getChildSetIDs(obj, childSets)
+    })
+    return childSets
   }
 
   const removeTask = taskId => {   //Remove a task from the list of tasks in the set
@@ -217,7 +226,7 @@ const EditSet = props => {
       }
     }
 
-    set.childIds = newList
+    set.current.childIds = newList
 
     store.dispatch({
       type: 'TOAST_SNACKBAR_MESSAGE',
@@ -238,7 +247,7 @@ const EditSet = props => {
     setTaskListObjects(updatedObjectList)
     setTaskList(updatedTaskList)
 
-    set.childIds = updatedTaskList
+    set.current.childIds = updatedTaskList
   }
 
   const removeSet = () => {  //Removes the selected set from the database
@@ -250,7 +259,7 @@ const EditSet = props => {
       snackbarMessage: "Set deleted"
     })
 
-    db_helper.deleteTaskSetFromDb(set._id, onDBCallback)
+    db_helper.deleteTaskSetFromDb(set.current._id, onDBCallback)
   }
 
   const closeSetComponent = (componentChanged, overrideShouldClose) => {   //Calls the provided callback function that handles the closing of this component
@@ -277,18 +286,18 @@ const EditSet = props => {
               id="questionText"
               required
               padding="dense"
-              defaultValue={set.name}
+              defaultValue={set.current.name}
               placeholder="Valve questions"
               label="Set Name"
               style={{ width: 'calc(50% - 10px)', marginRight: 10 }}
               rows="1"
-              onChange={(e) => { set.name = e.target.value }}
+              onChange={(e) => { set.current.name = e.target.value }}
             />
             <TextField
               id="tags"
               required
               padding="dense"
-              defaultValue={set.tags.join(',')}
+              defaultValue={set.current.tags.join(',')}
               placeholder="Pump, Steam"
               label="Tags(comma-separated)"
               style={{ width: '50%' }}
