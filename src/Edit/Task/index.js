@@ -16,12 +16,12 @@ class Task extends Component {
 
     //If we got a taskObject passed as a prop we use it, otherwise we init with a default constructed object
     //Clone the array via JSON. Otherwise we would operate directly on the original objects which we do not want
-    // this.taskObj = this.props.isEditing 
-    //   ? JSON.parse(JSON.stringify(this.props.taskObj)) 
+    // this.taskObj = this.props.isEditing
+    //   ? JSON.parse(JSON.stringify(this.props.taskObj))
     //   : new dbObjects.TaskObj()
 
-      this.taskObj = this.props.isEditing 
-      ? this.props.taskObj 
+      this.taskObj = this.props.isEditing
+      ? this.props.taskObj
       : new dbObjects.TaskObj()
 
     for (var i = 0; i < this.taskObj.components.length; i++) {
@@ -147,7 +147,7 @@ class Task extends Component {
     const { source, destination } = result
     if (!destination) return   // dropped outside the list
 
-    if (source.droppableId === destination.droppableId) 
+    if (source.droppableId === destination.droppableId)
       this.moveComponent(source.index, destination.index)
     else  //Otherwise we add to the list at the desired location
       this.addComponent(source.index, destination.index)
@@ -195,10 +195,10 @@ class Task extends Component {
 
           <div className="synquestiTaskOptions">
             {
-              <TaskList 
+              <TaskList
                 dragEnabled={true}
                 taskList={Object.values(dbObjects.TaskTypes)}
-                itemType={dbObjects.ObjectTypes.TASK} 
+                itemType={dbObjects.ObjectTypes.TASK}
                 droppableId="tasks" />
             }
           </div>

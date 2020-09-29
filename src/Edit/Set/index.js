@@ -15,37 +15,36 @@ import './Set.css'
 const EditSet = props => {
   //If we got a taskObject passed as a prop we use it, otherwise we init with a default constructed object
   //Clone the array via JSON. Otherwise we would operate directly on the original objects which we do not want
-
   const set = useRef( props.isEditing
     ? JSON.parse(JSON.stringify(props.setObject))
     : new dbObjects.SetObject()
   )
 
   const destinationIndex = useRef(0)           //The index where a new task will be placed
- 
+
   const [taskList, setTaskList] = useState(set.current.childIds ? set.current.childIds : [])
   const [taskListObjects, setTaskListObjects] = useState([])
   const [randomizeSet, setRandomizeSet] = useState(set.current.setTaskOrder === "Random" ? true : false)
-  
-  console.log ("on rerender " + Object.keys(taskListObjects))
+
+  //In a callback from outside this file we do not have access to state values. That is what this.function.bind(this)
+  // was used for earlier. To retain the state context. This is a work around. This reference will have up to date state information when accessed.
+  const taskListObjectRef = useRef()
+  taskListObjectRef.current = taskListObjects;
+
   let shouldCloseAsset = false       //Used to determine if the object should be closed
   let shouldReopen = false
 
   useEffect(() => {
-    eventStore.setTaskListener("on", addTask);
-
+    eventStore.setTaskListener("on", addTask.bind(this));
     (taskList && taskList.length > 0)
       ? db_helper.getTasksOrSetsWithIDs(set.current._id, onRetrievedSetChildTasks)
       : setTaskListObjects([])
 
-    return () => eventStore.setTaskListener("off", addTask)
-  }, [])
+    return () => {eventStore.setTaskListener("off", addTask)}
+  }, []);
 
   const onRetrievedSetChildTasks = retrievedObjects => {
     setTaskListObjects(retrievedObjects.data)
-    console.log("ret objs " + Object.keys(retrievedObjects))
-    console.log("task list " + Object.keys(taskList[0]))    
-    console.log("on retrieved" + taskListObjects)
   }
 
   const onDBCallback = setDBID => {
@@ -87,9 +86,6 @@ const EditSet = props => {
     let addObj = eventStore.getTaskData()
     let task = addObj[0]
     let destinationIdx = addObj[1]
-    console.log("destIdx " + destinationIdx)
-    console.log("set len " + set.current.childIds.length)
-    console.log("tasklist len " + taskList.length)
     if (set.current._id === task._id) {
       store.dispatch({
         type: 'TOAST_SNACKBAR_MESSAGE',
@@ -98,7 +94,6 @@ const EditSet = props => {
       })
     } else {
       destinationIndex.current = destinationIdx
-      
       willCauseCircularReference(task)   //perform a deeper check for circular references. This will in turn add the task if it is ok to do so.
     }
   }
@@ -125,36 +120,35 @@ const EditSet = props => {
 
   const handleAddTaskAllowed = (allowed, task, message) => {
     if (allowed) {
-      
-      let updatedObjects = taskListObjects.slice()   //Add a dummy object to the list while we wait for the callback
-      updatedObjects.splice(
+
+      let taskListObjectsCopy = taskListObjectRef.current.slice()
+      taskListObjectsCopy.splice( //Add a dummy object so the user gets some feedback while the server is processing
         destinationIndex.current,
         0,
-        { _id: task._id, question: "Adding...", objType: "Task", taskType: "Image" }
+        { _id: task._id, name:"Adding...",objType:"Tasks" }
       )
 
-      let updatedTaskList = taskList.slice()         //Create a dummy task object for the taskList
-      updatedTaskList.splice(
+      taskList.splice( //Add a dummy object so the user gets some feedback while the server is processing
         destinationIndex.current,
         0,
         { id: task._id, objType: task.objType }
       )
-      set.current.childIds = updatedTaskList
- 
+      set.current.childIds = taskList
+
       shouldCloseAsset = false
       if (task.objType === dbObjects.ObjectTypes.SET)
         db_helper.getTasksOrSetsWithIDs(task._id, onRetrievedSetChildTasksAddToSet)
       else if (task.objType === dbObjects.ObjectTypes.TASK)
         db_helper.getTaskWithID(task._id, onRetrievedSetChildTasksAddToSet)
-    
+
       store.dispatch({
         type: 'TOAST_SNACKBAR_MESSAGE',
         snackbarOpen: true,
         snackbarMessage: message
       })
 
-      setTaskListObjects(updatedObjects)
-      setTaskList(updatedTaskList)
+      setTaskListObjects(taskListObjectsCopy)
+      setTaskList(taskList)
     } else {
       store.dispatch({
         type: 'TOAST_SNACKBAR_MESSAGE',
@@ -165,25 +159,19 @@ const EditSet = props => {
   }
 
   const onRetrievedSetChildTasksAddToSet = retrievedObject => {
-    let updatedObjects = taskListObjects.slice()
-    console.log("before" + taskListObjects)
-    updatedObjects[destinationIndex.current] = retrievedObject           //Replace the dummy object with the actual object
-    console.log("before" + updatedObjects)
-    let updatedTaskList = taskList.slice()
-    updatedTaskList[destinationIndex.current] =
-      { id: retrievedObject._id, objType: retrievedObject.objType }   //Replace the dummy object with the actual object
-    setTaskListObjects(updatedObjects)
-    setTaskList(updatedTaskList)
-    set.current.childIds = updatedTaskList
+    let taskListObjectsCopy = taskListObjectRef.current.slice()
+    taskListObjectsCopy[destinationIndex.current]=retrievedObject //Replace the dummy object with the actual object
+    setTaskListObjects(taskListObjectsCopy)
+    taskList[destinationIndex.current] = { id: retrievedObject._id, objType: retrievedObject.objType } //Replace the dummy object with the actual object
+    setTaskList(taskList)
+    set.current.childIds = taskList
   }
 
   const onChangeSetSettings = () => {
     if (props.isEditing) {
       shouldCloseAsset = false
-      console.log("onChangeSetSettings " + set.current.childIds[0].id)
-
       db_helper.updateTaskSetFromDb(set.current._id, set.current, onDBCallback)
-      
+
       store.dispatch({
         type: 'TOAST_SNACKBAR_MESSAGE',
         snackbarOpen: true,
@@ -239,15 +227,13 @@ const EditSet = props => {
   }
 
   const moveTask = (dragIndex, hoverIndex) => {
-    const updatedTaskList = taskList.slice()
-    db_utils.arrayMove(updatedTaskList, dragIndex, hoverIndex)
-    const updatedObjectList = taskListObjects.slice()
-    db_utils.arrayMove(updatedObjectList, dragIndex, hoverIndex)
+    db_utils.arrayMove(taskList, dragIndex, hoverIndex)
+    db_utils.arrayMove(taskListObjects, dragIndex, hoverIndex)
 
-    setTaskListObjects(updatedObjectList)
-    setTaskList(updatedTaskList)
+    setTaskListObjects(taskListObjects)
+    setTaskList(taskList)
 
-    set.current.childIds = updatedTaskList
+    set.current.childIds = taskList
   }
 
   const removeSet = () => {  //Removes the selected set from the database

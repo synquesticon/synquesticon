@@ -39,7 +39,7 @@ const Edit = props => {
   const [filterQueryType, setFilterQueryType] = useState(db_objects.ObjectTypes.TASK)
   const [filterStateMap, setFilterStateMap] = useState(initFilterMap())
 
-  let assetEditorCompKey = 0       //Asset Editor Component Key. Used to force reconstruction...
+  let assetEditorCompKey = useRef(0)       //Asset Editor Component Key. Used to force reconstruction...
   let filterDialogKey = 0
   let filterMap = null
 
@@ -52,7 +52,7 @@ const Edit = props => {
         objectToEdit: null,
         typeToEdit: ''
       })
-      selectSet(store.getState().objectToEdit)
+      //selectSet(store.getState().objectToEdit)
     }
   }, [])
 
@@ -108,17 +108,17 @@ const Edit = props => {
     db_helper.getAllTasksFromDb(dbTaskCallback)
     db_helper.getAllSetsFromDb(dbSetCallback)
   }
-  
+
 
   const selectTask = task => {
-    assetEditorCompKey += 1
+    assetEditorCompKey.current += 1
 
-    const assetObject = 
+    const assetObject =
       <EditTask
         isEditing={true}
         taskObj={task}
         closeTaskCallback={assetEditorObjectClosed}
-        key={assetEditorCompKey}
+        key={assetEditorCompKey.current}
       />
     setSelectedSet(null)
     setSelectedTask(task)
@@ -126,13 +126,13 @@ const Edit = props => {
   }
 
   const selectSet = set => {
-    assetEditorCompKey += 1
-    const assetObject = 
+    assetEditorCompKey.current += 1
+    const assetObject =
       <EditSet
         isEditing={true}
         setObject={set}
         closeSetCallback={assetEditorObjectClosed}
-        key={assetEditorCompKey}
+        key={assetEditorCompKey.current}
         runTestSet={() => { props.history.push('/DisplayTaskComponent') }}
       />
     setSelectedTask(null)
@@ -180,13 +180,13 @@ const Edit = props => {
   }
 
   const addSynquestitaskCallback = () => {
-    assetEditorCompKey += 1
+    assetEditorCompKey.current += 1
     clearAssetEditorObject()
     setAssetEditorObject(
       <EditTask
         isEditing={false}
         closeTaskCallback={assetEditorObjectClosed}
-        key={assetEditorCompKey}
+        key={assetEditorCompKey.current}
       />
     )
   }
@@ -205,7 +205,6 @@ const Edit = props => {
   }
 
   const onDragEnd = result => {
-    console.log(JSON.stringify(result))
     const { source, destination } = result
     if (!destination) return   // dropped outside the list
 
