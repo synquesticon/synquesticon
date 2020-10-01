@@ -32,11 +32,6 @@ const DeviceMotion = mongoose.model("DeviceMotion", DeviceMotionSchema)
 let mongodbClient = mongodb.MongoClient
 const mongodbURI = "mongodb://localhost:27017/SensorData"
 
-mongodbClient.connect(mongodbURI,
-    { useNewUrlParser: true, useUnifiedTopology: true },
-    setUpConnection)
-
-
 const setUpConnection = (err, client) => {
     if (err) throw err
     console.log('Motion logging db created')
@@ -46,14 +41,19 @@ const setUpConnection = (err, client) => {
     // checks if connection with the database is successful
     db.on("error", console.error.bind(console, "MongoDB connection error:"))
     mongoose.connect(mongodbURI, { useUnifiedTopology: true, useNewUrlParser: true })
-    mqttClient = mqtt.connect("wss://syn.ife.no/mqttproxy:9001")
+    mqttClient = mqtt.connect("wss://syn.ife.no/mqtt:9001")
 
     mqttClient.on('connect', function () {
         console.log("Connected to mqtt broker")
-        mqttClient.subscribe("motion", function (err) { if (err) { console.log(err) } })
+        mqttClient.subscribe("sensor/motion/#", function (err) { if (err) { console.log(err) } })
     })
     mqttClient.on('message', insertEvent)
 }
+
+mongodbClient.connect(mongodbURI,
+    { useNewUrlParser: true, useUnifiedTopology: true },
+    setUpConnection)
+
 
 function insertEvent(topic, message) {
     message = JSON.parse(message)
