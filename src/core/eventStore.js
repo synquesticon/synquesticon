@@ -6,11 +6,13 @@ const REMOTE_TRACKER_EVENT  = "NewRemoteTrackerEvent"
 const COMMAND_EVENT         = "CommandEvent"
 const SESSION_CONTROL_EVENT = "SessionControlEvent"
 const TASK_EVENT            = "TaskEvent"
+const TAG_EVENT             = "TagEvent"
 
 class CEventStore extends EventEmitter {
   constructor() {
     super()
     this.motion = []
+    this.tag = []
 		this.currentMessage = []
     this.currentCommand = []
     this.currentTask = []
@@ -48,6 +50,22 @@ class CEventStore extends EventEmitter {
 
   getMotionData() {
     return this.motion 
+  }
+
+  //TAG
+  setTagListener(status, callback) {
+    (status === "on") 
+      ? this.addListener(TAG_EVENT, callback)
+      : this.removeListener(TAG_EVENT, callback)
+  }
+
+  sendTag(args){
+    this.tag = args
+    this.emit(TAG_EVENT)
+  }
+
+  getTag() {
+    return this.tag 
   }
 
   //TASK_EVENT

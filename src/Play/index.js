@@ -16,6 +16,7 @@ import './css/Play.css'
 const Play = props => {
   const [isPaused, setIsPaused] = useState(false)
   const [taskSet, setTaskSet] = useState(null)
+  const myTag = useRef("hi")
 
   const frameDiv = useRef()
   const cursorRadius = 20
@@ -89,6 +90,7 @@ const Play = props => {
       timer = setInterval(() => updateCursorLocation, 4) //Update the gaze cursor location every 4ms
     }
 
+    eventStore.setTagListener("on", setTag)
     return () => {
       if (store.getState().experimentInfo.selectedTracker !== "")
         clearInterval(timer)
@@ -98,6 +100,7 @@ const Play = props => {
         showHeader: true,
         showFooter: true
       })
+      eventStore.setTagListener("off", setTag)
       eventStore.setNewCommandListener("off", onNewCommandEvent)
       window.removeEventListener('devicemotion', handleDeviceMotionEvent)
     }
@@ -176,19 +179,24 @@ const Play = props => {
   }
   window.localStorage.setItem('statusObj', JSON.stringify(statusObj))
 
+  const tagObj = {}
+
   const commandCallback = commandObj => {
     commandObj.command.forEach(command => {
       command = command.split('=')
       command[1] = command[1] ? command[1] : commandObj.content
       switch (command[0]) {
         case "recordMotion":
+          console.log("onMotionCommand" + myTag.current)
           if (commandObj.isClicked) {
-            window.addEventListener('devicemotion', handleDeviceMotionEvent)
+          //  motionObj.tag = myTag.current
+           // alert("motionObj " + motionObj.tag)
             motionObj.startTime = Date.now()
             motionObj.recordingCount++
             motionObj.sampleCount = 0
             statusObj.recording = true
             window.localStorage.setItem('statusObj', JSON.stringify(statusObj))
+            window.addEventListener('devicemotion', handleDeviceMotionEvent)
           } else {
             window.removeEventListener('devicemotion', handleDeviceMotionEvent)
             statusObj.recording = false
@@ -199,7 +207,26 @@ const Play = props => {
           mqtt.sendMqttMessage("requestStatus/", "requestStatus") 
           break
         case "tag":
-          motionObj.tag = commandObj.isClicked ? command[1] : null
+          const tagArray = command[1].split(';;')
+          tagArray.forEach( tag => {
+            tag = tag.split('@')
+            if (commandObj.isClicked) {
+              if (tag[0] == "") {
+                tag[0] = commandObj.content
+                console.log( tag[0] + " @ " + tag[1])
+              } 
+            } else {
+              tag[0] = ""
+            }
+
+            if (!tag[1]) 
+              tag[1] = commandObj.displayText
+
+            tagObj[tag[1]] = tag[0]
+          })
+          
+          mqtt.sendMqttMessage("tag/", JSON.stringify(tagObj))
+
           break
         case "mqtt":
           if (commandObj.isClicked) {
@@ -214,6 +241,7 @@ const Play = props => {
       }
     })
   }
+console.log("rerender")
 
   const motionObj = {
     user: { uid: window.localStorage.getItem('deviceID') },
@@ -223,10 +251,19 @@ const Play = props => {
     sampleCount: 0,
     position: {},
     rotation: {},
-    tag: ''
+    tag: ""
+  }
+
+  
+  const setTag = () => {
+    const tagMsgObj = JSON.parse(eventStore.getTag())
+    const tagMsgString = tagMsgObj.activity + " " + tagMsgObj.user + " " + tagMsgObj.orientation
+    myTag.current = tagMsgString
+    console.log(myTag.current)
   }
 
   const handleDeviceMotionEvent = e => {
+    motionObj.tag = myTag.current
     motionObj.sampleCount++
     motionObj.position = {
       x: e.acceleration.x,
@@ -239,6 +276,7 @@ const Play = props => {
       c: e.rotationRate.gamma
     }
     motionObj.timestamp = Date.now()
+    console.log(motionObj.tag)
     mqtt.sendMqttMessage('sensor/motion/' + motionObj.user.uid, JSON.stringify(motionObj))
   }
 

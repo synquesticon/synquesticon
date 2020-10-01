@@ -29,6 +29,7 @@ const buttonElement = props => {
                 command: props.command.split('&&'), 
                 content: props.content, 
                 isClicked: !isClicked, 
+                displayText: props.displayText,
                 event: e
             })
     }

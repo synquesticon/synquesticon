@@ -154,6 +154,7 @@ const buttonList = props => {
                   <Button
                     content={item[0]}
                     command={item[1]}
+                    displayText={props.task.displayText}
                     commandCallback={commandObj => props.commandCallback(commandObj)}
                     reset={props.task.resetResponses}
                     isSingleChoice={props.task.singleChoice}

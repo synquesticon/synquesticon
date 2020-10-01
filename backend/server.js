@@ -181,7 +181,7 @@ router.post("/getAllTasksContaining", async (req, res) => {
   const { queryCollection, queryString, queryCombination } = req.body;
 
   var collection = null
-  if (queryCollection === 'tasks') {
+  if (queryCollection === 'Tasks') {
     collection = Tasks
   } else {
     collection = Sets
