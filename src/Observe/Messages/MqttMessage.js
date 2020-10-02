@@ -6,8 +6,7 @@ import ApexCharts from 'apexcharts'
 import { SVG } from '@svgdotjs/svg.js'
 
 const mqttMessage = props => {
-    const accRef = useRef()
-    const gyroRef = useRef()
+    let refArray = new Array(2).fill(useRef())
 
     const [mqttMessage, setMqttMessage] = useState(
         {
@@ -24,12 +23,9 @@ const mqttMessage = props => {
     let graphArr = new Array(2)
     useEffect(() => {
         eventStore.setMotionListener("on", onNewEvent)
-
-        graphArr[0] = SVG().addTo(accRef.current).size("100%", 300)
-        //acc.rect("100%", "100%").fill('white').stroke("blue")
-
-        graphArr[1] = SVG().addTo(gyroRef.current).size("100%", 300)
-        // gyro.rect("100%", "100%").fill('yellow').stroke("red")
+        refArray.forEach( (item, index) => {
+            graphArr[index] = SVG().addTo(refArray[index].current).size("100%", 300)
+        })
         return () => eventStore.setMotionListener("off", onNewEvent)
     }, [])
 
@@ -42,16 +38,16 @@ const mqttMessage = props => {
     let delArr = []
 
     const onNewEvent = () => {
-        const msg = JSON.parse(eventStore.getMotionData())
+        const {position, rotation} = JSON.parse(eventStore.getMotionData())
         delArr.push(new Array(6))
         count++
 
         const posArr = [
-            [msg.position.x, msg.position.y, msg.position.z],
-            [msg.rotation.a, msg.rotation.b, msg.rotation.c]
+            [position.x, position.y, position.z],
+            [rotation.a, rotation.b, rotation.c]
         ]
 
-        prevArr.forEach((sensor, idx) => {
+        prevArr.forEach( (sensor, idx) => {
             prevArr[idx].forEach( (last, index) => {
                 delArr[count - 1][index] = graphArr[idx].line(
                     (count + offsetX - 1),
@@ -69,11 +65,10 @@ const mqttMessage = props => {
         prevArr = posArr
     }
 
-
     return (
         <>
-            <div ref={accRef}></div>
-            <div ref={gyroRef}></div>
+            <div ref={refArray[0]}></div>
+            <div ref={refArray[1]}></div>
 
             <div>tag: {mqttMessage.tag}</div>
             <div>user: {mqttMessage.user.uid}</div>
