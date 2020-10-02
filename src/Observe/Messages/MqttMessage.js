@@ -21,55 +21,52 @@ const mqttMessage = props => {
             tag: "no tag"
         })
 
-    let acc = null
-    let gyro = null
+    let graphArr = new Array(2)
     useEffect(() => {
         eventStore.setMotionListener("on", onNewEvent)
 
-        acc = SVG().addTo(accRef.current).size("100%", 300)
+        graphArr[0] = SVG().addTo(accRef.current).size("100%", 300)
         //acc.rect("100%", "100%").fill('white').stroke("blue")
 
-        gyro = SVG().addTo(gyroRef.current).size("100%", 300)
-       // gyro.rect("100%", "100%").fill('yellow').stroke("red")
+        graphArr[1] = SVG().addTo(gyroRef.current).size("100%", 300)
+        // gyro.rect("100%", "100%").fill('yellow').stroke("red")
         return () => eventStore.setMotionListener("off", onNewEvent)
     }, [])
 
     let count = 0
     const offsetX = 800
-    const scaling = -5
-    const scalingRotation = -0.4
-    let accLast = [0, 0, 0]
-    let gyroLast = [0, 0, 0]
+    const cutOff = 3000
+    const scale = [-5, -0.4]
+    let prevArr = [[0, 0, 0], [0, 0, 0]]
     const colors = ['red', 'blue', 'green']
+    let delArr = []
 
     const onNewEvent = () => {
         const msg = JSON.parse(eventStore.getMotionData())
+        delArr.push(new Array(6))
         count++
 
-        const accPos = [msg.position.x, msg.position.y, msg.position.z]
-        accLast.forEach((last, index) => {
-            acc.line(
-                ( count + offsetX - 1),
-                ( (last * scaling) + 150),
-                ( count + offsetX),
-                ( (accPos[index] * scaling) + 150) 
-            ).stroke({ color: colors[index], width: 1, linecap: 'round' })
-        })
-        acc.viewbox(count, 0, 900, 300);
-        accLast = [accPos[0], accPos[1], accPos[2]]
+        const posArr = [
+            [msg.position.x, msg.position.y, msg.position.z],
+            [msg.rotation.a, msg.rotation.b, msg.rotation.c]
+        ]
 
-        const gyroPos = [msg.rotation.a, msg.rotation.b, msg.rotation.c]
-        gyroLast.forEach((last, index) => {
-            gyro.line(
-                ( count + offsetX - 1),
-                ( (last * scalingRotation) + 150),
-                ( count + offsetX),
-                ( (gyroPos[index] * scalingRotation) + 150) 
-            ).stroke({ color: colors[index], width: 1, linecap: 'round' })
+        prevArr.forEach((sensor, idx) => {
+            prevArr[idx].forEach( (last, index) => {
+                delArr[count - 1][index] = graphArr[idx].line(
+                    (count + offsetX - 1),
+                    ((last * scale[idx]) + 150),
+                    (count + offsetX),
+                    ((posArr[idx][index] * scale[idx]) + 150)
+                ).stroke({ color: colors[index], width: 1, linecap: 'round' })
+            })
+            graphArr[idx].viewbox(count, 0, 900, 300)
         })
-        console.log(msg)
-        gyro.viewbox(count, 0, 900, 300);
-        gyroLast = [gyroPos[0], gyroPos[1], gyroPos[2]]
+
+        if (count > cutOff)
+            delArr[count - cutOff].forEach( item => item.remove() )
+
+        prevArr = posArr
     }
 
 
