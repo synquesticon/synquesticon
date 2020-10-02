@@ -38,7 +38,7 @@ const mqttMessage = props => {
     const cutOff = 3000
     const scale = [-5, -0.4]
     let prevArr = [[0, 0, 0], [0, 0, 0]]
-    const colors = ['red', 'blue', 'green']
+    const colors = ['red', 'green', 'blue']
     let delArr = []
 
     const onNewEvent = () => {
