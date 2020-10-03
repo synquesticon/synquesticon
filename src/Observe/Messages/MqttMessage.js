@@ -43,30 +43,28 @@ const mqttMessage = props => {
 
         data.forEach( sample => {
             delArr[count] = new Array(sample.length)
-            count++
-            if (!prevData) 
-                prevData = sample
+            if (!prevData) prevData = sample
 
             sample.forEach( (series, seriesIndex) => {
-                delArr[count-1][seriesIndex] = new Array(series.length)
+                delArr[count][seriesIndex] = new Array(series.length)
 
                 series.forEach((yValue, valueIndex) => {
-                    delArr[count - 1][seriesIndex][valueIndex] =
+                    delArr[count][seriesIndex][valueIndex] =
                         graphArr[seriesIndex].line(
-                            (count - 1 + offsetX),
-                            ((prevData[seriesIndex][valueIndex] * scale[seriesIndex]) + viewboxHeight / 2),
                             (count + offsetX),
+                            ((prevData[seriesIndex][valueIndex] * scale[seriesIndex]) + viewboxHeight / 2),
+                            (count + offsetX +1 ),
                             ((yValue * scale[seriesIndex]) + viewboxHeight / 2)
                         ).stroke({ color: colors[valueIndex], width: 1, linecap: 'round' })
                 })
-                graphArr[seriesIndex].viewbox(count, 0, 900, viewboxHeight)
+                graphArr[seriesIndex].viewbox(count+1, 0, 900, viewboxHeight)
             })
 
-            if (count > cutOff)
-                delArr[count - cutOff].forEach(item =>
+            if (count+1 > cutOff)
+                delArr[count+1 - cutOff].forEach(item =>
                     item.forEach( item => item.remove() )
                 )
-
+            count++
             prevData = sample
         })
     }
