@@ -7,6 +7,7 @@ import { SVG } from '@svgdotjs/svg.js'
 
 const mqttMessage = props => {
     let refArray = new Array(2).fill(useRef())
+    let graphArr = new Array(2)
 
     const [mqttMessage, setMqttMessage] = useState(
         {
@@ -20,10 +21,9 @@ const mqttMessage = props => {
             tag: "no tag"
         })
 
-    let graphArr = new Array(2)
     useEffect(() => {
         eventStore.setMotionListener("on", onNewEvent)
-        refArray.forEach( (item, index) => {
+        refArray.forEach((item, index) => {
             graphArr[index] = SVG().addTo(refArray[index].current).size("100%", 300)
         })
         return () => eventStore.setMotionListener("off", onNewEvent)
@@ -33,36 +33,35 @@ const mqttMessage = props => {
     const offsetX = 800
     const cutOff = 3000
     const scale = [-5, -0.4]
-    let prevArr = [[0, 0, 0], [0, 0, 0]]
+    let prevData = [[0, 0, 0], [0, 0, 0]]
     const colors = ['red', 'green', 'blue']
     let delArr = []
 
     const onNewEvent = () => {
-        const {position, rotation} = JSON.parse(eventStore.getMotionData())
-        delArr.push(new Array(6))
-        count++
+        const { data } = JSON.parse(eventStore.getMotionData())
+        data.forEach( (sample, sampleIndex) => {
+            delArr.push(new Array(6))
+            count++
 
-        const posArr = [
-            [position.x, position.y, position.z],
-            [rotation.a, rotation.b, rotation.c]
-        ]
-
-        prevArr.forEach( (sensor, idx) => {
-            prevArr[idx].forEach( (last, index) => {
-                delArr[count - 1][index] = graphArr[idx].line(
-                    (count + offsetX - 1),
-                    ((last * scale[idx]) + 150),
-                    (count + offsetX),
-                    ((posArr[idx][index] * scale[idx]) + 150)
-                ).stroke({ color: colors[index], width: 1, linecap: 'round' })
+            sample.forEach( (series, seriesIndex) => {
+                series.forEach( (yValue, valueIndex) => {
+                    delArr[count - 1][valueIndex + (series.length * seriesIndex)] =
+                        graphArr[seriesIndex].line(
+                            (count + offsetX - 1),
+                            ((prevData[sampleIndex][seriesIndex][valueIndex] * scale[seriesIndex]) + 150),
+                            (count + offsetX),
+                            ((yValue * scale[seriesIndex]) + 150)
+                        ).stroke({ color: colors[valueIndex], width: 1, linecap: 'round' })
+                })
+                graphArr[seriesIndex].viewbox(count, 0, 900, 300)
             })
-            graphArr[idx].viewbox(count, 0, 900, 300)
+
+
+             if (count > cutOff)
+                 delArr[count - cutOff].forEach( item => item.remove() )
+
+            prevData = data
         })
-
-        if (count > cutOff)
-            delArr[count - cutOff].forEach( item => item.remove() )
-
-        prevArr = posArr
     }
 
     return (

@@ -249,8 +249,7 @@ console.log("rerender")
     startTime: 0,
     recordingCount: 0,
     sampleCount: 0,
-    position: {},
-    rotation: {},
+    data: [],
     tag: ""
   }
 
@@ -265,16 +264,11 @@ console.log("rerender")
   const handleDeviceMotionEvent = e => {
     motionObj.tag = myTag.current
     motionObj.sampleCount++
-    motionObj.position = {
-      x: e.acceleration.x,
-      y: e.acceleration.y,
-      z: e.acceleration.z
-    }
-    motionObj.rotation = {
-      a: e.rotationRate.alpha,
-      b: e.rotationRate.beta,
-      c: e.rotationRate.gamma
-    }
+    motionObj.data = [[ 
+      [e.acceleration.x, e.acceleration.y, e.acceleration.z], 
+      [e.rotationRate.alpha, e.rotationRate.beta, e.rotationRate.gamma] 
+    ]]
+
     motionObj.timestamp = Date.now()
     console.log(motionObj.tag)
     mqtt.sendMqttMessage('sensor/motion/' + motionObj.user.uid, JSON.stringify(motionObj))
