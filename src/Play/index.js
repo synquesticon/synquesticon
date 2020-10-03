@@ -241,7 +241,7 @@ const Play = props => {
       }
     })
   }
-console.log("rerender")
+
 
   const motionObj = {
     user: { uid: window.localStorage.getItem('deviceID') },
@@ -253,25 +253,30 @@ console.log("rerender")
     tag: ""
   }
 
-  
   const setTag = () => {
     const tagMsgObj = JSON.parse(eventStore.getTag())
     const tagMsgString = tagMsgObj.activity + " " + tagMsgObj.user + " " + tagMsgObj.orientation
     myTag.current = tagMsgString
-    console.log(myTag.current)
   }
+
+  const chunkSize = 1
 
   const handleDeviceMotionEvent = e => {
     motionObj.tag = myTag.current
     motionObj.sampleCount++
-    motionObj.data = [[ 
-      [e.acceleration.x, e.acceleration.y, e.acceleration.z], 
-      [e.rotationRate.alpha, e.rotationRate.beta, e.rotationRate.gamma] 
-    ]]
-
     motionObj.timestamp = Date.now()
-    console.log(motionObj.tag)
-    mqtt.sendMqttMessage('sensor/motion/' + motionObj.user.uid, JSON.stringify(motionObj))
+   
+    motionObj.data.push(
+      [ 
+        [e.acceleration.x, e.acceleration.y, e.acceleration.z], 
+        [e.rotationRate.alpha, e.rotationRate.beta, e.rotationRate.gamma] 
+      ]
+    )
+
+    if (motionObj.data.length == chunkSize) {
+      mqtt.sendMqttMessage('sensor/motion/' + motionObj.user.uid, JSON.stringify(motionObj))
+      motionObj.data = []
+    }
   }
 
   if (taskSet !== null) {

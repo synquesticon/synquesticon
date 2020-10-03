@@ -34,40 +34,40 @@ const mqttMessage = props => {
     const cutOff = 3000
     const scale = [-5, -0.15]
     const viewboxHeight = 300
-    let prevData = [[[0, 0, 0], [0, 0, 0]]]
+    let prevData = null
     const colors = ['red', 'green', 'blue']
-    let delArr = []
+    let delArr = new Array()
 
     const onNewEvent = () => {
         const { data } = JSON.parse(eventStore.getMotionData())
 
-        data.forEach( (sample, sampleIndex) => {
+        data.forEach( sample => {
             delArr[count] = new Array(sample.length)
             count++
+            if (!prevData) 
+                prevData = sample
 
             sample.forEach( (series, seriesIndex) => {
-                delArr[count - 1][seriesIndex] = new Array(series.length)
+                delArr[count-1][seriesIndex] = new Array(series.length)
 
-                series.forEach( (yValue, valueIndex) => {
+                series.forEach((yValue, valueIndex) => {
                     delArr[count - 1][seriesIndex][valueIndex] =
                         graphArr[seriesIndex].line(
-                            (count + offsetX - 1),
-                            ((prevData[sampleIndex][seriesIndex][valueIndex] * scale[seriesIndex]) + viewboxHeight/2),
+                            (count - 1 + offsetX),
+                            ((prevData[seriesIndex][valueIndex] * scale[seriesIndex]) + viewboxHeight / 2),
                             (count + offsetX),
-                            ((yValue * scale[seriesIndex]) + viewboxHeight/2)
+                            ((yValue * scale[seriesIndex]) + viewboxHeight / 2)
                         ).stroke({ color: colors[valueIndex], width: 1, linecap: 'round' })
                 })
                 graphArr[seriesIndex].viewbox(count, 0, 900, viewboxHeight)
             })
 
-             if (count > cutOff)
-                 delArr[count - cutOff].forEach( item => 
-                    item.forEach( item =>
-                        item.remove() 
-                    )
+            if (count > cutOff)
+                delArr[count - cutOff].forEach(item =>
+                    item.forEach( item => item.remove() )
                 )
 
-            prevData = data
+            prevData = sample
         })
     }
 
