@@ -32,33 +32,40 @@ const mqttMessage = props => {
     let count = 0
     const offsetX = 800
     const cutOff = 3000
-    const scale = [-5, -0.4]
-    let prevData = [[0, 0, 0], [0, 0, 0]]
+    const scale = [-5, -0.15]
+    const viewboxHeight = 300
+    let prevData = [[[0, 0, 0], [0, 0, 0]]]
     const colors = ['red', 'green', 'blue']
     let delArr = []
 
     const onNewEvent = () => {
         const { data } = JSON.parse(eventStore.getMotionData())
+
         data.forEach( (sample, sampleIndex) => {
-            delArr.push(new Array(6))
+            delArr[count] = new Array(sample.length)
             count++
 
             sample.forEach( (series, seriesIndex) => {
+                delArr[count - 1][seriesIndex] = new Array(series.length)
+
                 series.forEach( (yValue, valueIndex) => {
-                    delArr[count - 1][valueIndex + (series.length * seriesIndex)] =
+                    delArr[count - 1][seriesIndex][valueIndex] =
                         graphArr[seriesIndex].line(
                             (count + offsetX - 1),
-                            ((prevData[sampleIndex][seriesIndex][valueIndex] * scale[seriesIndex]) + 150),
+                            ((prevData[sampleIndex][seriesIndex][valueIndex] * scale[seriesIndex]) + viewboxHeight/2),
                             (count + offsetX),
-                            ((yValue * scale[seriesIndex]) + 150)
+                            ((yValue * scale[seriesIndex]) + viewboxHeight/2)
                         ).stroke({ color: colors[valueIndex], width: 1, linecap: 'round' })
                 })
-                graphArr[seriesIndex].viewbox(count, 0, 900, 300)
+                graphArr[seriesIndex].viewbox(count, 0, 900, viewboxHeight)
             })
 
-
              if (count > cutOff)
-                 delArr[count - cutOff].forEach( item => item.remove() )
+                 delArr[count - cutOff].forEach( item => 
+                    item.forEach( item =>
+                        item.remove() 
+                    )
+                )
 
             prevData = data
         })
