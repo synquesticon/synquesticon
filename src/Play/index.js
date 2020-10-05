@@ -16,7 +16,7 @@ import './css/Play.css'
 const Play = props => {
   const [isPaused, setIsPaused] = useState(false)
   const [taskSet, setTaskSet] = useState(null)
-  const myTag = useRef("hi")
+  const myTag = useRef("")
 
   const frameDiv = useRef()
   const cursorRadius = 20
@@ -187,7 +187,6 @@ const Play = props => {
       command[1] = command[1] ? command[1] : commandObj.content
       switch (command[0]) {
         case "recordMotion":
-          console.log("onMotionCommand" + myTag.current)
           if (commandObj.isClicked) {
           //  motionObj.tag = myTag.current
            // alert("motionObj " + motionObj.tag)
@@ -241,7 +240,6 @@ const Play = props => {
       }
     })
   }
-
 
   const motionObj = {
     user: { uid: window.localStorage.getItem('deviceID') },
