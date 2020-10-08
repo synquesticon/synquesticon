@@ -16,6 +16,7 @@ Tobii_RemoteEyeTrackingServer/TobiiRemoteEyeTrackingServer/[Rr]elease/*
 Tobii_RemoteEyeTrackingServer/TobiiRemoteEyeTrackingServer/bin/*
 Tobii_RemoteEyeTrackingServer/TobiiRemoteEyeTrackingServer/obj/*
 Tobii_RemoteEyeTrackingServer/packages/*
-node_modules
+src/core/mqttClientTest.js
 node_modules
 .vscode/launch.json
+har_prediction/package-lock.json

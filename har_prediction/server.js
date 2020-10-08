@@ -5,7 +5,6 @@ require('@tensorflow/tfjs-node')
 const mqtt = require('mqtt')
 
 const express = require('express')
-const { prependOnceListener } = require('process')
 
 let signalArray = []
 
@@ -17,7 +16,6 @@ app.get('/', (req, res) => {
 })
 
 app.listen(8080, '0.0.0.0')
-console.log('Motherfucker Azure running now on 8080')
 
 mqttClient = mqtt.connect("wss://syn.ife.no/mqttproxy:9001")
 mqttClient.on('connect', function () {
@@ -31,13 +29,14 @@ function collectSignal(topic, message) {
         return
     }
     message = JSON.parse(message)
-    x = message.position.x
-    y = message.position.y
-    z = message.position.z
 
-    a = message.rotation.a
-    b = message.rotation.b
-    c = message.rotation.c
+    x = message.data[0][0][0]
+    y = message.data[0][0][1]
+    z = message.data[0][0][2]
+
+    a = message.data[0][1][0]
+    b = message.data[0][1][1]
+    c = message.data[0][1][2]
 
     signalArray = [...signalArray, x, y, z, a, b, c]
     
@@ -45,8 +44,6 @@ function collectSignal(topic, message) {
         predictActivity(signalArray)
         signalArray=[]
     }
-
-
 }
 
 async function predictActivity(signalArray){
