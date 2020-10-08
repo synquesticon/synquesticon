@@ -24,6 +24,7 @@ const SessionList = props => {
 
   //query all tasksets with experiment tag
   const dbTaskSetCallback = (queryTasks, data) => {
+    console.log(data)
     setSets(data.tasks)
   }
 

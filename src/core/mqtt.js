@@ -43,6 +43,7 @@ const _startMQTT = (config, restart) => {
     motion:         'sensor/motion/',
     eyeTracker:     'sensor/gaze/',
     requestStatus:  'requestStatus/',
+    tag:            'tag/',
     statusUpdate:   'statusUpdate/'
   }
 
@@ -56,14 +57,17 @@ const _startMQTT = (config, restart) => {
 // RESPOND TO TOPICS
   mqttClient.on('message', (topic, message) => {
     //console.log("received " +topic+message)
-    if (topic.startsWith(topicObj.motion)) 
-        eventStore.default.sendMotionData(message)
+    if (topic.startsWith(topicObj.motion)) {
+      eventStore.default.sendMotionData(message)
+    }
     else if (topic.startsWith(topicObj.eyeTracker))
         onRETData(message)
     else if (topic.startsWith(topicObj.task))
       eventStore.default.sendCurrentMessage(message)
     else if (topic.startsWith(topicObj.command))
       eventStore.default.sendCurrentCommand(message)
+    else if (topic.startsWith(topicObj.tag)) 
+      eventStore.default.sendTag(message)
     else if (topic.startsWith(topicObj.requestStatus))
       mqttClient.publish(topicObj.statusUpdate, window.localStorage.getItem('statusObj'))
     else if (topic.startsWith(topicObj.statusUpdate)) {

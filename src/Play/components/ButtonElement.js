@@ -5,9 +5,9 @@ const buttonElement = props => {
     const [isClicked, setIsClicked] = useState(false)
     const clickedButtonStyle = { backgroundColor: "#33ccff" }
 
-    useEffect( () => {
-        (props.id === props.clickedButton) 
-            ? setIsClicked(true) 
+    useEffect(() => {
+        (props.id === props.clickedButton)
+            ? setIsClicked(true)
             : setIsClicked(false)
     }, [props.clickedButton])
 
@@ -15,29 +15,51 @@ const buttonElement = props => {
         if (props.reset) {                      //Auto-reset buttons
             if (!isClicked) {
                 setIsClicked(true)
-                setTimeout( () => { setIsClicked(false) }, 1000)
+                setTimeout(() => { setIsClicked(false) }, 1000)
             }
             props.clickCallback(props.id, true, props.content)
         } else if (props.isSingleChoice) {      //Single-choice buttons
-            props.clickCallback(props.id, !isClicked, props.content) 
+            props.clickCallback(props.id, !isClicked, props.content)
         } else {                                //Multiple-choice buttons
             props.clickCallback(props.id, !isClicked, props.content)
             setIsClicked(!isClicked)
         }
         if (props.command)
-            props.commandCallback({
-                command: props.command.split('&&'), 
-                content: props.content, 
-                isClicked: !isClicked, 
-                event: e
-            })
+
+            if (props.command.includes('recordMotion')) {
+                if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                    // iOS 13+
+                    DeviceMotionEvent.requestPermission()
+                        .then(response => {
+                            if (response == 'granted') {
+                             //   window.addEventListener('devicemotion', (e) => {
+                             //   alert("GRANT" + e.acceleration.x)
+                               //  })
+                            }
+                        })
+                        .catch(console.error)
+                } else {
+                    // non iOS 13+
+                    alert('not ios')
+                }
+
+            }
+
+
+        props.commandCallback({
+            command: props.command.split('&&'),
+            content: props.content,
+            isClicked: !isClicked,
+            displayText: props.displayText,
+            event: e
+        })
     }
 
     return (
         <Button
             variant="contained"
             key={props.id}
-            onClick={ e => onButtonPressed(e)}
+            onClick={e => onButtonPressed(e)}
             style={isClicked ? clickedButtonStyle : null}>
             {props.content}
         </Button>
