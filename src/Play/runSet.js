@@ -34,7 +34,7 @@ const runSet = props => {
 
   const nextPressed = (setID, set) => {
     mqtt.sendMqttMessage(
-      'sessionControl',
+      'sessionControl/',
       JSON.stringify({
         type: 'nextTask',
         setID: setID,

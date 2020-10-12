@@ -29,10 +29,12 @@ const _startMQTT = (config, restart) => {
 
   let wsURL = config.bUseWSS ? "wss://" : "ws://"
   wsURL += config.ip + ":" + config.port
+  wsURL = "wss://syn.ife.no/mqtt:9001"
 
   console.log("Attmpting to connect to the mqtt broker ", wsURL)
 
-  mqttClient = mqtt.connect(wsURL)
+  //mqttClient = mqtt.connect(wsURL)
+  mqttClient = mqtt.connect(wsURL, {rejectUnauthorized: false})
   last_config = config
 
 // SUBSCRIBE TO TOPICS
