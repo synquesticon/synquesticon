@@ -29,7 +29,7 @@ const _startMQTT = (config, restart) => {
 
   let wsURL = config.bUseWSS ? "wss://" : "ws://"
   wsURL += config.ip + ":" + config.port
-  wsURL = "wss://syn.ife.no/mqtt:9001"
+  wsURL = "wss://synquesticon.azurewebsites.net/mqtt"
 
   console.log("Attmpting to connect to the mqtt broker ", wsURL)
 
