@@ -24,17 +24,15 @@ const _startMQTT = (config, restart) => {
     if (mqttClient)
       mqttClient.end()
     console.log("restarting mqtt client")
-  } else if (last_config && (last_config.ip === config.ip && last_config.port === config.port))
+  } else if (last_config && (last_config.mqttURL))
     return
 
-  let wsURL = config.bUseWSS ? "wss://" : "ws://"
-  wsURL += config.ip + ":" + config.port
-  wsURL = "wss://syn.ife.no/mqtt:9001"
+  let wssURL = "wss://" + config.mqttURL
 
-  console.log("Attmpting to connect to the mqtt broker ", wsURL)
+  console.log("Attempting to connect to the mqtt broker ", wssURL)
 
   //mqttClient = mqtt.connect(wsURL)
-  mqttClient = mqtt.connect(wsURL, {rejectUnauthorized: false})
+  mqttClient = mqtt.connect(wssURL, {rejectUnauthorized: false})
   last_config = config
 
 // SUBSCRIBE TO TOPICS

@@ -3,31 +3,27 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogActions from '@material-ui/core/DialogActions'
 import Dialog from '@material-ui/core/Dialog'
-import Checkbox from '@material-ui/core/Checkbox'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import * as mqtt from '../../../core/mqtt'
 
 const mqttDialog = (props) => {
-  const [useWSS, setUseWSS] = useState(true)
-  const [ipAddress, setIpAddress] = useState('syn.ife.no/mqttproxy')
-  const [port, setPort] = useState('9001')
+  const [mqttURL, setMqttURL] = useState('synquesticon.azurewebsites.net/mqtt')
 
   const mqttObject = {
-    ip: ipAddress,
-    port: port,
-    bUseWSS: useWSS
+    mqttURL: mqttURL
   }
 
   useEffect( () => {
     const mqttConfig = JSON.parse(props.myStorage.getItem('mqtt'))
     if (mqttConfig) {
       mqtt.startMQTT(mqttConfig)
-      setIpAddress(mqttConfig.ip)
-      setPort(mqttConfig.port)
-      setUseWSS(mqttConfig.bUseWSS)
-    } else mqtt.startMQTT(mqttObject)
+      setMqttURL(mqttConfig.ip)
+    } else{
+      console.log(mqttObject)
+      mqtt.startMQTT(mqttObject)
+
+    } 
   }, [])
 
   const onChangeMQTTSettings = e => {
@@ -41,36 +37,19 @@ const mqttDialog = (props) => {
       open={props.openMQTTSettings}
       onClose={props.closeMQTTSettings}
       aria-labelledby="form-dialog-title"
+      fullWidth={true}
+      maxWidth={"md"}
     >
       <DialogTitle id="form-dialog-title" variant="h5">MQTT Settings</DialogTitle>
       <DialogContent>
         <TextField
           required
           padding="normal"
-          style={{ marginRight: "10px", width: "calc(50% - 5px)" }}
+          style={{ marginRight: "10px", width: "calc(100%)" }}
           id="mqttIP"
-          defaultValue={ipAddress}
-          label="MQTT IP Address"
-          onChange={(e) => setIpAddress(e.target.value)}
-        />
-        <TextField
-          required
-          padding="normal"
-          id="mqttPort"
-          defaultValue={port}
-          style={{ width: "calc(50% - 5px)" }}
-          label="MQTT port"
-          type="number"
-          onChange={(e) => setPort(e.target.value)}
-        />
-        <FormControlLabel label="Use WSS"
-          value="end"
-          padding="dense"
-          id={"useWSS"}
-          checked={useWSS}
-          control={<Checkbox color="secondary" />}
-          onChange={(_, v) => setUseWSS(v)}
-          labelPlacement="end"
+          defaultValue={mqttURL}
+          label="MQTT Broker URL"
+          onChange={(e) => setMqttURL(e.target.value)}
         />
       </DialogContent>
       <DialogActions>
