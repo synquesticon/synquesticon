@@ -45,7 +45,6 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
-  "proxy": "http://localhost:3001",
   "devDependencies": {
     "node-sass-chokidar": "^1.5.0",
     "npm-run-all": "^4.1.3"
