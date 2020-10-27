@@ -58,7 +58,7 @@ const _startMQTT = (config, restart) => {
 
 // RESPOND TO TOPICS
   mqttClient.on('message', (topic, message) => {
-    //console.log("received " +topic+message)
+    console.log("("+topic+") " + message)
     if (topic.startsWith(topicObj.motion)) {
       eventStore.default.sendMotionData(message)
     }
