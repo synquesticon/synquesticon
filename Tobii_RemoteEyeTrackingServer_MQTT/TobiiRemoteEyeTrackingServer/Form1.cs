@@ -213,7 +213,8 @@ namespace TobiiRemoteEyeTrackingServer
             
         }
         private Thread MQTTThread;
-        private string mqttTopic = "RETDataSample";
+        private Guid guid = Guid.NewGuid();
+        private string mqttTopic = "sensor/gaze/";
         private bool IsStreamingMQTT = false;
         private IEyeTracker SelectedTracker = null;
         private ConcurrentQueue<GazeDataEventArgs> GazeEventQueue = new ConcurrentQueue<GazeDataEventArgs>();
@@ -222,6 +223,8 @@ namespace TobiiRemoteEyeTrackingServer
         {         
             if (!IsStreamingMQTT)
             {
+                var topic = mqttTopic + guid.ToString();
+
                 var factory = new MqttFactory();
                 var mqttClient = factory.CreateMqttClient();
                 // Create TCP based options using the builder.
@@ -241,7 +244,7 @@ namespace TobiiRemoteEyeTrackingServer
                 var options = new MqttClientOptionsBuilder()
                     .WithClientId("Tobii RET")
                     .WithWebSocketServer(mqttText) //"broker.hivemq.com:8000/mqtt"
-                    //.WithTls() //For wss
+                    .WithTls() //For wss
                     .Build();
                 await mqttClient.ConnectAsync(options, CancellationToken.None); // Since 3.0.5 with CancellationToken
 
@@ -315,9 +318,9 @@ namespace TobiiRemoteEyeTrackingServer
                                 }};
 
                                 string jsonMSG = JsonConvert.SerializeObject(msg);
-
+                                
                                 var message = new MqttApplicationMessageBuilder()
-                                .WithTopic(mqttTopic)
+                                .WithTopic(topic)
                                 .WithPayload(jsonMSG)
                                 .WithExactlyOnceQoS()
                                 .WithRetainFlag()

@@ -32,7 +32,6 @@
             this.CalibrateBtn = new System.Windows.Forms.Button();
             this.StreamBtn = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
             this.MQTTIPTextBox = new System.Windows.Forms.TextBox();
             this.RealmTextbox = new System.Windows.Forms.TextBox();
             this.DisplayComboBox = new System.Windows.Forms.ComboBox();
@@ -46,6 +45,7 @@
             this.FrequencyComboBox = new System.Windows.Forms.ComboBox();
             this.label7 = new System.Windows.Forms.Label();
             this.ModeComboBox = new System.Windows.Forms.ComboBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.CalibrationPanel.SuspendLayout();
             this.WAMPPanel.SuspendLayout();
             this.SuspendLayout();
@@ -53,19 +53,17 @@
             // TrackerListComboBox
             // 
             this.TrackerListComboBox.FormattingEnabled = true;
-            this.TrackerListComboBox.Location = new System.Drawing.Point(157, 15);
-            this.TrackerListComboBox.Margin = new System.Windows.Forms.Padding(4);
+            this.TrackerListComboBox.Location = new System.Drawing.Point(118, 12);
             this.TrackerListComboBox.Name = "TrackerListComboBox";
-            this.TrackerListComboBox.Size = new System.Drawing.Size(408, 24);
+            this.TrackerListComboBox.Size = new System.Drawing.Size(307, 21);
             this.TrackerListComboBox.TabIndex = 1;
             this.TrackerListComboBox.SelectedIndexChanged += new System.EventHandler(this.TrackerListComboBox_SelectedIndexChanged);
             // 
             // CalibrateBtn
             // 
-            this.CalibrateBtn.Location = new System.Drawing.Point(207, 75);
-            this.CalibrateBtn.Margin = new System.Windows.Forms.Padding(4);
+            this.CalibrateBtn.Location = new System.Drawing.Point(155, 61);
             this.CalibrateBtn.Name = "CalibrateBtn";
-            this.CalibrateBtn.Size = new System.Drawing.Size(133, 28);
+            this.CalibrateBtn.Size = new System.Drawing.Size(100, 23);
             this.CalibrateBtn.TabIndex = 2;
             this.CalibrateBtn.Text = "Calibrate";
             this.CalibrateBtn.UseVisualStyleBackColor = true;
@@ -73,10 +71,9 @@
             // 
             // StreamBtn
             // 
-            this.StreamBtn.Location = new System.Drawing.Point(208, 66);
-            this.StreamBtn.Margin = new System.Windows.Forms.Padding(4);
+            this.StreamBtn.Location = new System.Drawing.Point(156, 54);
             this.StreamBtn.Name = "StreamBtn";
-            this.StreamBtn.Size = new System.Drawing.Size(133, 30);
+            this.StreamBtn.Size = new System.Drawing.Size(100, 24);
             this.StreamBtn.TabIndex = 3;
             this.StreamBtn.Text = "Stream";
             this.StreamBtn.UseVisualStyleBackColor = true;
@@ -85,39 +82,43 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(13, 38);
-            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label1.Location = new System.Drawing.Point(10, 31);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(121, 17);
+            this.label1.Size = new System.Drawing.Size(79, 13);
             this.label1.TabIndex = 4;
             this.label1.Text = "MQTT Address";
             // 
             // MQTTIPTextBox
             // 
-            this.MQTTIPTextBox.Location = new System.Drawing.Point(161, 34);
-            this.MQTTIPTextBox.Margin = new System.Windows.Forms.Padding(4);
+            this.MQTTIPTextBox.Location = new System.Drawing.Point(121, 28);
             this.MQTTIPTextBox.Name = "MQTTIPTextBox";
-            this.MQTTIPTextBox.Size = new System.Drawing.Size(358, 27);
+            this.MQTTIPTextBox.Size = new System.Drawing.Size(270, 20);
             this.MQTTIPTextBox.TabIndex = 6;
-            this.MQTTIPTextBox.Text = "127.0.0.1:9001";
+            this.MQTTIPTextBox.Text = "synquesticon.azurewebsites.net/mqtt";
+            // 
+            // RealmTextbox
+            // 
+            this.RealmTextbox.Location = new System.Drawing.Point(0, 0);
+            this.RealmTextbox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.RealmTextbox.Name = "RealmTextbox";
+            this.RealmTextbox.Size = new System.Drawing.Size(76, 20);
+            this.RealmTextbox.TabIndex = 14;
             // 
             // DisplayComboBox
             // 
             this.DisplayComboBox.FormattingEnabled = true;
-            this.DisplayComboBox.Location = new System.Drawing.Point(141, 42);
-            this.DisplayComboBox.Margin = new System.Windows.Forms.Padding(4);
+            this.DisplayComboBox.Location = new System.Drawing.Point(106, 34);
             this.DisplayComboBox.Name = "DisplayComboBox";
-            this.DisplayComboBox.Size = new System.Drawing.Size(387, 24);
+            this.DisplayComboBox.Size = new System.Drawing.Size(291, 21);
             this.DisplayComboBox.TabIndex = 8;
             this.DisplayComboBox.SelectedIndexChanged += new System.EventHandler(this.DisplayComboBox_SelectedIndexChanged);
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(12, 46);
-            this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label3.Location = new System.Drawing.Point(9, 37);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(61, 17);
+            this.label3.Size = new System.Drawing.Size(46, 13);
             this.label3.TabIndex = 9;
             this.label3.Text = "Displays";
             // 
@@ -128,20 +129,18 @@
             this.CalibrationPanel.Controls.Add(this.CalibrateBtn);
             this.CalibrationPanel.Controls.Add(this.DisplayComboBox);
             this.CalibrationPanel.Controls.Add(this.label3);
-            this.CalibrationPanel.Location = new System.Drawing.Point(16, 246);
-            this.CalibrationPanel.Margin = new System.Windows.Forms.Padding(4);
+            this.CalibrationPanel.Location = new System.Drawing.Point(12, 200);
             this.CalibrationPanel.Name = "CalibrationPanel";
-            this.CalibrationPanel.Size = new System.Drawing.Size(550, 129);
+            this.CalibrationPanel.Size = new System.Drawing.Size(413, 105);
             this.CalibrationPanel.TabIndex = 10;
             // 
             // label4
             // 
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(225, 18);
-            this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label4.Location = new System.Drawing.Point(169, 15);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(89, 20);
+            this.label4.Size = new System.Drawing.Size(72, 16);
             this.label4.TabIndex = 10;
             this.label4.Text = "Calibration";
             // 
@@ -154,29 +153,26 @@
             this.WAMPPanel.Controls.Add(this.RealmTextbox);
             this.WAMPPanel.Controls.Add(this.label1);
             this.WAMPPanel.Controls.Add(this.StreamBtn);
-            this.WAMPPanel.Location = new System.Drawing.Point(16, 383);
-            this.WAMPPanel.Margin = new System.Windows.Forms.Padding(4);
+            this.WAMPPanel.Location = new System.Drawing.Point(12, 311);
             this.WAMPPanel.Name = "WAMPPanel";
-            this.WAMPPanel.Size = new System.Drawing.Size(550, 112);
+            this.WAMPPanel.Size = new System.Drawing.Size(413, 91);
             this.WAMPPanel.TabIndex = 11;
             // 
             // label5
             // 
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(225, 11);
-            this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label5.Location = new System.Drawing.Point(169, 9);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(61, 20);
+            this.label5.Size = new System.Drawing.Size(47, 16);
             this.label5.TabIndex = 12;
             this.label5.Text = "MQTT";
             // 
             // FindTrackersBtn
             // 
-            this.FindTrackersBtn.Location = new System.Drawing.Point(16, 15);
-            this.FindTrackersBtn.Margin = new System.Windows.Forms.Padding(4);
+            this.FindTrackersBtn.Location = new System.Drawing.Point(12, 12);
             this.FindTrackersBtn.Name = "FindTrackersBtn";
-            this.FindTrackersBtn.Size = new System.Drawing.Size(133, 26);
+            this.FindTrackersBtn.Size = new System.Drawing.Size(100, 21);
             this.FindTrackersBtn.TabIndex = 0;
             this.FindTrackersBtn.Text = "Find All Trackers";
             this.FindTrackersBtn.UseVisualStyleBackColor = true;
@@ -185,48 +181,52 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(347, 196);
-            this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label6.Location = new System.Drawing.Point(260, 159);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(75, 17);
+            this.label6.Size = new System.Drawing.Size(57, 13);
             this.label6.TabIndex = 12;
             this.label6.Text = "Frequency";
             // 
             // FrequencyComboBox
             // 
             this.FrequencyComboBox.FormattingEnabled = true;
-            this.FrequencyComboBox.Location = new System.Drawing.Point(424, 192);
-            this.FrequencyComboBox.Margin = new System.Windows.Forms.Padding(4);
+            this.FrequencyComboBox.Location = new System.Drawing.Point(318, 156);
             this.FrequencyComboBox.Name = "FrequencyComboBox";
-            this.FrequencyComboBox.Size = new System.Drawing.Size(124, 24);
+            this.FrequencyComboBox.Size = new System.Drawing.Size(94, 21);
             this.FrequencyComboBox.TabIndex = 13;
             this.FrequencyComboBox.SelectedIndexChanged += new System.EventHandler(this.FrequencyComboBox_SelectedIndexChanged);
             // 
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(105, 196);
-            this.label7.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label7.Location = new System.Drawing.Point(79, 159);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(43, 17);
+            this.label7.Size = new System.Drawing.Size(34, 13);
             this.label7.TabIndex = 14;
             this.label7.Text = "Mode";
             // 
             // ModeComboBox
             // 
             this.ModeComboBox.FormattingEnabled = true;
-            this.ModeComboBox.Location = new System.Drawing.Point(159, 192);
-            this.ModeComboBox.Margin = new System.Windows.Forms.Padding(4);
+            this.ModeComboBox.Location = new System.Drawing.Point(119, 156);
             this.ModeComboBox.Name = "ModeComboBox";
-            this.ModeComboBox.Size = new System.Drawing.Size(160, 24);
+            this.ModeComboBox.Size = new System.Drawing.Size(121, 21);
             this.ModeComboBox.TabIndex = 15;
             this.ModeComboBox.SelectedIndexChanged += new System.EventHandler(this.ModeComboBox_SelectedIndexChanged);
             // 
+            // label2
+            // 
+            this.label2.Location = new System.Drawing.Point(0, 0);
+            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(75, 19);
+            this.label2.TabIndex = 13;
+            // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(583, 583);
+            this.ClientSize = new System.Drawing.Size(437, 474);
             this.Controls.Add(this.ModeComboBox);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.FrequencyComboBox);
@@ -235,7 +235,6 @@
             this.Controls.Add(this.CalibrationPanel);
             this.Controls.Add(this.TrackerListComboBox);
             this.Controls.Add(this.FindTrackersBtn);
-            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Form1";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -253,7 +252,6 @@
         private System.Windows.Forms.Button CalibrateBtn;
         private System.Windows.Forms.Button StreamBtn;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox MQTTIPTextBox;
         private System.Windows.Forms.TextBox RealmTextbox;
         private System.Windows.Forms.ComboBox DisplayComboBox;
@@ -267,6 +265,7 @@
         private System.Windows.Forms.ComboBox FrequencyComboBox;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.ComboBox ModeComboBox;
+        private System.Windows.Forms.Label label2;
     }
 }
 
