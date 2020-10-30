@@ -8,6 +8,7 @@ import eventStore from '../core/eventStore'
 import ObserverTab from './Messages/ObserverTab'
 import MessageBoard from './Messages/MessageBoard'
 import MqttMessage from './Messages/MqttMessage'
+import Gaze from './Messages/Gaze'
 import './css/Observe.css'
 
 const Observe = props => {
@@ -89,10 +90,11 @@ const Observe = props => {
           </div>
         </div>
       </div>
+      <Gaze />
       <MqttMessage />
-      <div className="ObserverMessageLog">
+      {/* <div className="ObserverMessageLog">
         <MessageBoard messages={(participants.length > 0) ? participants[currentParticipant].messagesQueue : []} />
-      </div>
+      </div> */}
     </div>
   )
 }

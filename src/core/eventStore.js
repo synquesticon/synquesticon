@@ -1,6 +1,7 @@
 const EventEmitter = require('events')
 const MESSAGE_EVENT         = "MQTTEvent"
 const MOTION_EVENT          = "MotionEvent"
+const GAZE_EVENT          = "GazeEvent"
 const PARTICIPANT_EVENT     = "ParticipantEvent"
 const REMOTE_TRACKER_EVENT  = "NewRemoteTrackerEvent"
 const COMMAND_EVENT         = "CommandEvent"
@@ -12,6 +13,7 @@ class CEventStore extends EventEmitter {
   constructor() {
     super()
     this.motion = []
+    this.gaze = []
     this.tag = []
 		this.currentMessage = []
     this.currentCommand = []
@@ -50,6 +52,22 @@ class CEventStore extends EventEmitter {
 
   getMotionData() {
     return this.motion 
+  }
+
+  //GAZE
+  setGazeListener(status, callback) {
+    (status === "on") 
+      ? this.addListener(GAZE_EVENT, callback)
+      : this.removeListener(GAZE_EVENT, callback)
+  }
+
+  sendGazeData(args){
+    this.gaze = args
+    this.emit(GAZE_EVENT)
+  }
+
+  getGazeData() {
+    return this.gaze 
   }
 
   //TAG
