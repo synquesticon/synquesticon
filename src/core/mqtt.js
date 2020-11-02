@@ -4,20 +4,20 @@ const mqtt = require('mqtt')
 let mqttClient = null
 let last_config = null
 
-const onRETData = newMessage => {
-  let gazeData = JSON.parse(newMessage)[1]
-  store.default.dispatch({
-    type: 'SET_GAZE_DATA',
-    tracker: JSON.parse(newMessage)[0],
-    gazeData: {
-      timestamp: Date.now(),
-      locX: gazeData[12],
-      locY: gazeData[13],
-      leftPupilRadius: gazeData[0] / 2,
-      rightPupilRadius: gazeData[3] / 2
-    }
-  })
-}
+// const onRETData = newMessage => {
+//   let gazeData = JSON.parse(newMessage)[1]
+//   store.default.dispatch({
+//     type: 'SET_GAZE_DATA',
+//     tracker: JSON.parse(newMessage)[0],
+//     gazeData: {
+//       timestamp: Date.now(),
+//       locX: gazeData[12],
+//       locY: gazeData[13],
+//       leftPupilRadius: gazeData[0] / 2,
+//       rightPupilRadius: gazeData[3] / 2
+//     }
+//   })
+// }
 
 const _startMQTT = (config, restart) => {
   if (restart) {
@@ -41,7 +41,7 @@ const _startMQTT = (config, restart) => {
     command:        'command/',
     sessionControl: 'sessionControl/',
     motion:         'sensor/motion/',
-    eyeTracker:     'sensor/gaze/',
+    gaze:           'sensor/gaze/',
     requestStatus:  'requestStatus/',
     tag:            'tag/',
     statusUpdate:   'statusUpdate/'
@@ -56,12 +56,11 @@ const _startMQTT = (config, restart) => {
 
 // RESPOND TO TOPICS
   mqttClient.on('message', (topic, message) => {
-    console.log("("+topic+") " + message)
-    if (topic.startsWith(topicObj.motion)) {
-      eventStore.default.sendMotionData(message)
-    }
-    else if (topic.startsWith(topicObj.eyeTracker))
-        onRETData(message)
+   // console.log("("+topic+") " + message)
+    if (topic.startsWith(topicObj.motion)) 
+      eventStore.default.sendMotionData(message)   
+    else if (topic.startsWith(topicObj.gaze))
+      eventStore.default.sendGazeData(message)
     else if (topic.startsWith(topicObj.task))
       eventStore.default.sendCurrentMessage(message)
     else if (topic.startsWith(topicObj.command))

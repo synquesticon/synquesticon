@@ -223,7 +223,8 @@ namespace TobiiRemoteEyeTrackingServer
         {         
             if (!IsStreamingMQTT)
             {
-                var topic = mqttTopic + guid.ToString();
+                var topic = mqttTopic;
+                //+ guid.ToString();
 
                 var factory = new MqttFactory();
                 var mqttClient = factory.CreateMqttClient();

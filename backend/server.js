@@ -28,8 +28,8 @@ const router = express.Router()
 const IMAGE_FOLDER = "Images"
 
 var MongoClient = require('mongodb').MongoClient
+
 var url = "mongodb://syn-cosmosdb:vkltRHsB23AoDkwKuFc9raooAWuVOrwGl2LC4JLKf5EhschngKRbsjkVWw4NT6an4y24hc23doE2zHLUvwFP7g==@syn-cosmosdb.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@syn-cosmosdb@"
-//var url = "mongodb://localhost:27017/webEntryDb"
 
 MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true }, function (err, db) {
   if (err) throw err
