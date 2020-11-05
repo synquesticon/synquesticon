@@ -272,11 +272,11 @@ namespace TobiiRemoteEyeTrackingServer
                 SelectedTracker.GazeDataReceived += HandleGazeData;
                 IsStreamingMQTT = true;
                 MQTTThread = new Thread(async () => {
+                    int sampleCount = 0;
                     while(IsStreamingMQTT)
                     {
                         try
                         {
-                            int sampleCount = 0;
                             while (GazeEventQueue.Any())
                             {
                                 GazeDataEventArgs gazeEvent;
