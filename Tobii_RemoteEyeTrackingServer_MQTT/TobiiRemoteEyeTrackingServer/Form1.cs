@@ -12,6 +12,7 @@ using System.Collections.Concurrent;
 using MQTTnet;
 using MQTTnet.Client.Options;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 //Install-Package WampSharp.Default -Pre
 
@@ -215,14 +216,20 @@ namespace TobiiRemoteEyeTrackingServer
         private Thread MQTTThread;
         private Guid guid = Guid.NewGuid();
         private string mqttTopic = "sensor/gaze/";
+        private int recordingCount = 0;
         private bool IsStreamingMQTT = false;
         private IEyeTracker SelectedTracker = null;
         private ConcurrentQueue<GazeDataEventArgs> GazeEventQueue = new ConcurrentQueue<GazeDataEventArgs>();
         private double[] CurrentPupilDiameters = {0, 0 };
         async private void StreamBtn_Click(object sender, EventArgs e)
         {         
+          
             if (!IsStreamingMQTT)
             {
+                recordingCount++;
+                
+                DateTimeOffset startTime = (DateTimeOffset)DateTime.UtcNow; //current start time when we button is clicked
+
                 var topic = mqttTopic;
                 //+ guid.ToString();
 
@@ -236,10 +243,6 @@ namespace TobiiRemoteEyeTrackingServer
                     .Build();*/
 
                 string mqttText = MQTTIPTextBox.Text;
-                /*if (!mqttText.StartsWith("ws"))
-                {
-                    mqttText = "ws://" + mqttText;
-                }*/
 
                 // Use WebSocket connection.
                 var options = new MqttClientOptionsBuilder()
@@ -273,10 +276,12 @@ namespace TobiiRemoteEyeTrackingServer
                     {
                         try
                         {
+                            int sampleCount = 0;
                             while (GazeEventQueue.Any())
                             {
                                 GazeDataEventArgs gazeEvent;
                                 GazeEventQueue.TryDequeue(out gazeEvent);
+                                sampleCount++; //increase sample counts
                                 float gazeX = 0;
                                 float gazeY = 0;
                                 if (gazeEvent.LeftEye.GazePoint.Validity == Validity.Valid &&
@@ -302,21 +307,95 @@ namespace TobiiRemoteEyeTrackingServer
                                     CurrentPupilDiameters[1] = Double.IsNaN(gazeEvent.RightEye.Pupil.PupilDiameter) ? -1 : gazeEvent.RightEye.Pupil.PupilDiameter;
                                 }
 
-                                object[] msg = new object[] { SelectedTracker.SerialNumber,
-                                new object[] { CurrentPupilDiameters[0],
-                                    gazeEvent.LeftEye.GazePoint.PositionOnDisplayArea.X,
-                                    gazeEvent.LeftEye.GazePoint.PositionOnDisplayArea.Y,
-                                    CurrentPupilDiameters[1],
-                                    gazeEvent.RightEye.GazePoint.PositionOnDisplayArea.X,
-                                    gazeEvent.RightEye.GazePoint.PositionOnDisplayArea.Y,
-                                    gazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.X,
-                                    gazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.Y,
-                                    gazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.Z,
-                                    gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.X,
-                                    gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.Y,
-                                    gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.Z,
-                                    gazeX, gazeY
-                                }};
+                                //create a dict-shape message, later will be serialized as a json object
+                                var msg = new Dictionary<string, object>();
+                                msg.Add("user", new Dictionary<string, string>
+                                                {
+                                                    {"uid", guid}
+                                                }
+                                );
+                                msg.Add("eyeTrackerSerialNumber", SelectedTracker.SerialNumber);
+                                msg.Add("timestamp", ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds());
+                                msg.Add("startTime", startTime.ToUnixTimeSeconds());
+                                msg.Add("recordingCount", recordingCount);
+                                msg.Add("sampleCount", sampleCount);
+                                
+                                
+                                var dataList = new List<object>(); //for later adding object in
+                                
+                                var dataObject = new Dictionary<string, object>();
+                                dataObject.Add("gaze", new Dictionary<string, float>
+                                    {
+                                        { "x", gazeX },
+                                        { "y", gazeY }
+                                    }
+                                );
+                                
+                                dataObject.Add("pupilDiameter", new Dictionary<string, double>
+                                    {
+                                        { "LeftEye", CurrentPupilDiameters[0]},
+                                        { "RightEye", CurrentPupilDiameters[1]}
+                                    }
+                                );
+                                
+                                //GazePoint in data
+                                var GazePointObject = new Dictionary<string, object>();
+                                GazePointObject.Add("LeftEye", new Dictionary<string, float>
+                                    {
+                                        { "x", gazeEvent.LeftEye.GazePoint.PositionOnDisplayArea.X },
+                                        { "y", gazeEvent.LeftEye.GazePoint.PositionOnDisplayArea.Y }
+                                    }
+                                );
+
+                                GazePointObject.Add("RightEye", new Dictionary<string, float>
+                                    {
+                                        { "x", gazeEvent.RightEye.GazePoint.PositionOnDisplayArea.X },
+                                        { "y", gazeEvent.RightEye.GazePoint.PositionOnDisplayArea.Y }
+                                    }
+                                );                                
+                                dataObject.Add("GazePoint_PositionOnDisplayArea", GazePointObject);
+                                
+                                //GazeOrigin in data
+                                var GazeOriginObject = new Dictionary<string, object>();
+                                GazeOriginObject.Add("LeftEye", new Dictionary<string, float>
+                                    {
+                                        { "x", gazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.X },
+                                        { "y", gazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.Y },
+                                        { "z", gazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.Z }
+                                    }
+                                );
+
+                                GazeOriginObject.Add("RightEye", new Dictionary<string, float>
+                                    {
+                                        { "x", gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.X },
+                                        { "y", gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.Y },
+                                        { "z", gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.Z }
+                                    }
+                                );                                
+                                dataObject.Add("GazeOrigin_PositionInUserCoordinates", GazeOriginObject);
+
+                                dataList.Add(dataObject); //append to the list
+
+                                msg.Add("data", dataList);
+                                
+
+
+
+                                // object[] msg = new object[] { SelectedTracker.SerialNumber,
+                                // new object[] { CurrentPupilDiameters[0],
+                                //     gazeEvent.LeftEye.GazePoint.PositionOnDisplayArea.X,
+                                //     gazeEvent.LeftEye.GazePoint.PositionOnDisplayArea.Y,
+                                //     CurrentPupilDiameters[1],
+                                //     gazeEvent.RightEye.GazePoint.PositionOnDisplayArea.X,
+                                //     gazeEvent.RightEye.GazePoint.PositionOnDisplayArea.Y,
+                                //     gazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.X,
+                                //     gazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.Y,
+                                //     gazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.Z,
+                                //     gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.X,
+                                //     gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.Y,
+                                //     gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.Z,
+                                //     gazeX, gazeY
+                                // }};
 
                                 string jsonMSG = JsonConvert.SerializeObject(msg);
                                 
