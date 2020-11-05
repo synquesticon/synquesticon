@@ -309,7 +309,7 @@ namespace TobiiRemoteEyeTrackingServer
 
                                 //create a dict-shape message, later will be serialized as a json object
                                 var msg = new Dictionary<string, object>();
-                                msg.Add("user", new Dictionary<string, string>
+                                msg.Add("user", new Dictionary<string, Guid>
                                                 {
                                                     {"uid", guid}
                                                 }
