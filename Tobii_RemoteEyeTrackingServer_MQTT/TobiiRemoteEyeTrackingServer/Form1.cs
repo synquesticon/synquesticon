@@ -403,7 +403,7 @@ namespace TobiiRemoteEyeTrackingServer
                                 .WithTopic(topic)
                                 .WithPayload(jsonMSG)
                                 .WithExactlyOnceQoS()
-                                .WithRetainFlag()
+                                .WithRetainFlag(false)
                                 .Build();
                                 mqttClient.PublishAsync(message, CancellationToken.None); // Since 3.0.5 with CancellationToken
                             }
