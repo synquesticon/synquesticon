@@ -228,7 +228,7 @@ namespace TobiiRemoteEyeTrackingServer
             {
                 recordingCount++;
                 
-                DateTimeOffset startTime = (DateTimeOffset)DateTime.UtcNow; //current start time when we button is clicked
+                long startTime = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeMilliseconds(); //current start time when we button is clicked
 
                 var topic = mqttTopic;
                 //+ guid.ToString();
@@ -315,8 +315,9 @@ namespace TobiiRemoteEyeTrackingServer
                                                 }
                                 );
                                 msg.Add("eyeTrackerSerialNumber", SelectedTracker.SerialNumber);
-                                msg.Add("timestamp", ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds());
-                                msg.Add("startTime", startTime.ToUnixTimeSeconds());
+                                //  msg.Add("timestamp", ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds());
+                                msg.Add("timestamp", gazeEvent.DeviceTimeStamp);
+                                msg.Add("startTime", startTime);
                                 msg.Add("recordingCount", recordingCount);
                                 msg.Add("sampleCount", sampleCount);
                                 
@@ -377,25 +378,7 @@ namespace TobiiRemoteEyeTrackingServer
                                 dataList.Add(dataObject); //append to the list
 
                                 msg.Add("data", dataList);
-                                
 
-
-
-                                // object[] msg = new object[] { SelectedTracker.SerialNumber,
-                                // new object[] { CurrentPupilDiameters[0],
-                                //     gazeEvent.LeftEye.GazePoint.PositionOnDisplayArea.X,
-                                //     gazeEvent.LeftEye.GazePoint.PositionOnDisplayArea.Y,
-                                //     CurrentPupilDiameters[1],
-                                //     gazeEvent.RightEye.GazePoint.PositionOnDisplayArea.X,
-                                //     gazeEvent.RightEye.GazePoint.PositionOnDisplayArea.Y,
-                                //     gazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.X,
-                                //     gazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.Y,
-                                //     gazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.Z,
-                                //     gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.X,
-                                //     gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.Y,
-                                //     gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.Z,
-                                //     gazeX, gazeY
-                                // }};
 
                                 string jsonMSG = JsonConvert.SerializeObject(msg);
                                 
