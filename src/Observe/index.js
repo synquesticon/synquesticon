@@ -6,15 +6,23 @@ import { withTheme } from '@material-ui/styles'
 import mqtt from '../core/mqtt'
 import eventStore from '../core/eventStore'
 import ObserverTab from './Messages/ObserverTab'
-import MessageBoard from './Messages/MessageBoard'
 import MqttMessage from './Messages/MqttMessage'
 import Gaze from './Messages/Gaze'
 import './css/Observe.css'
+
+import data from './michael_reading.json'
+import { TextField } from '@material-ui/core'
+
 
 const Observe = props => {
   const [participants, setParticipants] = useState([])
   const [currentParticipant, setCurrentParticipant] = useState(0)
   const [allPaused, setAllPaused] = useState(false)
+  
+  const frequency = 60
+
+  var [streamingLength, setStreamingLength] = useState(Math.round(data.length/frequency))
+  
 
   useEffect(() => {
     eventStore.setEventListener("on", onNewEvent)
@@ -30,6 +38,19 @@ const Observe = props => {
       })
     )
     setAllPaused(prevAllPaused => !prevAllPaused)
+  }
+
+  const onStreamETData = () => {
+    console.log(streamingLength)
+    var dataStream = data.slice(0, streamingLength*frequency)
+    dataStream.sort((a, b) => a.sampleCount - b.sampleCount) //sort the data accordingly
+    dataStream.map( (datum, i)  => {               
+      setTimeout(() => mqtt.sendMqttMessage("sensor/gaze/test", JSON.stringify(datum)), (i+1)*1000/frequency)      
+    })
+  }
+
+  const onChangeETModel = () => {
+    mqtt.sendMqttMessage("sensor/gaze/changeModel", JSON.stringify({model: "model1"}))
   }
 
   const onNewEvent = () => {
@@ -74,6 +95,8 @@ const Observe = props => {
         <div className="ObserverPlayPauseContainer">
           {getPlayPauseButton()}
         </div>
+
+
         <div className="ObserverTabsWrapper">
           <div className={"ObserverTabContainer"}>
             {
@@ -89,6 +112,25 @@ const Observe = props => {
             }
           </div>
         </div>
+      </div>
+      <div>
+          <TextField 
+            placeholder="How long is the ET streaming?"
+            defaultValue={streamingLength}
+            onChange={(e) => setStreamingLength(Math.round(e.target.value))}>
+          </TextField>
+          <Button
+            onClick={onStreamETData}
+          >
+            Stream record data
+          </Button>
+          <Button
+            onClick={onChangeETModel}
+          >
+            Change model
+          </Button>
+
+
       </div>
       <Gaze />
       <MqttMessage />
