@@ -49,9 +49,9 @@ const mqttMessage = props => {
 
     const onNewEvent = () => {
         const data = JSON.parse(eventStore.getGazeData())
-        console.log(data[1][1] +"  --  "+ bbox.width +"  --  "+bbox.height)
-        gazePointArr[0][0].radius(data[1][0] * 3).move(data[1][1]*bbox.width, data[1][2]*bbox.height)
-        gazePointArr[0][1].radius(data[1][3] * 3).move(data[1][4]*bbox.width, data[1][5]*bbox.height)
+        // console.log(data[1][1] +"  --  "+ bbox.width +"  --  "+bbox.height)
+        // gazePointArr[0][0].radius(data[1][0] * 3).move(data[1][1]*bbox.width, data[1][2]*bbox.height)
+        // gazePointArr[0][1].radius(data[1][3] * 3).move(data[1][4]*bbox.width, data[1][5]*bbox.height)
 
         // if (prevTag != tag) {
         //     prevTag = tag
