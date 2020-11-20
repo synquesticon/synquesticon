@@ -62,6 +62,7 @@ const runSet = props => {
       <div className="mainDisplay">
         <ShowTask key={uuid()}
           setID = { props.set._id }
+          setTags = { props.set.tags }
           familyTree = { props.familyTree }
           task = { task[0] }
           set  = { task[1] }

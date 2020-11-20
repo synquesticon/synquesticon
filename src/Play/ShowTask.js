@@ -1,9 +1,10 @@
-import React, { Suspense } from 'react'
+import React, { Suspense, useEffect } from 'react'
 import ButtonUI from '@material-ui/core/Button'
 import store from '../core/store'
 import * as dbObjects from '../core/db_objects'
 import uuid from 'react-uuid'
 import './css/showTask.css'
+import mqtt from '../core/mqtt'
 
 const Instruction = React.lazy(() => import('./components/Instruction'))
 const Text = React.lazy(() => import('./components/Text'))
@@ -12,6 +13,28 @@ const Button = React.lazy(() => import('./components/Button'))
 const Image = React.lazy(() => import('./components/Image'))
 
 const ShowTask = props => {
+  const onEnterPress = e => {
+    if (e.key === "Enter") { // Enter press 
+      props.nextPressed(props.setID, props.set)
+    }
+  }
+
+  useEffect(() => {
+    document.addEventListener("keydown", onEnterPress, false)
+
+    const taskLoadedObj = {
+      sessionUID: store.getState().experimentInfo.participantId,
+      setTags: props.setTags,
+      taskTags: props.task.tags
+    }
+    mqtt.sendMqttMessage("onTaskLoaded/", JSON.stringify(taskLoadedObj))
+
+
+    return () => {
+      document.removeEventListener("keydown", onEnterPress, false)
+    };
+  }, []);
+
   const getDisplayedContent = (taskList, _id, mapIndex) => {
     if (!taskList) return null
 
@@ -61,13 +84,15 @@ const ShowTask = props => {
 
   const contentObject = getDisplayedContent(props.task.components, props.task._id, 0)
 
+
   return (
     <div key={props.renderKey} className="multiItemContent">
       {contentObject.components}
       {contentObject.hideNext ? null :
         <div style={{ position: 'fixed', bottom: 20, right: 20, zIndex: 99 }}>
           <ButtonUI className="nextButton" variant="contained" 
-          onClick={() => props.nextPressed(props.setID, props.set)}>
+            onClick={() => props.nextPressed(props.setID, props.set)}
+          >
             Next
           </ButtonUI>
         </div>
