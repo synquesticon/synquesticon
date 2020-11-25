@@ -42,7 +42,7 @@ const ShowTask = props => {
     let components = taskList.map( (item, i) => {
       if ((store.getState().multipleScreens && (item.screenIDS.includes(store.getState().screenID)
         || item.screenIDS.length === 0)) || !store.getState().multipleScreens) {
-        if (store.getState().multipleScreens && item.hideNext) 
+        if (item.hideNext) 
           hideNext = true
         switch (item.objType) {
           case dbObjects.TaskTypes.BUTTON.type:
