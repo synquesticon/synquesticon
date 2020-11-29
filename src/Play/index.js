@@ -182,63 +182,66 @@ const Play = props => {
   const tagObj = {}
 
   const commandCallback = commandObj => {
-    commandObj.command.forEach(command => {
-      command = command.split('=')
-      command[1] = command[1] ? command[1] : commandObj.content
-      switch (command[0]) {
-        case "recordMotion":
-          if (commandObj.isClicked) {
-          //  motionObj.tag = myTag.current
-           // alert("motionObj " + motionObj.tag)
-            motionObj.startTime = Date.now()
-            motionObj.recordingCount++
-            motionObj.sampleCount = 0
-            statusObj.recording = true
-            window.localStorage.setItem('statusObj', JSON.stringify(statusObj))
-            window.addEventListener('devicemotion', handleDeviceMotionEvent)
-          } else {
-            window.removeEventListener('devicemotion', handleDeviceMotionEvent)
-            statusObj.recording = false
-            window.localStorage.setItem('statusObj', JSON.stringify(statusObj))
-          }
-          break
-        case "requestStatus":
-          mqtt.sendMqttMessage("requestStatus/", "requestStatus") 
-          break
-        case "tag":
-          const tagArray = command[1].split(';;')
-          tagArray.forEach( tag => {
-            tag = tag.split('@')
+    if (commandObj.command !== undefined){
+      commandObj.command.forEach(command => {
+        command = command.split('=')
+        command[1] = command[1] ? command[1] : commandObj.content
+        switch (command[0]) {
+          case "recordMotion":
             if (commandObj.isClicked) {
-              if (tag[0] == "") {
-                tag[0] = commandObj.content
-                console.log( tag[0] + " @ " + tag[1])
-              } 
+            //  motionObj.tag = myTag.current
+             // alert("motionObj " + motionObj.tag)
+              motionObj.startTime = Date.now()
+              motionObj.recordingCount++
+              motionObj.sampleCount = 0
+              statusObj.recording = true
+              window.localStorage.setItem('statusObj', JSON.stringify(statusObj))
+              window.addEventListener('devicemotion', handleDeviceMotionEvent)
             } else {
-              tag[0] = ""
+              window.removeEventListener('devicemotion', handleDeviceMotionEvent)
+              statusObj.recording = false
+              window.localStorage.setItem('statusObj', JSON.stringify(statusObj))
             }
-
-            if (!tag[1]) 
-              tag[1] = commandObj.displayText
-
-            tagObj[tag[1]] = tag[0]
-          })
-          
-          mqtt.sendMqttMessage("tag/", JSON.stringify(tagObj))
-
-          break
-        case "mqtt":
-          if (commandObj.isClicked) {
-            const msgArray = command[1].split(';;')
-            msgArray.forEach(msg => {
-              msg = msg.split('@')
-              mqtt.sendMqttMessage(msg[1], msg[0])  // sendMqttMessage(topic, message)
+            break
+          case "requestStatus":
+            mqtt.sendMqttMessage("requestStatus/", "requestStatus") 
+            break
+          case "tag":
+            const tagArray = command[1].split(';;')
+            tagArray.forEach( tag => {
+              tag = tag.split('@')
+              if (commandObj.isClicked) {
+                if (tag[0] == "") {
+                  tag[0] = commandObj.content
+                  console.log( tag[0] + " @ " + tag[1])
+                } 
+              } else {
+                tag[0] = ""
+              }
+  
+              if (!tag[1]) 
+                tag[1] = commandObj.displayText
+  
+              tagObj[tag[1]] = tag[0]
             })
-          }
-          break
-        default:
-      }
-    })
+            
+            mqtt.sendMqttMessage("tag/", JSON.stringify(tagObj))
+  
+            break
+          case "mqtt":
+            if (commandObj.isClicked) {
+              const msgArray = command[1].split(';;')
+              msgArray.forEach(msg => {
+                msg = msg.split('@')
+                mqtt.sendMqttMessage(msg[1], msg[0])  // sendMqttMessage(topic, message)
+              })
+            }
+            break
+          default:
+        }
+      })
+    
+    }
   }
 
   const motionObj = {

@@ -47,7 +47,7 @@ const buttonElement = props => {
 
 
         props.commandCallback({
-            command: props.command.split('&&'),
+            command: (props.command !== undefined)?props.command.split('&&'):undefined,
             content: props.content,
             isClicked: !isClicked,
             displayText: props.displayText,
