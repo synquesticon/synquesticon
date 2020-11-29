@@ -1,10 +1,14 @@
 const aedes = require('aedes')()
-const httpServer = require('http').createServer()
-const ws = require('websocket-stream')
+const fs = require('fs')
+const httpsServer = require('https').createServer({
+  cert: fs.readFileSync('./certs/server.crt'),
+  key: fs.readFileSync('./certs/server.key'),
+})
+const wss = require('websocket-stream')
 const port = 8888
 
-ws.createServer({ server: httpServer }, aedes.handle)
+wss.createServer({ server: httpsServer }, aedes.handle)
 
-httpServer.listen(port, function () {
-  console.log('websocket server listening on port ', port)
+httpsServer.listen(port, function () {
+  console.log('Secure websocket server listening on port ', port)
 })
