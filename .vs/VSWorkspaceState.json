@@ -6,6 +6,6 @@
     "\\Tobii_RemoteEyeTrackingServer_MQTT",
     "\\Tobii_RemoteEyeTrackingServer_MQTT\\TobiiRemoteEyeTrackingServer"
   ],
-  "SelectedNode": "\\Tobii_RemoteEyeTrackingServer_MQTT\\TobiiRemoteEyeTrackingServer\\Form1.cs",
+  "SelectedNode": "\\src\\Observe",
   "PreviewInSolutionExplorer": false
 }

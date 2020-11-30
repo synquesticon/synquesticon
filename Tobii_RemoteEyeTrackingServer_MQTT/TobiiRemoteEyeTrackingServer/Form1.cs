@@ -18,6 +18,52 @@ using System.Collections.Generic;
 
 namespace TobiiRemoteEyeTrackingServer
 {
+    public class StandardJsonConverter : JsonConverter
+    {
+        public override bool CanRead
+        {
+            get
+            {
+                return false;
+            }
+        }
+        public override bool CanWrite
+        {
+            get
+            {
+                return true;
+            }
+        }
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            if (value == null)
+            {
+                writer.WriteNull();
+                return;
+            }
+
+            var val = Convert.ToDouble(value);
+            if (Double.IsNaN(val) || Double.IsInfinity(val))
+            {
+                writer.WriteNull();
+                return;
+            }
+            // Preserve the type, otherwise values such as 3.14f may suddenly be
+            // printed as 3.1400001049041748.
+            if (value is float)
+                writer.WriteValue((float)value);
+            else
+                writer.WriteValue((double)value);
+        }
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
+        }
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof(double) || objectType == typeof(float);
+        }
+    }
     public partial class Form1 : Form
     {
         private EyeTrackerCollection AvailableTrackers;
@@ -315,7 +361,7 @@ namespace TobiiRemoteEyeTrackingServer
                                                 }
                                 );
                                 msg.Add("eyeTrackerSerialNumber", SelectedTracker.SerialNumber);
-                                //  msg.Add("timestamp", ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds());
+                                // msg.Add("timestamp", ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeMilliseconds());
                                 msg.Add("timestamp", gazeEvent.DeviceTimeStamp);
                                 msg.Add("startTime", startTime);
                                 msg.Add("recordingCount", recordingCount);
@@ -343,15 +389,15 @@ namespace TobiiRemoteEyeTrackingServer
                                 var GazePointObject = new Dictionary<string, object>();
                                 GazePointObject.Add("LeftEye", new Dictionary<string, float>
                                     {
-                                        { "x", gazeEvent.LeftEye.GazePoint.PositionOnDisplayArea.X },
-                                        { "y", gazeEvent.LeftEye.GazePoint.PositionOnDisplayArea.Y }
+                                        { "x", float.IsNaN(gazeEvent.LeftEye.GazePoint.PositionOnDisplayArea.X) ? float.NaN : gazeEvent.LeftEye.GazePoint.PositionOnDisplayArea.X},
+                                        { "y", float.IsNaN(gazeEvent.LeftEye.GazePoint.PositionOnDisplayArea.Y) ? float.NaN : gazeEvent.LeftEye.GazePoint.PositionOnDisplayArea.Y }
                                     }
                                 );
 
                                 GazePointObject.Add("RightEye", new Dictionary<string, float>
                                     {
-                                        { "x", gazeEvent.RightEye.GazePoint.PositionOnDisplayArea.X },
-                                        { "y", gazeEvent.RightEye.GazePoint.PositionOnDisplayArea.Y }
+                                        { "x", float.IsNaN(gazeEvent.RightEye.GazePoint.PositionOnDisplayArea.X) ? float.NaN : gazeEvent.RightEye.GazePoint.PositionOnDisplayArea.X},
+                                        { "y", float.IsNaN(gazeEvent.RightEye.GazePoint.PositionOnDisplayArea.Y) ? float.NaN : gazeEvent.RightEye.GazePoint.PositionOnDisplayArea.Y }
                                     }
                                 );                                
                                 dataObject.Add("GazePoint_PositionOnDisplayArea", GazePointObject);
@@ -360,17 +406,17 @@ namespace TobiiRemoteEyeTrackingServer
                                 var GazeOriginObject = new Dictionary<string, object>();
                                 GazeOriginObject.Add("LeftEye", new Dictionary<string, float>
                                     {
-                                        { "x", gazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.X },
-                                        { "y", gazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.Y },
-                                        { "z", gazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.Z }
+                                        { "x", float.IsNaN(gazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.X) ? float.NaN :  gazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.X },
+                                        { "y", float.IsNaN(gazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.Y) ? float.NaN :  gazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.Y },
+                                        { "z", float.IsNaN(gazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.Z) ? float.NaN :  gazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.Z }
                                     }
                                 );
 
                                 GazeOriginObject.Add("RightEye", new Dictionary<string, float>
                                     {
-                                        { "x", gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.X },
-                                        { "y", gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.Y },
-                                        { "z", gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.Z }
+                                        { "x", float.IsNaN(gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.X) ? float.NaN :  gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.X },
+                                        { "y", float.IsNaN(gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.Y) ? float.NaN :  gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.Y },
+                                        { "z", float.IsNaN(gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.Z) ? float.NaN :  gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.Z }
                                     }
                                 );                                
                                 dataObject.Add("GazeOrigin_PositionInUserCoordinates", GazeOriginObject);
@@ -380,7 +426,14 @@ namespace TobiiRemoteEyeTrackingServer
                                 msg.Add("data", dataList);
 
 
-                                string jsonMSG = JsonConvert.SerializeObject(msg);
+                                // string jsonMSG = JsonConvert.SerializeObject(msg);
+                                
+
+                                var settings = new JsonSerializerSettings();
+                                var floatConverter = new StandardJsonConverter();
+                                settings.Converters.Add(floatConverter);                              
+                                string jsonMSG =  JsonConvert.SerializeObject(msg, settings);
+
                                 
                                 var message = new MqttApplicationMessageBuilder()
                                 .WithTopic(topic)
