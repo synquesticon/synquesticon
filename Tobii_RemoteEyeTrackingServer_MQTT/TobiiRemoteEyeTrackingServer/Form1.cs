@@ -576,7 +576,7 @@ namespace TobiiRemoteEyeTrackingServer
             {
                 foreach (var fre in SelectedTracker.GetAllGazeOutputFrequencies())
                 {
-                    if (FrequencyComboBox.SelectedValue.Equals(fre.ToString()))
+                    if (FrequencyComboBox.SelectedValue != null && FrequencyComboBox.SelectedValue.Equals(fre.ToString()))
                     {
                         SelectedTracker.SetGazeOutputFrequency(fre);
                         break;
@@ -595,7 +595,7 @@ namespace TobiiRemoteEyeTrackingServer
             {
                 foreach (var mode in SelectedTracker.GetAllEyeTrackingModes())
                 {
-                    if (ModeComboBox.SelectedValue.Equals(mode.ToString()))
+                    if (ModeComboBox.SelectedValue!= null && ModeComboBox.SelectedValue.Equals(mode.ToString()))
                     {
                         SelectedTracker.SetEyeTrackingMode(mode);
                         break;

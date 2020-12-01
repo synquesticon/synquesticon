@@ -1,11 +1,9 @@
 {
   "ExpandedNodes": [
     "",
-    "\\src",
-    "\\src\\core",
     "\\Tobii_RemoteEyeTrackingServer_MQTT",
     "\\Tobii_RemoteEyeTrackingServer_MQTT\\TobiiRemoteEyeTrackingServer"
   ],
-  "SelectedNode": "\\src\\Observe",
+  "SelectedNode": "\\Tobii_RemoteEyeTrackingServer_MQTT\\TobiiRemoteEyeTrackingServer\\TobiiRemoteEyeTrackingServer.csproj",
   "PreviewInSolutionExplorer": false
 }
