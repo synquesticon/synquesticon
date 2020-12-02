@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Typography } from '@material-ui/core'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
@@ -14,7 +14,7 @@ import './Export.css'
 
 const GAZE_HEADER = "Timestamp(UTC),X,Y,Left pupil radius,Right pupil radius,Task,Target,database_id\n"
 
-function HEADER(seperator) {
+const setHeader = (seperator) => {
   return ("global_vars" + seperator +
     "content" + seperator +
     "answer" + seperator +
@@ -33,44 +33,38 @@ function HEADER(seperator) {
   )
 }
 
-class Export extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      participants: [],
-      delimiter: ',',
-      combineFiles: false
-    }
-    this.pickedParticipants = []
-  }
+const exportComponent = (props) => {
+    
+    const [sessions, setSessions] = useState([])
+    const [delimiter, setDelimiter] = useState(',')
+    const [shouldCombineFiles, setShouldCombineFiles] = useState(true)    
+    const [pickedSessions, setPickedSessions] = useState([])
+    
+    let countTest = 0
 
-  componentWillMount() {
+  useEffect(() => {
     db_helper.getAllParticipantsFromDb(ids => {
-      this.setState({ participants: ids })
+      setSessions(ids)
     })
+  }, [])
+
+  const onCombineFilesChange = () => {
+    setShouldCombineFiles(prevBool => !prevBool)
   }
 
-  componenWillUnmount() {
-    this.pickedParticipants = []
-  }
-
-  onCombineFilesChange() {
-    this.setState({ combineFiles: !this.state.combineFiles })
-  }
-
-  async handleDeleteSelected() {
-    if (this.pickedParticipants.length > 0) {
+  const handleDeleteSelected = async () => {
+    if (pickedSessions.length > 0) {
       store.dispatch({
         type: 'TOAST_SNACKBAR_MESSAGE',
         snackbarOpen: true,
         snackbarMessage: "Deleting data sets"
       })
 
-      this.pickedParticipants.forEach(async participants => {         //Delete each selection synchronously
-        await db_helper.deleteParticipantFromDbPromise(participants._id)
+      pickedSessions.forEach(async session => {         //Delete each selection synchronously
+        await db_helper.deleteParticipantFromDbPromise(session._id)
       })
 
-      this.pickedParticipants = []        //Empty the user selection
+      setPickedSessions([])        //Empty the user selection
 
       db_helper.getAllParticipantsFromDb((ids) => {        //Update the list after the deletion have been completed
         store.dispatch({
@@ -78,23 +72,18 @@ class Export extends Component {
           snackbarOpen: true,
           snackbarMessage: "Deletion completed"
         })
-        this.setState({ participants: ids })
+        
+        setSessions(ids)
       })
     }
   }
 
-  handleDeleteAll() {
-    db_helper.deleteAllParticipantsFromDb(() => {
-      db_helper.getAllParticipantsFromDb(ids => {
-        this.setState({ participants: ids })
-      })
-    })
-  }
+/*   const handleDeleteAll = () => {
+    db_helper.deleteAllParticipantsFromDb(() => db_helper.getAllParticipantsFromDb(ids => setSessions(ids)))
+  } */
 
-  handleClose() { }
-
-  async handleExport() {
-    if (this.pickedParticipants.length > 0)
+  const handleExport = async () => {
+    if (pickedSessions.length > 0)
       store.dispatch({
         type: 'TOAST_SNACKBAR_MESSAGE',
         snackbarOpen: true,
@@ -105,9 +94,9 @@ class Export extends Component {
     let exported_gaze = ""
     let first_file = false
     let file_name = ""
-    await Promise.all(this.pickedParticipants.map(async (p, index) => {
-      const returnedValue = await db_helper.exportToCSV({ participant: p, delimiter: this.state.delimiter })
-      if (this.state.combineFiles) {
+    await Promise.all(pickedSessions.map(async (p, index) => {
+      const returnedValue = await db_helper.exportToCSV({ participant: p, delimiter: delimiter })
+      if (shouldCombineFiles) {
         if (!first_file) {
           file_name = "combined_" + returnedValue.file_name
           first_file = true
@@ -118,7 +107,7 @@ class Export extends Component {
         if (returnedValue.gaze_data !== undefined && returnedValue.gaze_data)
           exported_gaze += returnedValue.gaze_data
       } else {
-        const blob = new Blob([HEADER(this.state.delimiter) + returnedValue.csv_string], { type: 'text/csv' })
+        const blob = new Blob([setHeader(delimiter) + returnedValue.csv_string], { type: 'text/csv' })
         FileSaver.saveAs(blob, returnedValue.file_name + '.csv')
 
         if (returnedValue.gaze_data !== undefined && returnedValue.gaze_data) {
@@ -129,54 +118,51 @@ class Export extends Component {
       return 1
     }))
 
-    if (this.state.combineFiles) {
-      const blob = new Blob([HEADER(this.state.delimiter) + exported_csv], { type: 'text/csv' })
+    if (shouldCombineFiles) {
+      const blob = new Blob([setHeader(delimiter) + exported_csv], { type: 'text/csv' })
       FileSaver.saveAs(blob, file_name + '.csv')
 
-      if (this.state.combineFiles && exported_gaze !== "") {
+      if (shouldCombineFiles && exported_gaze !== "") {
         const gaze_blob = new Blob([GAZE_HEADER + exported_gaze], { type: 'text/csv' })
         FileSaver.saveAs(gaze_blob, file_name + '_gaze.csv')
       }
     }
-    this.handleClose()
   }
 
-  handleExportAll() {
+/*   const handleExportAll = () => {
     store.dispatch({
       type: 'TOAST_SNACKBAR_MESSAGE',
       snackbarOpen: true,
       snackbarMessage: "Exporting all data sets"
     })
 
-    if (this.state.combineFiles) {
-      db_helper.exportManyToCSV({ participants: this.state.participants, delimiter: this.state.delimiter }, (res) => {
+    if (shouldCombineFiles) {
+      db_helper.exportManyToCSV({ participants: sessions, delimiter: delimiter }, (res) => {
         var blob = new Blob([res.data.csv_string], { type: 'text/csv' })
         FileSaver.saveAs(blob, res.data.file_name + '.csv')
         if (res.data.gaze_data !== undefined) {
           const gaze_blob = new Blob([res.data.gaze_data], { type: 'text/csv' })
           FileSaver.saveAs(gaze_blob, res.data.file_name + '_gaze.csv')
         }
-        this.handleClose()
         return 1
       })
     } else {
-      this.state.participants.map((p, ind) => {
-        db_helper.exportToCSV({ participant: p, delimiter: this.state.delimiter }, (res) => {
+      sessions.map((p, ind) => {
+        db_helper.exportToCSV({ participant: p, delimiter: delimiter }, (res) => {
           const blob = new Blob([res.data.csv_string], { type: 'text/csv' })
           FileSaver.saveAs(blob, res.data.file_name + '.csv')
           if (res.data.gaze_data !== undefined) {
             const gaze_blob = new Blob([res.data.gaze_data], { type: 'text/csv' })
             FileSaver.saveAs(gaze_blob, res.data.file_name + '_gaze.csv')
           }
-          this.handleClose()
           return 1
         })
         return 1
       })
     }
-  }
+  } */
 
-  formatDateTime(t) {
+  const formatDateTime = (t) => {
     const d = new Date(t)
     const fillZero = num => {
       if (num < 10) return '0' + num
@@ -187,8 +173,8 @@ class Export extends Component {
     )
   }
 
-  getParticipantName(p) {
-    if (!p.linesOfData || p.linesOfData.length <= 0) return "Empty"       //If there is not data we set the name to "Empty"
+  const getParticipantName = (p) => {
+    /* if (!p.linesOfData || p.linesOfData.length <= 0) return "Empty"       //If there is not data we set the name to "Empty"
 
     let file_name = ""                        // If there are lines of data avalaible we set the name to be the time of the first recorded data
     if (p.linesOfData && p.linesOfData.length > 0) {
@@ -201,78 +187,81 @@ class Export extends Component {
         if (!globalVar.label.toLowerCase().includes("record data"))
           file_name += '_' + globalVar.label + '-' + globalVar.value
       })
-    }
-    return file_name
+    
+      
+    } */
+    // TODO: recode the name convention
+    countTest++
+    return "InProgress "+countTest
+
+    
   }
 
-  render() {
-    return (
-      <div className="ExportContainer" style={{ backgroundColor: (this.props.theme.palette.type === "light" ? this.props.theme.palette.primary.main : this.props.theme.palette.primary.dark) }}>
-        <List style={{ display: 'flex', flexDirection: 'column', flexGrow: 1, width: '100%', minHeight: 100, maxHeight: 'calc(100% - 100px)', overflowY: 'auto', overflowX: 'hidden' }}>
-          {this.state.participants.map( (p, index) => {
-            if (this.pickedParticipants.includes(p)) {
-              return (
-                <ListItem style={{ borderBottom: 'grey solid 1px' }} selected
-                  button onClick={ () => {
-                    if (this.pickedParticipants.includes(p))
-                      this.pickedParticipants.splice(this.pickedParticipants.indexOf(p), 1)
-                    else
-                      this.pickedParticipants.push(p)
-                    this.forceUpdate()
-                  }} key={index} >
-                  <Typography color="textSecondary">{this.getParticipantName(p)}</Typography>
-                </ListItem>
-              )
-            } else {
-              return (
-                <ListItem style={{ borderBottom: 'grey solid 1px' }}
-                  button onClick={ () => {
-                    if (this.pickedParticipants.includes(p))
-                      this.pickedParticipants.splice(this.pickedParticipants.indexOf(p), 1)
-                    else
-                      this.pickedParticipants.push(p)
-                    this.forceUpdate()
-                  }} key={index} >
-                  <Typography color="textPrimary">{this.getParticipantName(p)}</Typography>
-                </ListItem>
-              )
-            }
-          })}
-        </List>
-        <div className="ExportationActions">
-          <Typography variant="body1" color="textPrimary">
-            {this.pickedParticipants.length} data sets selected 
-          </Typography>
-          <FormControlLabel label="Combine files"
-            value="combineFiles"
-            checked={this.state.combineFiles}
-            control={<Checkbox color="secondary" />}
-            onChange={this.onCombineFilesChange.bind(this)}
-            labelPlacement="end"
-            style={{ marginLeft: 10 }}
-          />
-          <TextField label="Delimiter"
-            required
-            style={{ width: 100 }}
-            id="delim"
-            defaultValue={this.state.delimiter}
-            placeholder=","
-            ref="delimiterRef"
-            variant="filled"
-            onChange={(e) => { this.setState({ delimiter: e.target.value }) }} //state.delimiter = e.target.value
-          />
 
-          <Button style={{ height: 50, marginLeft: 20 }} onClick={this.handleExport.bind(this)} variant="outlined">
-            Export
-          </Button>
+  return (
+    <div className="ExportContainer" style={{ backgroundColor: (props.theme.palette.type === "light" ? props.theme.palette.primary.main : props.theme.palette.primary.dark) }}>
+      <List style={{ display: 'flex', flexDirection: 'column', flexGrow: 1, width: '100%', minHeight: 100, maxHeight: 'calc(100% - 100px)', overflowY: 'auto', overflowX: 'hidden' }}>
+        {sessions.map( (p, index) => {
+          if (pickedSessions.includes(p)) {
+            return (
+              <ListItem style={{ borderBottom: 'grey solid 1px' }} selected
+                button onClick={ () => {
+                  if (pickedSessions.includes(p))
+                    setPickedSessions(prevVal => prevVal.slice(pickedSessions.indexOf(p), 1))
+                  else
+                    setPickedSessions(prevVal => [...prevVal, p])
+                }} key={index} >
+                <Typography color="textSecondary">{getParticipantName(p)}</Typography>
+              </ListItem>
+            )
+          } else {
+            return (
+              <ListItem style={{ borderBottom: 'grey solid 1px' }}
+                button onClick={ () => {
+                  if (pickedSessions.includes(p))
+                    setPickedSessions(prevVal => prevVal.slice(pickedSessions.indexOf(p), 1))
+                  else
+                    setPickedSessions(prevVal => [...prevVal, p])
+                }} key={index} >
+                <Typography color="textPrimary">{getParticipantName(p)}</Typography>
+              </ListItem>
+            )
+          }
+        })}
+      </List>
+      <div className="ExportationActions">
+        <Typography variant="body1" color="textPrimary">
+          {pickedSessions.length} data sets selected 
+        </Typography>
+        <FormControlLabel label="Combine files"
+          value="shouldCombineFiles"
+          checked={shouldCombineFiles}
+          control={<Checkbox color="secondary" />}
+          onChange={onCombineFilesChange}
+          labelPlacement="end"
+          style={{ marginLeft: 10 }}
+        />
+        <TextField label="Delimiter"
+          required
+          style={{ width: 100 }}
+          id="delim"
+          defaultValue={delimiter}
+          placeholder=","
+          // ref="delimiterRef"
+          variant="filled"
+          onChange={(e) => setDelimiter(e.target.value)}
+        />
 
-          <Button style={{ height: 50, marginLeft: 20 }} onClick={this.handleDeleteSelected.bind(this)} variant="outlined">
-            Delete
-          </Button>
-        </div>
+        <Button style={{ height: 50, marginLeft: 20 }} onClick={handleExport} variant="outlined">
+          Export
+        </Button>
+
+        <Button style={{ height: 50, marginLeft: 20 }} onClick={handleDeleteSelected} variant="outlined">
+          Delete
+        </Button>
       </div>
-    )
-  }
+    </div>
+  )
 }
 
-export default withTheme(Export)
+export default withTheme(exportComponent)
