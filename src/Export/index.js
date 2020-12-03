@@ -52,6 +52,18 @@ const exportComponent = (props) => {
     setShouldCombineFiles(prevBool => !prevBool)
   }
 
+  const onAfterDelete = (id) => {
+    store.dispatch({
+      type: 'TOAST_SNACKBAR_MESSAGE',
+      snackbarOpen: true,
+      snackbarMessage: "Deleted "+id
+    })
+    
+    db_helper.getAllParticipantsFromDb(ids => {
+      setSessions(ids)
+    })
+  }
+
   const handleDeleteSelected = async () => {
     if (pickedSessions.length > 0) {
       store.dispatch({
@@ -60,27 +72,14 @@ const exportComponent = (props) => {
         snackbarMessage: "Deleting data sets"
       })
 
-      pickedSessions.forEach(async session => {         //Delete each selection synchronously
-        await db_helper.deleteParticipantFromDbPromise(session._id)
+      pickedSessions.forEach(session => {         //Delete each selection synchronously
+        db_helper.deleteParticipantFromDb(session._id, () => onAfterDelete(session._id))
       })
-
+      
       setPickedSessions([])        //Empty the user selection
 
-      db_helper.getAllParticipantsFromDb((ids) => {        //Update the list after the deletion have been completed
-        store.dispatch({
-          type: 'TOAST_SNACKBAR_MESSAGE',
-          snackbarOpen: true,
-          snackbarMessage: "Deletion completed"
-        })
-        
-        setSessions(ids)
-      })
     }
   }
-
-/*   const handleDeleteAll = () => {
-    db_helper.deleteAllParticipantsFromDb(() => db_helper.getAllParticipantsFromDb(ids => setSessions(ids)))
-  } */
 
   const handleExport = async () => {
     if (pickedSessions.length > 0)
@@ -129,38 +128,6 @@ const exportComponent = (props) => {
     }
   }
 
-/*   const handleExportAll = () => {
-    store.dispatch({
-      type: 'TOAST_SNACKBAR_MESSAGE',
-      snackbarOpen: true,
-      snackbarMessage: "Exporting all data sets"
-    })
-
-    if (shouldCombineFiles) {
-      db_helper.exportManyToCSV({ participants: sessions, delimiter: delimiter }, (res) => {
-        var blob = new Blob([res.data.csv_string], { type: 'text/csv' })
-        FileSaver.saveAs(blob, res.data.file_name + '.csv')
-        if (res.data.gaze_data !== undefined) {
-          const gaze_blob = new Blob([res.data.gaze_data], { type: 'text/csv' })
-          FileSaver.saveAs(gaze_blob, res.data.file_name + '_gaze.csv')
-        }
-        return 1
-      })
-    } else {
-      sessions.map((p, ind) => {
-        db_helper.exportToCSV({ participant: p, delimiter: delimiter }, (res) => {
-          const blob = new Blob([res.data.csv_string], { type: 'text/csv' })
-          FileSaver.saveAs(blob, res.data.file_name + '.csv')
-          if (res.data.gaze_data !== undefined) {
-            const gaze_blob = new Blob([res.data.gaze_data], { type: 'text/csv' })
-            FileSaver.saveAs(gaze_blob, res.data.file_name + '_gaze.csv')
-          }
-          return 1
-        })
-        return 1
-      })
-    }
-  } */
 
   const formatDateTime = (t) => {
     const d = new Date(t)
@@ -192,7 +159,7 @@ const exportComponent = (props) => {
     } */
     // TODO: recode the name convention
     countTest++
-    return "InProgress "+countTest
+    return "InProgress "+ p._id
 
     
   }
