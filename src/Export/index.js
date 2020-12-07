@@ -12,8 +12,6 @@ import store from '../core/store'
 import db_helper from '../core/db_helper'
 import './Export.css'
 
-const GAZE_HEADER = "Timestamp(UTC),X,Y,Left pupil radius,Right pupil radius,Task,Target,database_id\n"
-
 const setHeader = (seperator) => {
   return ("global_vars" + seperator +
     "content" + seperator +
@@ -32,6 +30,8 @@ const setHeader = (seperator) => {
     "database_id\n" //Note the \n in case more fields are added later
   )
 }
+
+const GAZE_HEADER = "Timestamp(UTC),X,Y,Left pupil radius,Right pupil radius,Task,Target,database_id\n"
 
 const exportComponent = (props) => {
     
@@ -164,38 +164,35 @@ const exportComponent = (props) => {
     
   }
 
+  const togglePickedSessions = (p) => {
+    if (pickedSessions.includes(p))
+      setPickedSessions(prevVal => prevVal.slice(pickedSessions.indexOf(p), 1))
+    else
+      setPickedSessions(prevVal => [...prevVal, p])
+  }
 
-  return (
-    <div className="ExportContainer" style={{ backgroundColor: (props.theme.palette.type === "light" ? props.theme.palette.primary.main : props.theme.palette.primary.dark) }}>
+  const renderList = (sessions, pickedSessions) => {    
+    return (
       <List style={{ display: 'flex', flexDirection: 'column', flexGrow: 1, width: '100%', minHeight: 100, maxHeight: 'calc(100% - 100px)', overflowY: 'auto', overflowX: 'hidden' }}>
         {sessions.map( (p, index) => {
-          if (pickedSessions.includes(p)) {
             return (
-              <ListItem style={{ borderBottom: 'grey solid 1px' }} selected
-                button onClick={ () => {
-                  if (pickedSessions.includes(p))
-                    setPickedSessions(prevVal => prevVal.slice(pickedSessions.indexOf(p), 1))
-                  else
-                    setPickedSessions(prevVal => [...prevVal, p])
-                }} key={index} >
+              <ListItem style={{ borderBottom: 'grey solid 1px' }} 
+                        selected={pickedSessions.includes(p)?true:false}
+                        button onClick={() => togglePickedSessions(p)} 
+                        key={index} >
                 <Typography color="textSecondary">{getParticipantName(p)}</Typography>
               </ListItem>
             )
-          } else {
-            return (
-              <ListItem style={{ borderBottom: 'grey solid 1px' }}
-                button onClick={ () => {
-                  if (pickedSessions.includes(p))
-                    setPickedSessions(prevVal => prevVal.slice(pickedSessions.indexOf(p), 1))
-                  else
-                    setPickedSessions(prevVal => [...prevVal, p])
-                }} key={index} >
-                <Typography color="textPrimary">{getParticipantName(p)}</Typography>
-              </ListItem>
-            )
-          }
-        })}
+          })
+        }
       </List>
+    )
+  }
+
+
+  return (
+    <div className="ExportContainer" style={{ backgroundColor: (props.theme.palette.type === "light" ? props.theme.palette.primary.main : props.theme.palette.primary.dark) }}>
+      {renderList(sessions, pickedSessions)}
       <div className="ExportationActions">
         <Typography variant="body1" color="textPrimary">
           {pickedSessions.length} data sets selected 
