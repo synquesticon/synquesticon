@@ -1,11 +1,9 @@
-'use strict'
-
 const mongoose = require('mongoose')
-extend = require('mongoose-schema-extend')
+const util = require('util')
 const {ImageComponent, ButtonComponent, TextComponent, NumberComponent} =  require('./TaskComponent')
-var Schema = mongoose.Schema
+const Schema = mongoose.Schema
 
-var HitAOIs = new Schema({
+const HitAOIs = new Schema({
    aois: [String], //names of the hit AOIS
    x: Number,
    y: Number,
@@ -13,40 +11,51 @@ var HitAOIs = new Schema({
    _id: false
 })
 
+const isCorrectEnum = ['correct', 'incorrect', 'notApplicable', 'skip']
 
-var AnsweredTaskComponent = new Schema({
-    taskId: String,
-    isCorrect: String,
-    /* correctlyAnswered:
-      1. If the participant answers correctly, we log it as “correct”.
-      2. If the participant answers incorrectly, we log it as “incorrect”.
-      3. If no correct answer was provided (i.e. the field “correct answer” in the editor is empty), we log it as “notApplicable”.
-      4. If the participant clicked “skip”, we log it as “skipped”, regardless of (3).
-    */
-    timeToFirtAnswer: Number,
-    firstResponseTimestamp: Number,
-    timeToCompletion: Number
-})
+function AnsweredTaskComponentConstructor (){
+    Schema.apply(this, arguments)
 
-var AnsweredImageComponent = AnsweredTaskComponent.extend({
+    this.add({
+        taskId: String,
+        isCorrect: {
+            type: String,
+            enum: isCorrectEnum
+        },
+        /* correctlyAnswered:
+        1. If the participant answers correctly, we log it as “correct”.
+        2. If the participant answers incorrectly, we log it as “incorrect”.
+        3. If no correct answer was provided (i.e. the field “correct answer” in the editor is empty), we log it as “notApplicable”.
+        4. If the participant clicked “skip”, we log it as “skipped”, regardless of (3).
+        */
+        timeToFirtAnswer: Number,
+        firstResponseTimestamp: Number,
+        timeToCompletion: Number
+    })
+}
+util.inherits(AnsweredTaskComponentConstructor, Schema)
+
+const AnsweredTaskComponent = new AnsweredTaskComponentConstructor()
+
+const AnsweredImageComponent = new AnsweredTaskComponentConstructor({
     imageTask: ImageComponent,
     aoiCheckList: [HitAOIs]
 })
 
 
-var AnsweredButtonComponent = AnsweredTaskComponent.extend({
+const AnsweredButtonComponent = new AnsweredTaskComponentConstructor({
     buttonTask: ButtonComponent,
     responseCountArray: [Number],
     responseArray: [String]
 })
 
-var AnsweredTextComponent = AnsweredTaskComponent.extend({
+const AnsweredTextComponent = new AnsweredTaskComponentConstructor({
     textTask: TextComponent,
     response: String
 })
 
 
-var AnsweredNumberComponent = AnsweredTaskComponent.extend({
+const AnsweredNumberComponent = new AnsweredTaskComponentConstructor({
     numberComponent: NumberComponent,
     response: Number
 })

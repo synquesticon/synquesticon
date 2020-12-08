@@ -4,21 +4,24 @@ const AnsweredTaskComponent = require('./Task/AnsweredTaskComponent')
 
 const Schema = mongoose.Schema
 
-const Task = new Schema({
-    name: String,
+var Task = new Schema({
+    name: {
+        type: String,
+        required: true
+    },
     tags: [String],
     screenIds: [String],
     taskComponents: [TaskComponent]
 
-}, {collection: 'Tasks'})
+}, { collection: 'Task' })
 
 const Set = new Schema({
     name: String,
     tags: String,
-    children: [Task, Set],
+    children: [Task],
     isRandom: Boolean,
     taskOrder: [Number]
-})
+}, { collection: 'Set' })
 
 const Session = new Schema({
     setId: String,
