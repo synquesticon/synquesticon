@@ -29,10 +29,15 @@ taskRouter.post('/getTask', async (req, res) => {
 
     await taskModel.findById(id, (err, obj) => {
         if(err){
-            return res.json({ success: false, error: err })
+            return res.status(500).send(err)
         }
         
-        return res.json({ success: true, task: obj })
+        if(obj){
+            return res.status(200).send(obj)
+        } else {
+            return res.status(404).send("No task found")
+        }        
+        
     })
 })
 
@@ -53,11 +58,11 @@ taskRouter.delete('/deleteTask/:id', async (req, res) => {
     const task = await taskModel.findByIdAndDelete(req.params.id)
 
     try{
-        if (!task) res.status(404).send("No item found")
+        if (!task) res.status(404).send("No task found")
         res.status(200).send()
     } catch (err) {
         res.status(500).send(err)
-  }
+    }
 
 })
 
