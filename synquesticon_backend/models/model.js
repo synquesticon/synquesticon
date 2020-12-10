@@ -1,27 +1,41 @@
 const mongoose = require('mongoose')
-const TaskComponent = require('./Task/TaskComponent')
+const TaskComponentBase = require('./Task/TaskComponent')
 const AnsweredTaskComponent = require('./Task/AnsweredTaskComponent')
 
 const Schema = mongoose.Schema
 
-var Task = new Schema({
+const Task = new Schema({
     name: {
         type: String,
         required: true
     },
     tags: [String],
     screenIds: [String],
-    taskComponents: [TaskComponent]
+    taskComponents: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: TaskComponentBase
+        }
+    ]
 
-}, { collection: 'Task' })
+})
+
+const childrenSchema = new Schema({}, { discriminatorKey: '__t' })
 
 const Set = new Schema({
-    name: String,
+    name: {
+        type: String,
+        required: true
+    },
     tags: String,
-    children: [Task],
+    children: [childrenSchema],
     isRandom: Boolean,
     taskOrder: [Number]
-}, { collection: 'Set' })
+    }, { discriminatorKey: '__t' })
+
+Set.path('children').discriminator('Set', Set)
+Set.path('children').discriminator('Task', Task)
+
 
 const Session = new Schema({
     setId: String,

@@ -10,6 +10,14 @@ let jsonParser = bodyParser.json()
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
 const taskModel = models.Task
+const {
+    InstructionComponent,
+    ImageComponent,
+    ButtonComponent,
+    TextComponent,
+    NumberComponent
+} = require('../models/Task/TaskComponent')
+const { forEach } = require('lodash')
 
 taskRouter.get('/', (req, res) => {
     res.send('API branch task collection')
@@ -42,8 +50,28 @@ taskRouter.post('/getTask', async (req, res) => {
 })
 
 taskRouter.post('/addTask', jsonParser, async (req, res) => {
-    const taskObject = new taskModel(req.body)
+    
+    const taskObject = new taskModel()
 
+    taskObject.name = req.body.name
+    taskObject.tags = req.body.tags
+    taskObject.screenIds = req.body.screenIds
+
+    var taskComponents = []
+
+    
+    req.body.taskComponents.forEach(taskComponent => {
+        var component = undefined
+        if(taskComponent.taskType === 'Text') {
+            component = new TextComponent(taskComponent)
+            component.save()
+        }
+        taskComponents = [...taskComponents, component.id]
+    })       
+    
+
+    taskObject.taskComponents = taskComponents
+    
     
     await taskObject.save((err, q) => {
         if (err) {

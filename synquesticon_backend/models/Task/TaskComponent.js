@@ -10,14 +10,13 @@ const ImageAOI = new Schema({
    _id: false
 })
 
-const TaskTypeEnum = ["Image", "Number", "Button", "Text", "Instruction"]
+/* const TaskTypeEnum = ["Image", "Number", "Button", "Text", "Instruction"]
 
 
 function TaskComponentConstructor (arguments) {
     Schema.apply(this,arguments)
 
     this.add({
-        _id: false,
         displayText: String,
         screenIds: [String],
         taskType: {
@@ -57,15 +56,56 @@ const NumberComponent = new TaskComponentConstructor({
 })
 
 module.exports = {
-    /* TaskComponent: mongoose.model('TaskComponent', TaskComponent),
-    ImageComponent: mongoose.model('ImageComponent', ImageComponent),
-    ButtonComponent: mongoose.model('ButtonComponent', ButtonComponent), 
-    TextComponent: mongoose.model('TextComponent', TextComponent), 
-    NumberComponent:  mongoose.model('NumberComponent', NumberComponent) */
     TaskComponent,
     ImageComponent,
     ButtonComponent,
     TextComponent,
     NumberComponent
     
+} */
+
+const baseOptions = {
+    _id: false,
+    discrimatorKey: 'taskType'
+}
+
+const TaskComponentBase = mongoose.model('TaskComponentBase', new Schema({
+            displayText: String,
+            screenIds: [String]
+        }, baseOptions)
+)
+
+const InstructionComponent = TaskComponentBase.discriminator('Instruction', new Schema())
+
+const ImageComponent = TaskComponentBase.discriminator('Image', new Schema({
+    path: String,
+    shouldRecordClick: Boolean,
+    shouldShowAOIs: Boolean,
+    isFullScreen: Boolean,
+    AOIs: [ImageAOI]
+}))
+
+const ButtonComponent = TaskComponentBase.discriminator('Button', new Schema({
+    isSingleChoice: Boolean,
+    isAutoReset: Boolean,
+    options: [String],
+    correctAnswers: [String]
+}))
+
+const TextComponent = TaskComponentBase.discriminator('Text', new Schema({
+    correctAnswers: [String]
+}))
+
+
+const NumberComponent = TaskComponentBase.discriminator('Number', new Schema({        
+    correctAnswer: Number,
+    offSetRange: Number
+}))
+
+module.exports = {
+    InstructionComponent,
+    ImageComponent,
+    ButtonComponent,
+    TextComponent,
+    NumberComponent
 }

@@ -38,25 +38,21 @@ util.inherits(AnsweredTaskComponentConstructor, Schema)
 const AnsweredTaskComponent = new AnsweredTaskComponentConstructor()
 
 const AnsweredImageComponent = new AnsweredTaskComponentConstructor({
-    imageTask: ImageComponent,
     aoiCheckList: [HitAOIs]
 })
 
 
 const AnsweredButtonComponent = new AnsweredTaskComponentConstructor({
-    buttonTask: ButtonComponent,
     responseCountArray: [Number],
     responseArray: [String]
 })
 
 const AnsweredTextComponent = new AnsweredTaskComponentConstructor({
-    textTask: TextComponent,
     response: String
 })
 
 
 const AnsweredNumberComponent = new AnsweredTaskComponentConstructor({
-    numberComponent: NumberComponent,
     response: Number
 })
 
