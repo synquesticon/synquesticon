@@ -20,7 +20,7 @@ const taskSchema = new Schema(
     { 
         name: String,
         tags: [String],
-        taskComponents: [taskComponentSchema] 
+        taskComponents: [taskComponentSchema]
     },
     {
         collection: 'Tasks_Discrimination'
@@ -83,10 +83,11 @@ const ImageComponentSchema = componentArray.discriminator('Image', imageComponen
 
 
 
-const TaskModel = mongoose.model('Tasks', taskSchema)
+const TaskModel = mongoose.model('TaskModel', taskSchema)
 
 module.exports = {
     TaskModel,
+    taskSchema,
     NumberComponentSchema,
     ButtonComponentSchema,
     TextComponentSchema,

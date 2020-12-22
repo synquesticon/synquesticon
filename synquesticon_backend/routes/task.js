@@ -1,6 +1,6 @@
 const express = require('express')
 const taskRouter = express.Router()
-const { TaskModel } = require('../models/model_discriminator')
+const { TaskModel } = require('../models/taskModel')
 const bodyParser = require('body-parser')
 
 
@@ -18,16 +18,14 @@ taskRouter.get('/', (req, res) => {
 taskRouter.get('/getAllTasks', async (req, res) => {
     const tasks = await TaskModel.find()
     try{
-        res.send(tasks)
+        res.status(200).send(tasks)
     } catch (err) {
         res.status(500).send(err)
     }
 })
 
-taskRouter.post('/getTask', async (req, res) => { 
-    const id = req.body
-
-    await TaskModel.findById(id, (err, obj) => {
+taskRouter.get('/getTask/:id', async (req, res) => { 
+    await TaskModel.findById(req.params.id, (err, obj) => {
         if(err){
             return res.status(500).send(err)
         }
