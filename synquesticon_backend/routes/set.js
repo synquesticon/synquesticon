@@ -1,45 +1,43 @@
 const express = require('express')
 const setRouter = express.Router()
-const models = require('../models/model')
+const SetModel = require('../models/setModel')
 const bodyParser = require('body-parser')
 
 
 let jsonParser = bodyParser.json()
-
-
-const setModel = models.Set
 
 setRouter.get('/', (req, res) => {
     res.send('API branch set collection')
 })
 
 setRouter.get('/getAllSets', async (req, res) => {
-    const sets = await setModel.find()
+    const sets = await SetModel.find()
     try{
-        res.send(tasks)
+        res.status(200).send(sets)
     } catch (err) {
         res.status(500).send(err)
     }
 })
 
-setRouter.post('/getSet', async (req, res) => { 
-    const id = req.body
-
-    await setModel.findById(id, (err, obj) => {
-        if(err){
-            return res.status(500).send(err)
-        }
-        
-        if(obj){
-            return res.status(200).send(obj)
+setRouter.get('/getSet/:id', async (req, res) => {
+    await SetModel.findById(req.params.id)
+    .populate({
+         path: 'children.childId', 
+         populate: { path: 'children.childId', model: 'TaskModel' } //populate children which are tasks, stop at the 2nd layer
+        })
+    .exec(function (err, set) {
+        if (err) return res.status(500).send(err)
+        if(set){
+            return res.status(200).send(set)
         } else {
             return res.status(404).send("No set found")
-        }   
-    })
+        }  
+
+    });
 })
 
 setRouter.post('/addSet', jsonParser, async (req, res) => {
-    const setObject = new setModel(req.body)
+    const setObject = new SetModel(req.body)
 
     
     await setObject.save((err, q) => {
@@ -52,7 +50,7 @@ setRouter.post('/addSet', jsonParser, async (req, res) => {
 })
 
 setRouter.delete('/deleteSet/:id', async (req, res) => {
-    const set = await setModel.findByIdAndDelete(req.params.id)
+    const set = await SetModel.findByIdAndDelete(req.params.id)
 
     try{
         if (!set) res.status(404).send("No item found")
