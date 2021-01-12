@@ -14,7 +14,9 @@ const taskComponentSchema = new Schema({
     },
     screenIds: [String]
 },
-    { discriminatorKey: 'taskType', _id: false });
+    { discriminatorKey: 'taskType' });
+
+const taskComponentSchemaModel = new mongoose.model('TaskComponentModel', taskComponentSchema)
   
 const taskSchema = new Schema(
     { 
@@ -87,6 +89,7 @@ const TaskModel = mongoose.model('TaskModel', taskSchema)
 
 module.exports = {
     TaskModel,
+    taskComponentSchemaModel,
     taskSchema,
     NumberComponentSchema,
     ButtonComponentSchema,

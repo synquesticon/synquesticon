@@ -16,6 +16,10 @@ const isCorrectEnum = ['correct', 'incorrect', 'notApplicable', 'skip']
 const AnsweredTaskComponent = new Schema(
     {
 
+        sessionId: {
+            type: String,
+            required: true
+        },
         setId: {
             type: Schema.Types.ObjectId,
             required: true
@@ -47,38 +51,38 @@ const AnsweredTaskComponent = new Schema(
     },
     { 
         discriminatorKey: 'componentType',
-        collection: 'AnsweredComponent' 
+        collection: 'AnsweredTaskComponent' 
     }
 )
 
-const AnsweredTaskComponentBase = mongoose.model('AnsweredComponent', AnsweredTaskComponent)
+const AnsweredTaskComponentModel = mongoose.model('AnsweredComponent', AnsweredTaskComponent)
 
 
-const AnsweredImageComponent = AnsweredTaskComponentBase.discriminator('Image', 
+const AnsweredImageComponent = AnsweredTaskComponentModel.discriminator('Image', 
     new Schema({
         aoiCheckList: [HitAOIs]
     })
 )
 
 
-const AnsweredButtonComponent = AnsweredTaskComponentBase.discriminator('Button', 
+const AnsweredButtonComponent = AnsweredTaskComponentModel.discriminator('Button', 
     new Schema({
         responseCountArray: [Number],
         responseArray: [String]
     })
 )
 
-const AnsweredTextComponent = AnsweredTaskComponentBase.discriminator('Text', 
+const AnsweredTextComponent = AnsweredTaskComponentModel.discriminator('Text', 
     new Schema({
-    response: String,
+        response: String,
     })
 )
 
 
-const AnsweredNumberComponent = AnsweredTaskComponentBase.discriminator('Number', 
+const AnsweredNumberComponent = AnsweredTaskComponentModel.discriminator('Number', 
     new Schema({
         response: Number
     })
 )
 
-module.exports = AnsweredTaskComponent
+module.exports = AnsweredTaskComponentModel

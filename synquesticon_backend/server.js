@@ -4,6 +4,7 @@ const express = require('express')
 
 const taskRouter = require('./routes/task')
 const setRouter = require('./routes/set')
+const answeredTaskComponentRouter = require('./routes/answeredComponent')
 const app = express()
 
 app.get('/', (req, res) => {
@@ -31,6 +32,8 @@ port = process.env.PORT || 3001
 app.use('/task', taskRouter)
 
 app.use('/set', setRouter)
+
+app.use('/answered', answeredTaskComponentRouter)
 
 
 app.listen(port, () => {
