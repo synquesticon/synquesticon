@@ -18,52 +18,6 @@ using System.Collections.Generic;
 
 namespace TobiiRemoteEyeTrackingServer
 {
-    public class StandardJsonConverter : JsonConverter
-    {
-        public override bool CanRead
-        {
-            get
-            {
-                return false;
-            }
-        }
-        public override bool CanWrite
-        {
-            get
-            {
-                return true;
-            }
-        }
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            if (value == null)
-            {
-                writer.WriteNull();
-                return;
-            }
-
-            var val = Convert.ToDouble(value);
-            if (Double.IsNaN(val) || Double.IsInfinity(val))
-            {
-                writer.WriteNull();
-                return;
-            }
-            // Preserve the type, otherwise values such as 3.14f may suddenly be
-            // printed as 3.1400001049041748.
-            if (value is float)
-                writer.WriteValue((float)value);
-            else
-                writer.WriteValue((double)value);
-        }
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            throw new NotImplementedException();
-        }
-        public override bool CanConvert(Type objectType)
-        {
-            return objectType == typeof(double) || objectType == typeof(float);
-        }
-    }
     public partial class Form1 : Form
     {
         private EyeTrackerCollection AvailableTrackers;
@@ -154,7 +108,7 @@ namespace TobiiRemoteEyeTrackingServer
             float movingIntervalX = (toX - fromX) / 80;
             float movingIntervalY = (toY - fromY) / 80;
             int radius = 30;
-            while ((toX - tempX)*movingIntervalX > 0 || (toY - tempY) * movingIntervalY > 0)
+            while ((toX - tempX) * movingIntervalX > 0 || (toY - tempY) * movingIntervalY > 0)
             {
                 g.Clear(Color.White);
                 g.DrawEllipse(CalBrush, tempX - radius, tempY - radius,
@@ -199,7 +153,7 @@ namespace TobiiRemoteEyeTrackingServer
             //    var result = calibrationValidation.Compute();
             //    Console.WriteLine(calibrationValidation);
             //    calibrationValidation.LeaveValidationMode();
-                
+
             //};
 
             // Create a calibration object.
@@ -218,7 +172,7 @@ namespace TobiiRemoteEyeTrackingServer
             int w = CalibrationForm.Width;
             int h = CalibrationForm.Height;
             MovingPoint(AnimatedPointGraphics, w, h, new NormalizedPoint2D(0.5f, 0.1f), new NormalizedPoint2D(0.5f, 0.5f));
-            for (int i = 0; i < pointsToCalibrate.Length; i++) 
+            for (int i = 0; i < pointsToCalibrate.Length; i++)
             {
                 var point = pointsToCalibrate[i];
                 // Show an image on screen where you want to calibrate.
@@ -234,11 +188,11 @@ namespace TobiiRemoteEyeTrackingServer
                     // Not all eye tracker models will fail at this point, but instead fail on ComputeAndApply.
                     calibration.CollectData(point);
                 }
-                if(i + 1 < pointsToCalibrate.Length)
+                if (i + 1 < pointsToCalibrate.Length)
                 {
                     MovingPoint(AnimatedPointGraphics, w, h, point, pointsToCalibrate[i + 1]);
                 }
-                
+
             }
             // Compute and apply the calibration.
             CalibrationResult calibrationResult = calibration.ComputeAndApply();
@@ -257,7 +211,7 @@ namespace TobiiRemoteEyeTrackingServer
             // The calibration is done. Leave calibration mode.
             calibration.LeaveCalibrationMode();
             CalibrationForm.Close();
-            
+
         }
         private Thread MQTTThread;
         private Guid guid = Guid.NewGuid();
@@ -266,14 +220,16 @@ namespace TobiiRemoteEyeTrackingServer
         private bool IsStreamingMQTT = false;
         private IEyeTracker SelectedTracker = null;
         private ConcurrentQueue<GazeDataEventArgs> GazeEventQueue = new ConcurrentQueue<GazeDataEventArgs>();
-        private double[] CurrentPupilDiameters = {0, 0 };
+        private int BatchSize = 1;
+        private int[] BatchSizeOptions = { 1, 3, 20, 30, 60, 120 };
+        private double[] CurrentPupilDiameters = { 0, 0 };
         async private void StreamBtn_Click(object sender, EventArgs e)
-        {         
-          
+        {
+
             if (!IsStreamingMQTT)
             {
                 recordingCount++;
-                
+
                 long startTime = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeMilliseconds(); //current start time when we button is clicked
 
                 var topic = mqttTopic;
@@ -319,15 +275,16 @@ namespace TobiiRemoteEyeTrackingServer
                 IsStreamingMQTT = true;
                 MQTTThread = new Thread(async () => {
                     int sampleCount = 0;
-                    while(IsStreamingMQTT)
+                    int resetBatchSizeCount = BatchSize;
+                    var dataList = new List<object>(); //for later adding object in
+                    while (IsStreamingMQTT)
                     {
                         try
-                        {
+                        {                            
                             while (GazeEventQueue.Any())
                             {
                                 GazeDataEventArgs gazeEvent;
                                 GazeEventQueue.TryDequeue(out gazeEvent);
-                                sampleCount++; //increase sample counts
                                 float gazeX = 0;
                                 float gazeY = 0;
                                 if (gazeEvent.LeftEye.GazePoint.Validity == Validity.Valid &&
@@ -353,38 +310,24 @@ namespace TobiiRemoteEyeTrackingServer
                                     CurrentPupilDiameters[1] = Double.IsNaN(gazeEvent.RightEye.Pupil.PupilDiameter) ? -1 : gazeEvent.RightEye.Pupil.PupilDiameter;
                                 }
 
-                                //create a dict-shape message, later will be serialized as a json object
-                                var msg = new Dictionary<string, object>();
-                                msg.Add("user", new Dictionary<string, Guid>
-                                                {
-                                                    {"uid", guid}
-                                                }
-                                );
-                                msg.Add("eyeTrackerSerialNumber", SelectedTracker.SerialNumber);
-                                // msg.Add("timestamp", ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeMilliseconds());
-                                msg.Add("timestamp", gazeEvent.DeviceTimeStamp);
-                                msg.Add("startTime", startTime);
-                                msg.Add("recordingCount", recordingCount);
-                                msg.Add("sampleCount", sampleCount);
-                                
-                                
-                                var dataList = new List<object>(); //for later adding object in
-                                
                                 var dataObject = new Dictionary<string, object>();
+
+                                dataObject.Add("timestamp", gazeEvent.DeviceTimeStamp);
+                                dataObject.Add("sampleCount", sampleCount);
                                 dataObject.Add("gaze", new Dictionary<string, float>
                                     {
                                         { "x", gazeX },
                                         { "y", gazeY }
                                     }
                                 );
-                                
+
                                 dataObject.Add("pupilDiameter", new Dictionary<string, double>
                                     {
                                         { "LeftEye", CurrentPupilDiameters[0]},
                                         { "RightEye", CurrentPupilDiameters[1]}
                                     }
                                 );
-                                
+
                                 //GazePoint in data
                                 var GazePointObject = new Dictionary<string, object>();
                                 GazePointObject.Add("LeftEye", new Dictionary<string, float>
@@ -399,9 +342,9 @@ namespace TobiiRemoteEyeTrackingServer
                                         { "x", float.IsNaN(gazeEvent.RightEye.GazePoint.PositionOnDisplayArea.X) ? float.NaN : gazeEvent.RightEye.GazePoint.PositionOnDisplayArea.X},
                                         { "y", float.IsNaN(gazeEvent.RightEye.GazePoint.PositionOnDisplayArea.Y) ? float.NaN : gazeEvent.RightEye.GazePoint.PositionOnDisplayArea.Y }
                                     }
-                                );                                
+                                );
                                 dataObject.Add("GazePoint_PositionOnDisplayArea", GazePointObject);
-                                
+
                                 //GazeOrigin in data
                                 var GazeOriginObject = new Dictionary<string, object>();
                                 GazeOriginObject.Add("LeftEye", new Dictionary<string, float>
@@ -418,38 +361,56 @@ namespace TobiiRemoteEyeTrackingServer
                                         { "y", float.IsNaN(gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.Y) ? float.NaN :  gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.Y },
                                         { "z", float.IsNaN(gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.Z) ? float.NaN :  gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.Z }
                                     }
-                                );                                
+                                );
                                 dataObject.Add("GazeOrigin_PositionInUserCoordinates", GazeOriginObject);
+                                sampleCount++;
 
+                                
                                 dataList.Add(dataObject); //append to the list
 
-                                msg.Add("data", dataList);
+                                if (dataList.Count == BatchSize)
+                                {
+                                    //create a dict-shape message, later will be serialized as a json object
+                                    var msg = new Dictionary<string, object>();
+                                    msg.Add("user", new Dictionary<string, Guid>
+                                                {
+                                                    {"uid", guid}
+                                                }
+                                    );
+                                    msg.Add("eyeTrackerSerialNumber", SelectedTracker.SerialNumber);
+                                    // msg.Add("timestamp", ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeMilliseconds());
+
+                                    msg.Add("startTime", startTime);
+                                    msg.Add("recordingCount", recordingCount);
+
+                                    msg.Add("data", dataList);
+
+                                    var settings = new JsonSerializerSettings();
+                                    var floatConverter = new StandardJsonConverter();
+                                    settings.Converters.Add(floatConverter);
+                                    string jsonMSG = JsonConvert.SerializeObject(msg, settings);
 
 
-                                // string jsonMSG = JsonConvert.SerializeObject(msg);
-                                
+                                    var message = new MqttApplicationMessageBuilder()
+                                    .WithTopic(topic)
+                                    .WithPayload(jsonMSG)
+                                    .WithExactlyOnceQoS()
+                                    .WithRetainFlag(false)
+                                    .Build();
+                                    await mqttClient.PublishAsync(message, CancellationToken.None); // Since 3.0.5 with CancellationToken
 
-                                var settings = new JsonSerializerSettings();
-                                var floatConverter = new StandardJsonConverter();
-                                settings.Converters.Add(floatConverter);                              
-                                string jsonMSG =  JsonConvert.SerializeObject(msg, settings);
-
-                                
-                                var message = new MqttApplicationMessageBuilder()
-                                .WithTopic(topic)
-                                .WithPayload(jsonMSG)
-                                .WithExactlyOnceQoS()
-                                .WithRetainFlag(false)
-                                .Build();
-                                mqttClient.PublishAsync(message, CancellationToken.None); // Since 3.0.5 with CancellationToken
-                            }
+                                    dataList.Clear();
+                                }
+                            }                            
+                          
+                            
                         }
                         catch (Exception exp)
                         {
                             //do nothing, skip
                             Console.Write(exp);
                         }
-                        
+
                     }
                 });
                 MQTTThread.Start();
@@ -505,6 +466,8 @@ namespace TobiiRemoteEyeTrackingServer
             }
 
             DisplayComboBox.SelectedIndex = 0;
+
+            BatchSizeComboBox.SelectedIndex = 0;
         }
 
         private void FillInAvailableTrackers()
@@ -517,7 +480,7 @@ namespace TobiiRemoteEyeTrackingServer
                     if (!TrackerListComboBox.Items.Contains(eyeTracker.SerialNumber))
                     {
                         TrackerListComboBox.Items.Add(eyeTracker.SerialNumber);
-                    } 
+                    }
                 }
                 TrackerListComboBox.SelectedIndex = 0;
 
@@ -551,7 +514,8 @@ namespace TobiiRemoteEyeTrackingServer
             try
             {
                 SelectedTracker = AvailableTrackers.ElementAt(TrackerListComboBox.SelectedIndex);
-                foreach (var fre in SelectedTracker.GetAllGazeOutputFrequencies())
+                FrequencyComboBox.Items.Clear();
+                foreach (int fre in SelectedTracker.GetAllGazeOutputFrequencies())
                 {
                     FrequencyComboBox.Items.Add(fre.ToString());
                 }
@@ -562,6 +526,7 @@ namespace TobiiRemoteEyeTrackingServer
                     ModeComboBox.Items.Add(mode.ToString());
                 }
                 ModeComboBox.SelectedIndex = 0;
+
             }
             catch (Exception exp)
             {
@@ -582,10 +547,30 @@ namespace TobiiRemoteEyeTrackingServer
                         break;
                     }
                 }
+                BatchSizeComboBox.Items.Clear();
+                int maxFrequency = (int) SelectedTracker.GetGazeOutputFrequency();
+                int[] divisions = { 2, 4, 6 };
+                foreach (int division in divisions)
+                {
+                    BatchSizeComboBox.Items.Add((int)maxFrequency / division);
+                }
             }
             catch (Exception exp)
             {
                 Console.Write(exp);
+            }
+        }
+
+        private void BatchSizeComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                BatchSize = (int) BatchSizeComboBox.SelectedItem;
+                Console.WriteLine(BatchSize);
+            }
+            catch (Exception exp)
+            {
+                Console.WriteLine(exp);
             }
         }
 
@@ -595,7 +580,7 @@ namespace TobiiRemoteEyeTrackingServer
             {
                 foreach (var mode in SelectedTracker.GetAllEyeTrackingModes())
                 {
-                    if (ModeComboBox.SelectedValue!= null && ModeComboBox.SelectedValue.Equals(mode.ToString()))
+                    if (ModeComboBox.SelectedValue != null && ModeComboBox.SelectedValue.Equals(mode.ToString()))
                     {
                         SelectedTracker.SetEyeTrackingMode(mode);
                         break;
@@ -607,5 +592,62 @@ namespace TobiiRemoteEyeTrackingServer
                 Console.Write(exp);
             }
         }
+
+        private void label7_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label8_Click(object sender, EventArgs e)
+        {
+
+        }
     }
+    public class StandardJsonConverter : JsonConverter
+    {
+        public override bool CanRead
+        {
+            get
+            {
+                return false;
+            }
+        }
+        public override bool CanWrite
+        {
+            get
+            {
+                return true;
+            }
+        }
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            if (value == null)
+            {
+                writer.WriteNull();
+                return;
+            }
+
+            var val = Convert.ToDouble(value);
+            if (Double.IsNaN(val) || Double.IsInfinity(val))
+            {
+                writer.WriteNull();
+                return;
+            }
+            // Preserve the type, otherwise values such as 3.14f may suddenly be
+            // printed as 3.1400001049041748.
+            if (value is float)
+                writer.WriteValue((float)value);
+            else
+                writer.WriteValue((double)value);
+        }
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
+        }
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof(double) || objectType == typeof(float);
+        }
+    }
+    
 }

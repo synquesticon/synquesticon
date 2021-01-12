@@ -185,3 +185,4 @@ C:\Users\taitl\Documents\GitHub\synquesticon\Tobii_RemoteEyeTrackingServer_MQTT\
 C:\Users\taitl\Documents\GitHub\synquesticon\Tobii_RemoteEyeTrackingServer_MQTT\TobiiRemoteEyeTrackingServer\obj\Debug\TobiiRemoteEyeTrackingServer.csproj.CopyComplete
 C:\Users\taitl\Documents\GitHub\synquesticon\Tobii_RemoteEyeTrackingServer_MQTT\TobiiRemoteEyeTrackingServer\obj\Debug\TobiiRemoteEyeTrackingServer.exe
 C:\Users\taitl\Documents\GitHub\synquesticon\Tobii_RemoteEyeTrackingServer_MQTT\TobiiRemoteEyeTrackingServer\obj\Debug\TobiiRemoteEyeTrackingServer.pdb
+C:\Users\taitl\Documents\GitHub\synquesticon\Tobii_RemoteEyeTrackingServer_MQTT\TobiiRemoteEyeTrackingServer\obj\Debug\TobiiRemoteEyeTrackingServer.csprojAssemblyReference.cache
