@@ -1,8 +1,8 @@
 const express = require('express')
+const ObjectId = require('mongoose').Types.ObjectId
 const answeredTaskComponentRouter = express.Router()
 const AnsweredTaskComponentModel = require('../models/answeredTaskComponentModel')
 const bodyParser = require('body-parser')
-const { result } = require('lodash')
 
 
 let jsonParser = bodyParser.json()
@@ -20,8 +20,9 @@ answeredTaskComponentRouter.get('/getBySessionId/:id', async (req, res) => {
     .exec(function (err, docs) {
         if (err) return res.status(500).send(err)
         if(docs){
-            let taskComponents = docs.filter(function(doc){
-                return doc.taskId
+           docs.forEach(function(doc){
+                let component = doc.taskId.taskComponents.find(obj => (String(obj._id) === String(doc.componentId)))
+                doc.component = component
             })
 
             return res.status(200).send(docs)
