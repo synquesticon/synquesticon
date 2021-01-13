@@ -2,6 +2,7 @@ const express = require('express')
 const answeredTaskComponentRouter = express.Router()
 const AnsweredTaskComponentModel = require('../models/answeredTaskComponentModel')
 const bodyParser = require('body-parser')
+const { result } = require('lodash')
 
 
 let jsonParser = bodyParser.json()
@@ -16,14 +17,14 @@ answeredTaskComponentRouter.get('/getBySessionId/:id', async (req, res) => {
          path: 'taskId',
          model: 'TaskModel'
         })
-    .populate({
-        path: 'componentId',
-        model: 'TaskComponentModel'
-    })
-    .exec(function (err, set) {
+    .exec(function (err, docs) {
         if (err) return res.status(500).send(err)
-        if(set){
-            return res.status(200).send(set)
+        if(docs){
+            let taskComponents = docs.filter(function(doc){
+                return doc.taskId
+            })
+
+            return res.status(200).send(docs)
         } else {
             return res.status(404).send("No answers associating with this Id found")
         }  
