@@ -12,7 +12,7 @@ answeredTaskComponentRouter.get('/', (req, res) => {
 })
 
 answeredTaskComponentRouter.get('/getBySessionId/:id', async (req, res) => {
-    await AnsweredTaskComponentModel.find({'sessionId': req.params.id})
+    await AnsweredTaskComponentModel.find({'sessionId': req.params.id}).lean()
     .populate({
          path: 'taskId',
          model: 'TaskModel'
@@ -22,7 +22,7 @@ answeredTaskComponentRouter.get('/getBySessionId/:id', async (req, res) => {
         if(docs){
            docs.forEach(function(doc){
                 let component = doc.taskId.taskComponents.find(obj => (String(obj._id) === String(doc.componentId)))
-                doc.component = component
+                doc.componentId = component
             })
 
             return res.status(200).send(docs)
