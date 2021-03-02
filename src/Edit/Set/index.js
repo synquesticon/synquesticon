@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import db_helper from '../../core/db_helper'
+import SetDataService from '../../backend_services/set'
 import * as db_utils from '../../core/db_objects_utility_functions'
 import * as dbObjects from '../../core/db_objects'
 import store from '../../core/store'
@@ -35,10 +36,15 @@ const EditSet = props => {
   let shouldReopen = false
 
   useEffect(() => {
-    eventStore.setTaskListener("on", addTask.bind(this));
+    eventStore.setTaskListener("on", addTask);
     (taskList && taskList.length > 0)
       ? db_helper.getTasksOrSetsWithIDs(set.current._id, onRetrievedSetChildTasks)
       : setTaskListObjects([])
+    
+    
+
+    
+    
 
     return () => {eventStore.setTaskListener("off", addTask)}
   }, []);
