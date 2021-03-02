@@ -49,6 +49,21 @@ setRouter.post('/addSet', jsonParser, async (req, res) => {
     })     
 })
 
+setRouter.put('/updateSet/:id', async(req, res) => {
+    if(!req.body){
+        return res.status(400).send("Data to update can not be empty.")
+    }
+
+    const set = await SetModel.findByIdAndUpdate(req.params.id, req.body, { useFindAndModify: false })
+
+    try{
+        if (!set) res.status(404).send("No item found")
+        res.status(200).send()
+    } catch (err) {
+        res.status(500).send(err)
+    }
+}) 
+
 setRouter.delete('/deleteSet/:id', async (req, res) => {
     const set = await SetModel.findByIdAndDelete(req.params.id)
 
