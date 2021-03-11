@@ -115,6 +115,35 @@ const TaskComponentItem = props => {
         </div>
         break
       }
+      case dbObjects.TaskTypes.VIDEO.type: {
+        component = <div>
+          <Image 
+            task={props.task}
+            selectImageCallback={onSelectImage}
+            uniqueID={uniqueID + "image"} />
+          <TextField 
+            label="Screen IDs"
+            required
+            padding="dense"
+            style={{ width: "100px" }}
+            id={uniqueID + "imageScreenIDs"}
+            defaultValue={props.task.screenIDS.join(',')}
+            placeholder="1, 2"
+            onChange={(e) => onResponsesChanged(e, e.target.value, "ScreenIDs")}
+          />
+          <FormControlLabel 
+            label="Hide next"
+            value="end"
+            padding="dense"
+            id={uniqueID + "hideNext"}
+            checked={hideNext}
+            control={<Checkbox color="secondary" />}
+            onChange={onHideNextChanged}
+            labelPlacement="end"
+          />
+        </div>
+        break
+      }
       case dbObjects.TaskTypes.BUTTON.type: {
         component = <div>
           <TextField 
