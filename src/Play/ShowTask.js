@@ -11,6 +11,7 @@ const Text = React.lazy(() => import('./components/Text'))
 const Number = React.lazy(() => import('./components/Number'))
 const Button = React.lazy(() => import('./components/Button'))
 const Image = React.lazy(() => import('./components/Image'))
+const Video = React.lazy(() => import('./components/Video'))
 
 const ShowTask = props => {
   const onEnterPress = e => {
@@ -69,6 +70,8 @@ const ShowTask = props => {
             </Suspense>
           case dbObjects.TaskTypes.IMAGE.type:
             return <Suspense key={uuid()} fallback={<div></div>}><Image className="itemContainer" task={item} taskID={props.task._id} tags={props.task.tags} parentSet={props.task.name} /></Suspense>;
+          case dbObjects.TaskTypes.VIDEO.type:
+            return <Suspense key={uuid()} fallback={<div></div>}><Video className="itemContainer" task={item} taskID={props.task._id} tags={props.task.tags} parentSet={props.task.name} /></Suspense>;
           case dbObjects.TaskTypes.TEXT.type:
             return <Suspense key={uuid()} fallback={<div></div>}><Text className="itemContainer" task={item} taskID={props.task._id} tags={props.task.tags} parentSet={props.task.name} /></Suspense>
           case dbObjects.TaskTypes.NUMBER.type:
