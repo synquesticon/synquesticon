@@ -1,8 +1,8 @@
-import React, { Component } from 'react'
-import AOIToolboxComponent from './AOIToolboxComponent'
-import AOIImageViewComponent from './AOIImageViewComponent'
-import AOINameDialog from './AOINameDialog'
-import './AOIEditorComponent.css'
+import React, { Component } from "react"
+import AOIToolboxComponent from "./AOIToolboxComponent"
+import AOIImageViewComponent from "./AOIImageViewComponent"
+import AOINameDialog from "./AOINameDialog"
+import "./AOIEditorComponent.css"
 
 class AOI {
   constructor() {
@@ -17,7 +17,7 @@ class AOIEditorComponent extends Component {
     super(props)
     this.state = {
       mode: "RECTANGLE",
-      openAOINameDialog: false
+      openAOINameDialog: false,
     }
     this.p1TempAOI = null
     this.imageRect = null
@@ -51,13 +51,13 @@ class AOIEditorComponent extends Component {
       this.callbacks = {
         onRemoveLastPoint: this.removeLastPointFromPolygon.bind(this),
         onFinished: this.finishDrawingPolygon.bind(this),
-        onCancel: this.cancelDrawingPolygon.bind(this)
+        onCancel: this.cancelDrawingPolygon.bind(this),
       }
     }
     if (mode === "SELECT") {
       this.callbacks = {
         onRename: this.renameAOI.bind(this),
-        onRemove: this.removeAOI.bind(this)
+        onRemove: this.removeAOI.bind(this),
       }
     } else {
       this.tempAOI.isSelected = false
@@ -73,7 +73,7 @@ class AOIEditorComponent extends Component {
         this.tempAOI.isSelected = false
         var newAOI = {
           name: this.tempAOI.name,
-          boundingbox: this.tempAOI.boundingbox
+          boundingbox: this.tempAOI.boundingbox,
         }
         this.props.task.aois.push(newAOI)
       } catch (exp) {
@@ -120,16 +120,16 @@ class AOIEditorComponent extends Component {
   */
 
   onSelectAOI(aoi) {
-    this.tempAOI.isSelected = false;
-    this.tempAOI = aoi;
-    this.tempAOI.isSelected = true;
-    this.forceUpdate();
+    this.tempAOI.isSelected = false
+    this.tempAOI = aoi
+    this.tempAOI.isSelected = true
+    this.forceUpdate()
   }
 
   renameAOI() {
     if (this.tempAOI.name !== "") {
       this.setState({
-        openAOINameDialog: true
+        openAOINameDialog: true,
       })
     }
   }
@@ -152,8 +152,10 @@ class AOIEditorComponent extends Component {
 */
   getMousePosition(e) {
     if (this.imageRect) {
-      return [(e.clientX - this.imageRect.left) * 100 / this.imageRect.width,
-      (e.clientY - this.imageRect.top) * 100 / this.imageRect.height]
+      return [
+        ((e.clientX - this.imageRect.left) * 100) / this.imageRect.width,
+        ((e.clientY - this.imageRect.top) * 100) / this.imageRect.height,
+      ]
     }
   }
 
@@ -179,7 +181,7 @@ class AOIEditorComponent extends Component {
     } else if (this.state.mode === "RECTANGLE") {
       if (this.tempAOI.boundingbox.length >= 3) {
         this.setState({
-          openAOINameDialog: true
+          openAOINameDialog: true,
         })
       }
       this.p1TempAOI = null
@@ -188,19 +190,15 @@ class AOIEditorComponent extends Component {
 
   onMouseMove(e) {
     if (this.state.mode === "RECTANGLE") {
-      e.stopPropagation();
-      e.preventDefault();
+      e.stopPropagation()
+      e.preventDefault()
 
       if (this.p1TempAOI) {
         var p2 = this.getMousePosition(e)
         if (p2[0] !== this.p2TempAOI[0] || p2[1] !== this.p2TempAOI[1]) {
-          var p1 = this.p1TempAOI;
+          var p1 = this.p1TempAOI
 
-          this.tempAOI.boundingbox = [p1,
-            [p2[0], p1[1]],
-            p2,
-            [p1[0], p2[1]]
-          ]
+          this.tempAOI.boundingbox = [p1, [p2[0], p1[1]], p2, [p1[0], p2[1]]]
           this.p2TempAOI = p2
           this.forceUpdate()
         }
@@ -209,35 +207,49 @@ class AOIEditorComponent extends Component {
   }
 
   render() {
-    var imagePreview = null;
+    var imagePreview = null
     if (this.state.mode === "SELECT") {
-      imagePreview = <AOIImageViewComponent imageName={this.props.task.image}
-        image={this.props.image}
-        aois={this.props.task.aois}
-        mode={this.state.mode}
-        onSelectAOI={this.onSelectAOI.bind(this)}
-        preview={this.props.preview}
-      />
+      imagePreview = (
+        <AOIImageViewComponent
+          isVideo={this.props.isVideo}
+          imageName={this.props.task.image}
+          image={this.props.image}
+          aois={this.props.task.aois}
+          mode={this.state.mode}
+          onSelectAOI={this.onSelectAOI.bind(this)}
+          preview={this.props.preview}
+        />
+      )
     } else {
-      imagePreview = <AOIImageViewComponent imageName={this.props.task.image}
-        image={this.props.image}
-        aois={this.props.task.aois}
-        mode={this.state.mode}
-        tempAOI={this.tempAOI}
-        onMouseDown={this.onMouseDown.bind(this)}
-        onMouseUp={this.onMouseUp.bind(this)}
-        onMouseMove={this.onMouseMove.bind(this)}
-        preview={this.props.preview}
-      />
+      imagePreview = (
+        <AOIImageViewComponent
+          isVideo={this.props.isVideo}
+          imageName={this.props.task.image}
+          image={this.props.image}
+          aois={this.props.task.aois}
+          mode={this.state.mode}
+          tempAOI={this.tempAOI}
+          onMouseDown={this.onMouseDown.bind(this)}
+          onMouseUp={this.onMouseUp.bind(this)}
+          onMouseMove={this.onMouseMove.bind(this)}
+          preview={this.props.preview}
+        />
+      )
     }
 
     return (
       <div className="AOIEditor">
         {imagePreview}
-        <AOIToolboxComponent onSwitchMode={this.switchMode.bind(this)}
+        <AOIToolboxComponent
+          onSwitchMode={this.switchMode.bind(this)}
           mode={this.state.mode}
-          callbacks={this.callbacks} />
-        <AOINameDialog name={this.tempAOI.name} openDialog={this.state.openAOINameDialog} closeDialog={this.onCloseAOINameDialog.bind(this)} />
+          callbacks={this.callbacks}
+        />
+        <AOINameDialog
+          name={this.tempAOI.name}
+          openDialog={this.state.openAOINameDialog}
+          closeDialog={this.onCloseAOINameDialog.bind(this)}
+        />
       </div>
     )
   }

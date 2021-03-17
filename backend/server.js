@@ -26,6 +26,7 @@ const app = express()
 const router = express.Router()
 
 const IMAGE_FOLDER = "Images"
+const VIDEO_FOLDER = "Videos"
 
 var MongoClient = require('mongodb').MongoClient
 var url = "mongodb://localhost:27017/Synquesticon"
@@ -834,6 +835,14 @@ router.get("/getAllImages", (req, res) => {
   const fs = require('fs');
 
   fs.readdir("../public/" + IMAGE_FOLDER, (err, files) => {
+    return res.json({ success: true, images: files })
+  });
+});
+
+router.get("/getAllVideos", (req, res) => {
+  const fs = require('fs');
+
+  fs.readdir("../public/" + VIDEO_FOLDER, (err, files) => {
     return res.json({ success: true, images: files })
   });
 });

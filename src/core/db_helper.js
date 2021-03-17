@@ -566,6 +566,13 @@ class db_helper {
       .catch(err => { })
   }
 
+  getAllVideos(callback) {
+    fetch("/api/getAllVideos")
+      .then(response => { if (response.ok) return response.json() })
+      .then(res => { callback(res.images) })
+      .catch(err => { })
+  }
+
   /*
   ██████   █████  ████████  █████      ███████ ██   ██ ██████   ██████  ██████  ████████  █████  ████████ ██  ██████  ███    ██
   ██   ██ ██   ██    ██    ██   ██     ██       ██ ██  ██   ██ ██    ██ ██   ██    ██    ██   ██    ██    ██ ██    ██ ████   ██

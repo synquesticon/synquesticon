@@ -8,12 +8,17 @@ import Button from '@material-ui/core/Button'
 import db_helper from '../../../core/db_helper'
 import './BrowseImagesDialog.css'
 
-const BrowseImagesDialog = props => {
-  const [images, setImages] = useState([])
-  const [pickedImage, setPickedImage] = useState(null)
+const BrowseFileDialog = props => {
+  const [files, setFiles] = useState([])
+  const [pickedFile, setPickedFile] = useState(null)
 
   useEffect(() => {
-    db_helper.getAllImages((imgs) => setImages(imgs))
+    if(props.isVideo){
+      db_helper.getAllVideos((vids) => setFiles(vids))
+    } else {
+      db_helper.getAllImages((imgs) => setFiles(imgs))
+    }
+    
   }, [])
 
   var buttonContainerHeight = 60
@@ -32,25 +37,31 @@ const BrowseImagesDialog = props => {
       <DialogTitle style={{ height: 30 }} id="form-dialog-title">Select Image</DialogTitle>
       <DialogContent style={{ display: 'flex', flexDirection: 'row', flexGrow: 1, minHeight: 100, maxHeight: '80%', overflowY: 'auto' }}>
         {
-          images.map((img, ind) => {
-            var url = "Images/" + img
-
+          files.map((file, ind) => {
+            var url = props.isVideo?"Videos/" + file+"#t=0.1":"Images/" + file
             var borderStyle = null
-            if (pickedImage === img) {
+            if (pickedFile === file) {
               borderStyle = { borderWidth: 3, borderStyle: 'solid', borderColor: props.theme.palette.secondary.main }
             }
 
-            rowContent.push(<img src={url}
+            if(props.isVideo){
+              rowContent.push(<video src={url}
               alt="Task" className="image"
-              style={borderStyle} key={"img" + ind}
-              onClick={() => setPickedImage(img)} />)
+              style={borderStyle} key={"vid" + ind}
+              onClick={() => setPickedFile(file)} />)
+            } else {
+              rowContent.push(<img src={url}
+                alt="Task" className="image"
+                style={borderStyle} key={"img" + ind}
+                onClick={() => setPickedFile(file)} />)
+            }
 
             if (ind + 1 % 4 === 0) {
               imageRow.push(<span key={"ispan" + ind}>{rowContent}</span>)
               rowContent = []
             }
 
-            if (images.length - 1 === ind) {
+            if (files.length - 1 === ind) {
               if (rowContent.length > 0)
                 imageRow.push(<span key={"ispan" + ind}>{rowContent}</span>);
               return imageRow
@@ -63,7 +74,7 @@ const BrowseImagesDialog = props => {
         <Button style={{ height: buttonHeight }} onClick={props.closeDialog} variant="outlined">
           CANCEL
           </Button>
-        <Button style={{ height: buttonHeight }} onClick={() => props.onPickImage(pickedImage)} variant="outlined">
+        <Button style={{ height: buttonHeight }} onClick={() => props.onPickImage(pickedFile)} variant="outlined">
           OK
           </Button>
       </DialogActions>
@@ -71,4 +82,4 @@ const BrowseImagesDialog = props => {
   )
 }
 
-export default withTheme(BrowseImagesDialog)
+export default withTheme(BrowseFileDialog)

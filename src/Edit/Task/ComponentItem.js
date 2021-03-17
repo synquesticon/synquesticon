@@ -90,6 +90,7 @@ const TaskComponentItem = props => {
         component = <div>
           <Image 
             task={props.task}
+            isVideo={false}
             selectImageCallback={onSelectImage}
             uniqueID={uniqueID + "image"} />
           <TextField 
@@ -119,6 +120,7 @@ const TaskComponentItem = props => {
         component = <div>
           <Image 
             task={props.task}
+            isVideo={true}
             selectImageCallback={onSelectImage}
             uniqueID={uniqueID + "image"} />
           <TextField 
