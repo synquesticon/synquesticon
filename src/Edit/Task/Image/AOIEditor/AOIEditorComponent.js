@@ -246,6 +246,7 @@ class AOIEditorComponent extends Component {
           callbacks={this.callbacks}
         />
         <AOINameDialog
+          isVideo={this.props.isVideo}
           name={this.tempAOI.name}
           openDialog={this.state.openAOINameDialog}
           closeDialog={this.onCloseAOINameDialog.bind(this)}

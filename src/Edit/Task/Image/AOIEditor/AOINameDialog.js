@@ -23,6 +23,34 @@ const AOINameDialog = props => {
     label = "Create"
   }
 
+  const videoOption = props.isVideo ? (
+  <DialogContent>
+    <TextField
+      required
+      padding="dense"
+      id="taskComment"
+      defaultValue={name}
+      label="Time Start"
+      fullWidth
+      multiline
+      rows="5"
+    />
+    <TextField
+      required
+      padding="dense"
+      id="taskComment"
+      defaultValue={name}
+      label="Sufficient Fixations"
+      fullWidth
+      multiline
+      rows="5"
+    />
+  </DialogContent>
+
+  
+  
+  ) : null
+
   return (
     <Dialog
       open={props.openDialog}
@@ -45,6 +73,7 @@ const AOINameDialog = props => {
           onChange={(e) => { name = e.target.value }}
         />
       </DialogContent>
+      {videoOption}
       <DialogActions>
         <Button onClick={e => props.closeDialog("")} variant="outlined">
           Cancel
