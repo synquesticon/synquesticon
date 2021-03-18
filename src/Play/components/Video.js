@@ -14,71 +14,80 @@ let COLOR = "red"
 const VideoComponent = props => {
   const videoRef = useRef()
   const clicksRef = useRef()
-  const [imageWidth, setVideoWidth] = useState(100)
-  const [imageHeight, setVideoHeight] = useState(100)
-  const [imageElement, setVideoElement] = useState(null)
+  const shouldTurnOffAlarmRef = useRef()
+  let timer = null
+  
+  const [shouldTurnOffAlarm, setShouldTurnOffAlarm] = useState(false)
+  const [videoWidth, setVideoWidth] = useState(100)
+  const [videoHeight, setVideoHeight] = useState(100)
+  const [videoElement, setVideoElement] = useState(null)
   const [clicks, setClicks] = useState([])
-  let image = null
+  let video = null
 
   useEffect(() => {
     clicksRef.current = [...clicks]
-    image = new Image()
-    image.src = "/Videos/" + props.task.image
-    image.ref = videoRef
+    video = new Image()
+    video.src = "/Videos/" + props.task.video
+    video.ref = videoRef
+
+    shouldTurnOffAlarmRef.current = shouldTurnOffAlarm
 
     if (props.task.aois.length > 0) {
       let aois = props.task.aois.slice()
-      aois.forEach(aio => { aio.imageRef = videoRef })
+      aois.forEach(aio => { aio.videoRef = videoRef })
 
       store.dispatch({
         type: 'ADD_AOIS',
         aois: aois
       })
 
+      timer = setInterval(soundAlarm, 1000)
+
       window.addEventListener("resize", handleVideoLoaded)
     }
 
     return () => {
-      if (props.task.recordClicks) {
-        const taskObject = {
-          uid: props.taskID,
-          name: props.parentSet,
-          tags: props.tags
-        }
+      // if (props.task.recordClicks) {
+      //   const taskObject = {
+      //     uid: props.taskID,
+      //     name: props.parentSet,
+      //     tags: props.tags
+      //   }
 
-        const aois = props.task.aois.slice()
-        const AOICount = {}
-        aois.forEach(aoi => { AOICount[aoi.name] = 0 })
+      //   const aois = props.task.aois.slice()
+      //   const AOICount = {}
+      //   aois.forEach(aoi => { AOICount[aoi.name] = 0 })
 
-        AOICount['Background '] = 0
+      //   AOICount['Background '] = 0
 
-        clicksRef.current.map(click => click.hitAOIs.forEach(aoi => AOICount[aoi]++))
+      //   clicksRef.current.map(click => click.hitAOIs.forEach(aoi => AOICount[aoi]++))
 
-        const componentObject = {
-          uid: uuid(),
-          type: "IMAGE",
-          text: props.task.displayText,
-          responsesArray: clicksRef.current,
-          AOICount: Object.keys(AOICount).map(aoiKey => [aoiKey, AOICount[aoiKey]])
-        }
+      //   const componentObject = {
+      //     uid: uuid(),
+      //     type: "IMAGE",
+      //     text: props.task.displayText,
+      //     responsesArray: clicksRef.current,
+      //     AOICount: Object.keys(AOICount).map(aoiKey => [aoiKey, AOICount[aoiKey]])
+      //   }
 
-        let observerMessageString = 'Final answer '
-        componentObject.AOICount.map((count, i) => {
-          observerMessageString += count[0] + ': ' + count[1]
-          if (i === componentObject.AOICount.length - 1)
-            observerMessageString += ' '
-          else
-            observerMessageString += ', '
-        })
-        mqtt.sendMqttMessage(
-          'taskEvent',
-          makeLogObject(
-            taskObject,
-            componentObject,
-            { observerMessage: observerMessageString }
-          )
-        )
-      }
+      //   let observerMessageString = 'Final answer '
+      //   componentObject.AOICount.map((count, i) => {
+      //     observerMessageString += count[0] + ': ' + count[1]
+      //     if (i === componentObject.AOICount.length - 1)
+      //       observerMessageString += ' '
+      //     else
+      //       observerMessageString += ', '
+      //   })
+      //   mqtt.sendMqttMessage(
+      //     'taskEvent',
+      //     makeLogObject(
+      //       taskObject,
+      //       componentObject,
+      //       { observerMessage: observerMessageString }
+      //     )
+      //   )
+      // }
+      clearInterval(timer)
       window.removeEventListener("resize", handleVideoLoaded)
     }
   }, [])
@@ -88,37 +97,46 @@ const VideoComponent = props => {
   }, [clicks])
 
   const getMousePosition = e => {
-    let imageRect = e.target.getBoundingClientRect();
+    let videoRect = e.target.getBoundingClientRect();
     return {
-      x: (e.clientX - imageRect.left) / imageRect.width,
-      y: (e.clientY - imageRect.top) / imageRect.height
+      x: (e.clientX - videoRect.left) / videoRect.width,
+      y: (e.clientY - videoRect.top) / videoRect.height
     }
   }
 
-  const normalizeBoundingBoxes = (boundingBox, imageDivRectangle, polygonList) => {
-    let x = boundingBox[0] * imageDivRectangle.width / 100 + imageDivRectangle.x
-    let y = boundingBox[1] * imageDivRectangle.height / 100 + imageDivRectangle.y
+  const soundAlarm = () => {
+    console.log("Value", shouldTurnOffAlarmRef.current)
+    if(shouldTurnOffAlarmRef.current === false && videoRef.current.currentTime > 10){
+      alert('Alarm sound!!!')
+      clearInterval(timer)
+    }
+  }
+
+  const normalizeBoundingBoxes = (boundingBox, videoDivRectangle, polygonList) => {
+    let x = boundingBox[0] * videoDivRectangle.width / 100 + videoDivRectangle.x
+    let y = boundingBox[1] * videoDivRectangle.height / 100 + videoDivRectangle.y
     return [x, y]
   }
 
   const checkHitAOI = click => {
-    let aois = store.getState().aois
+    // let aois = store.getState().aois
+    let aois = props.task.aois
     let pointInsideAOIs = []
 
     aois.map(a => {
-      if (a.imageRef.current === null) return ["Background"]
+      if (a.videoRef.current === null) return ["Background"]
 
-      let imageDivRect = videoRef.current.getBoundingClientRect()
+      let videoDivRect = videoRef.current.getBoundingClientRect()
       let polygon = []
       if (a.boundingbox.length > 0) {
         for (let boundingbox of a.boundingbox) {
-          polygon.push(normalizeBoundingBoxes(boundingbox, imageDivRect))
+          polygon.push(normalizeBoundingBoxes(boundingbox, videoDivRect))
         }
       } else {
-        polygon.push([imageDivRect.x, imageDivRect.y])
-        polygon.push([imageDivRect.x + imageDivRect.width, imageDivRect.y])
-        polygon.push([imageDivRect.x + imageDivRect.width, imageDivRect.y + imageDivRect.height])
-        polygon.push([imageDivRect.x, imageDivRect.y + imageDivRect.height])
+        polygon.push([videoDivRect.x, videoDivRect.y])
+        polygon.push([videoDivRect.x + videoDivRect.width, videoDivRect.y])
+        polygon.push([videoDivRect.x + videoDivRect.width, videoDivRect.y + videoDivRect.height])
+        polygon.push([videoDivRect.x, videoDivRect.y + videoDivRect.height])
       }
 
       if (playerUtils.pointIsInPoly([click.clientX, click.clientY], polygon))
@@ -139,17 +157,29 @@ const VideoComponent = props => {
       y: mouseClick.y,
     }
     setClicks([...clicks, click])
+
+    const AOICount = {}
+    props.task.aois.forEach(aoi => { AOICount[aoi.name] = 0 })
+    clicks.map(click => click.hitAOIs.map(aoi => AOICount[aoi]++))
+    
+    console.log("Count: ", AOICount)
+    // hardcode
+    if(AOICount[props.task.aois[0].name] >= 3 && videoRef.current.currentTime <= 10){
+      console.log('Now off')
+      shouldTurnOffAlarmRef.current = setShouldTurnOffAlarm(true)
+    }
+
   }
 
   const getClickableComponent = () => {
     if (props.task.recordClicks) {
-      const left = (imageElement) 
-        ? parseInt(imageElement.offsetLeft) 
+      const left = (videoElement) 
+        ? parseInt(videoElement.offsetLeft) 
         : 0
 
       return (
         <svg onClick={onVideoClicked} style={{ left: left }} className="clickableCanvas"
-          width={imageWidth} opacity={OPACITY} height={imageHeight} viewBox="0 0 100 100"
+          width={videoWidth} opacity={OPACITY} height={videoHeight} viewBox="0 0 100 100"
           preserveAspectRatio="none">
           <g stroke="none" fill="black">
             {clicks.map((item, index) => {
@@ -163,11 +193,11 @@ const VideoComponent = props => {
 
   const showAOIs = () => {
     if (props.task.showAOIs) {
-      const left = (imageElement) ? parseInt(imageElement.offsetLeft) : 0
+      const left = (videoElement) ? parseInt(videoElement.offsetLeft) : 0
 
       return (
-        <svg id={props.childKey + "AOICanvas"} style={{ left: left, pointerEvents: 'none' }} className="AOICanvas"
-          width={imageWidth} height={imageHeight} viewBox="0 0 100 100" preserveAspectRatio="none">
+        <svg id={"AOICanvas"} style={{ left: left, pointerEvents: 'none' }} className="AOICanvas"
+          width={videoWidth} height={videoHeight} viewBox="0 0 100 100" preserveAspectRatio="none">
           {props.task.aois.map((aoi, index) => {
             return <AOIComponent aoi={aoi} key={index} />
           })}
@@ -178,20 +208,22 @@ const VideoComponent = props => {
 
   const handleVideoLoaded = () => {
     if (videoRef && videoRef.current) {
-      let image = videoRef.current
-      setVideoHeight(image.height)
-      setVideoWidth(image.width)
-      setVideoElement(image)
+      let video = videoRef.current
+      setVideoHeight(video.clientHeight)
+      setVideoWidth(video.clientWidth)
+      setVideoElement(video)
     }
   }
 
   return (
     <div className="imagePreviewContainer">
-        <video controls className={props.task.fullScreenImage ? "fullScreenImage" : "imageCanvas"}>
-            <source src="/Videos/Scenario1.mp4" type="video/mp4"></source>
+        <video controls autoPlay ref={videoRef} className={props.task.fullScreenImage ? "fullScreenImage" : "videoCanvas"} onLoadedData={handleVideoLoaded}>
+            <source src={"/Videos/" + props.task.image} type="video/mp4"
+            ></source>
         </video>
-      {(imageElement) ? getClickableComponent() : null}
-      {(imageElement) ? showAOIs() : null}
+        {getClickableComponent()}
+        {showAOIs()}
+
     </div>
   )
 }
