@@ -64,12 +64,20 @@ app.use(logger("dev"))
 app.use('/uploads', express.static(IMAGE_FOLDER))
 app.use(express.static(path.join(__dirname, '../public')))
 
-const storage = multer.diskStorage({
+const storageImage = multer.diskStorage({
   destination: "../public/" + IMAGE_FOLDER,
   filename: function (req, file, cb) {
     cb(null, file.originalname);
   }
 })
+
+const storageVideo = multer.diskStorage({
+  destination: "../public/" + VIDEO_FOLDER,
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  }
+})
+
 
 const fileFilter = (req, file, cb) => {
   if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'image/jpg') {
@@ -79,13 +87,21 @@ const fileFilter = (req, file, cb) => {
   }
 }
 
-const upload = multer({
-  storage: storage,
+const uploadImage = multer({
+  storage: storageImage,
   limits: {
     fileSize: 1024 * 1024 * 5
   },
   fileFilter: fileFilter
 }).single("images")
+
+const uploadVideo = multer({
+  storage: storageVideo,
+  // limits: {
+  //   fileSize: 1024 * 1024 * 5
+  // },
+  // fileFilter: fileFilter
+}).single("videos")
 
 /*
 ██████   █████  ████████  █████      ███████ ██   ██ ██████   ██████  ██████  ████████  █████  ████████ ██  ██████  ███    ██
@@ -823,7 +839,16 @@ router.post("/saveGazeData", (req, res) => {
 */
 
 router.post("/uploadImage", (req, res) => {
-  upload(req, res, (err) => {
+  uploadImage(req, res, (err) => {
+    if (err) {
+      return res.json({ success: false });
+    }
+    return res.json({ success: true });
+  });
+});
+
+router.post("/uploadVideo", (req, res) => {
+  uploadVideo(req, res, (err) => {
     if (err) {
       return res.json({ success: false });
     }
@@ -843,7 +868,7 @@ router.get("/getAllVideos", (req, res) => {
   const fs = require('fs');
 
   fs.readdir("../public/" + VIDEO_FOLDER, (err, files) => {
-    return res.json({ success: true, images: files })
+    return res.json({ success: true, videos: files })
   });
 });
 

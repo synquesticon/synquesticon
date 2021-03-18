@@ -16,6 +16,7 @@ const TaskComponentItem = props => {
   //Image
   let shouldUpload = false
   let imageToUpload = null
+  let videoToUpload = null
   let uniqueID = _id
   _id++
 
@@ -26,6 +27,12 @@ const TaskComponentItem = props => {
     if (shouldUpload) uploadImages()
   }
 
+  const onSelectVideo = (shouldUploadFlag, video) => {
+    shouldUpload = shouldUploadFlag
+    videoToUpload = video
+    if (shouldUpload) uploadVideos()
+  }
+
   //Upload the sleected image to the database
   const uploadImages = () => {
     if (imageToUpload) {
@@ -33,6 +40,15 @@ const TaskComponentItem = props => {
       formData.append('images', imageToUpload)
       const config = { headers: { 'content-type': 'multipart/form-data' } }
       console.log(db_helper.uploadImage(imageToUpload, formData, config, null))
+    }
+  }
+
+  const uploadVideos = () => {
+    if (videoToUpload) {
+      const formData = new FormData()
+      formData.append('videos', videoToUpload)
+      const config = { headers: { 'content-type': 'multipart/form-data' } }
+      db_helper.uploadVideo(videoToUpload, formData, config, null)
     }
   }
 
@@ -121,8 +137,8 @@ const TaskComponentItem = props => {
           <Image 
             task={props.task}
             isVideo={true}
-            selectImageCallback={onSelectImage}
-            uniqueID={uniqueID + "image"} />
+            selectImageCallback={onSelectVideo}
+            uniqueID={uniqueID + "video"} />
           <TextField 
             label="Screen IDs"
             required
