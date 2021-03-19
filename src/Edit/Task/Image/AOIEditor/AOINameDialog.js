@@ -7,11 +7,13 @@ import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 
 const AOINameDialog = props => {
-  let name = "";
+  let name = ""
+  let startTimeValue = null
+  let numberSufficentFixation=null
 
   const onClose = () => {
     if (name !== "") {
-      props.closeDialog(name)
+      props.closeDialog(name, startTimeValue, numberSufficentFixation)
     }
   }
 
@@ -31,6 +33,7 @@ const AOINameDialog = props => {
       id="taskComment"
       defaultValue={name}
       label="Time Start"
+      onChange = {(e) => startTimeValue = e.target.value}
       fullWidth
       multiline
       rows="5"
@@ -41,6 +44,7 @@ const AOINameDialog = props => {
       id="taskComment"
       defaultValue={name}
       label="Sufficient Fixations"
+      onChange = {(e) => numberSufficentFixation = e.target.value}
       fullWidth
       multiline
       rows="5"
