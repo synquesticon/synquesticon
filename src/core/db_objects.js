@@ -3,7 +3,8 @@ export const TaskTypes = {
   IMAGE:        { type: 'Image', label: 'Image' },
   BUTTON:       { type: 'Button', label: 'Button' },
   TEXT:         { type: 'Text', label: 'Text' },
-  NUMBER:       { type: 'Number', label: 'Number' }
+  NUMBER:       { type: 'Number', label: 'Number' },
+  VIDEO:       { type: 'Video', label: 'Video' },
 }
 
 function getLabel(type) {

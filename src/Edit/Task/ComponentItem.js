@@ -16,6 +16,7 @@ const TaskComponentItem = props => {
   //Image
   let shouldUpload = false
   let imageToUpload = null
+  let videoToUpload = null
   let uniqueID = _id
   _id++
 
@@ -26,6 +27,12 @@ const TaskComponentItem = props => {
     if (shouldUpload) uploadImages()
   }
 
+  const onSelectVideo = (shouldUploadFlag, video) => {
+    shouldUpload = shouldUploadFlag
+    videoToUpload = video
+    if (shouldUpload) uploadVideos()
+  }
+
   //Upload the sleected image to the database
   const uploadImages = () => {
     if (imageToUpload) {
@@ -33,6 +40,15 @@ const TaskComponentItem = props => {
       formData.append('images', imageToUpload)
       const config = { headers: { 'content-type': 'multipart/form-data' } }
       console.log(db_helper.uploadImage(imageToUpload, formData, config, null))
+    }
+  }
+
+  const uploadVideos = () => {
+    if (videoToUpload) {
+      const formData = new FormData()
+      formData.append('videos', videoToUpload)
+      const config = { headers: { 'content-type': 'multipart/form-data' } }
+      db_helper.uploadVideo(videoToUpload, formData, config, null)
     }
   }
 
@@ -90,8 +106,39 @@ const TaskComponentItem = props => {
         component = <div>
           <Image 
             task={props.task}
+            isVideo={false}
             selectImageCallback={onSelectImage}
             uniqueID={uniqueID + "image"} />
+          <TextField 
+            label="Screen IDs"
+            required
+            padding="dense"
+            style={{ width: "100px" }}
+            id={uniqueID + "imageScreenIDs"}
+            defaultValue={props.task.screenIDS.join(',')}
+            placeholder="1, 2"
+            onChange={(e) => onResponsesChanged(e, e.target.value, "ScreenIDs")}
+          />
+          <FormControlLabel 
+            label="Hide next"
+            value="end"
+            padding="dense"
+            id={uniqueID + "hideNext"}
+            checked={hideNext}
+            control={<Checkbox color="secondary" />}
+            onChange={onHideNextChanged}
+            labelPlacement="end"
+          />
+        </div>
+        break
+      }
+      case dbObjects.TaskTypes.VIDEO.type: {
+        component = <div>
+          <Image 
+            task={props.task}
+            isVideo={true}
+            selectImageCallback={onSelectVideo}
+            uniqueID={uniqueID + "video"} />
           <TextField 
             label="Screen IDs"
             required

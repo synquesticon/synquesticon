@@ -559,10 +559,22 @@ class db_helper {
       .then(response => { return response })
   }
 
+  async uploadVideo(fileName, video, config, name, callback) {
+    await axios.post("/api/uploadVideo", video, name, config)
+      .then(response => { return response })
+  }
+
   getAllImages(callback) {
     fetch("/api/getAllImages")
       .then(response => { if (response.ok) return response.json() })
       .then(res => { callback(res.images) })
+      .catch(err => { })
+  }
+
+  getAllVideos(callback) {
+    fetch("/api/getAllVideos")
+      .then(response => { if (response.ok) return response.json() })
+      .then(res => { callback(res.videos) })
       .catch(err => { })
   }
 

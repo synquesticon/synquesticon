@@ -178,8 +178,7 @@ C:\Users\taitl\Documents\GitHub\synquesticon\Tobii_RemoteEyeTrackingServer_MQTT\
 C:\Users\taitl\Documents\GitHub\synquesticon\Tobii_RemoteEyeTrackingServer_MQTT\TobiiRemoteEyeTrackingServer\bin\Debug\System.Threading.Tasks.Dataflow.xml
 C:\Users\taitl\Documents\GitHub\synquesticon\Tobii_RemoteEyeTrackingServer_MQTT\TobiiRemoteEyeTrackingServer\bin\Debug\System.ValueTuple.xml
 C:\Users\taitl\Documents\GitHub\synquesticon\Tobii_RemoteEyeTrackingServer_MQTT\TobiiRemoteEyeTrackingServer\bin\Debug\Tobii.Research.xml
-C:\Users\taitl\Documents\GitHub\synquesticon\Tobii_RemoteEyeTrackingServer_MQTT\TobiiRemoteEyeTrackingServer\obj\Debug\TobiiRemoteEyeTrackingServer.csprojAssemblyReference.cache
-C:\Users\taitl\Documents\GitHub\synquesticon\Tobii_RemoteEyeTrackingServer_MQTT\TobiiRemoteEyeTrackingServer\obj\Debug\TobiiRemoteEyeTrackingServer.Form1.resources
+C:\Users\taitl\Documents\GitHub\synquesticon\Tobii_RemoteEyeTrackingServer_MQTT\TobiiRemoteEyeTrackingServer\obj\Debug\TobiiRemoteEyeTrackingServer.StandardJsonConverter.resources
 C:\Users\taitl\Documents\GitHub\synquesticon\Tobii_RemoteEyeTrackingServer_MQTT\TobiiRemoteEyeTrackingServer\obj\Debug\TobiiRemoteEyeTrackingServer.Properties.Resources.resources
 C:\Users\taitl\Documents\GitHub\synquesticon\Tobii_RemoteEyeTrackingServer_MQTT\TobiiRemoteEyeTrackingServer\obj\Debug\TobiiRemoteEyeTrackingServer.csproj.GenerateResource.cache
 C:\Users\taitl\Documents\GitHub\synquesticon\Tobii_RemoteEyeTrackingServer_MQTT\TobiiRemoteEyeTrackingServer\obj\Debug\TobiiRemoteEyeTrackingServer.csproj.CoreCompileInputs.cache
