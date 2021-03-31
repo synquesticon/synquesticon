@@ -29,19 +29,25 @@ const VideoComponent = props => {
     video = new Image()
     video.src = "/Videos/" + props.task.video
     video.ref = videoRef
-
+    
     shouldTurnOffAlarmRef.current = shouldTurnOffAlarm
 
     if (props.task.aois.length > 0) {
       let aois = props.task.aois.slice()
-      aois.forEach(aio => { aio.videoRef = videoRef })
+      aois.forEach(aoi => { 
+        aoi.videoRef = videoRef
+        AOICount[aoi.name] = 0   
+
+      })
+
+      console.log('Initial counts ' + AOICount)
 
       store.dispatch({
         type: 'ADD_AOIS',
         aois: aois
       })
 
-      timer = setInterval(soundAlarm, 1000)
+      timer = setInterval(soundAlarm, 100)
 
       window.addEventListener("resize", handleVideoLoaded)
     }
@@ -106,7 +112,17 @@ const VideoComponent = props => {
 
   const soundAlarm = () => {
     console.log("Value", shouldTurnOffAlarmRef.current)
-    if(shouldTurnOffAlarmRef.current === false && videoRef.current.currentTime > 10){
+
+    const AOICount = {}
+
+    props.task.aois.map(aoi => {
+      if(AOICount[aoi.name] >= aoi.numberSufficentFixation && videoRef.current.currentTime <= aoi.startTime){
+        console.log('Now off for AOI '+ aoi.name)
+        shouldTurnOffAlarmRef.current = setShouldTurnOffAlarm(true)
+      }
+    })
+    
+    if(shouldTurnOffAlarmRef.current === false){
       alert('Alarm sound!!!')
       clearInterval(timer)
     }
@@ -157,18 +173,9 @@ const VideoComponent = props => {
       y: mouseClick.y,
     }
     setClicks([...clicks, click])
-
-    const AOICount = {}
-    props.task.aois.forEach(aoi => { AOICount[aoi.name] = 0 })
-    clicks.map(click => click.hitAOIs.map(aoi => AOICount[aoi]++))
     
     console.log("Count: ", AOICount)
     // hardcode
-    if(AOICount[props.task.aois[0].name] >= 3 && videoRef.current.currentTime <= 10){
-      console.log('Now off')
-      shouldTurnOffAlarmRef.current = setShouldTurnOffAlarm(true)
-    }
-
   }
 
   const getClickableComponent = () => {
