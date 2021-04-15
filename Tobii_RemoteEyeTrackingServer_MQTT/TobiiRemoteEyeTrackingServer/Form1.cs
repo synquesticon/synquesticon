@@ -18,6 +18,7 @@ using System.Collections.Generic;
 
 namespace TobiiRemoteEyeTrackingServer
 {
+
     public partial class Form1 : Form
     {
         private EyeTrackerCollection AvailableTrackers;
@@ -44,10 +45,6 @@ namespace TobiiRemoteEyeTrackingServer
                     new NormalizedPoint2D(0.9f, 0.9f),
                 };
                 Form CalibrationForm = CreateCalibrationForm(pointsToCalibrate);
-                //CalibrationForm.Shown += (senderS, eS) =>
-                //{
-                //    System.Threading.Thread.Sleep(3000);
-                //};
 
                 IEyeTracker SelectedTracker = AvailableTrackers.ElementAt(TrackerListComboBox.SelectedIndex);
                 CalibrationForm.KeyPress += (keySender, keyEvent) =>
@@ -75,18 +72,6 @@ namespace TobiiRemoteEyeTrackingServer
             Form CalibrationForm = new Form();
             CalibrationForm.ControlBox = false;
             CalibrationForm.WindowState = FormWindowState.Maximized;
-            //CalibrationForm.Paint += (sender, e) => {
-            //    SolidBrush CalBrush = new SolidBrush(Color.Red);
-            //    int radius = 25;
-            //    int w = CalibrationForm.Width;
-            //    int h = CalibrationForm.Height;
-            //    foreach (var point in pointsToDraw)
-            //    {
-            //        e.Graphics.FillEllipse(CalBrush, point.X*w - radius, point.Y*h - radius,
-            //          radius + radius, radius + radius);
-            //    }
-            //};
-
             return CalibrationForm;
         }
         private Pen CalBrush = new Pen(Color.ForestGreen, 10f);
@@ -134,29 +119,6 @@ namespace TobiiRemoteEyeTrackingServer
                 new NormalizedPoint2D(0.9f, 0.9f),
             };
 
-            //eyeTracker.CalibrationChanged += (cSender, cE) =>
-            //{
-            //    var calibrationValidation = new ScreenBasedCalibrationValidation(eyeTracker);
-            //    calibrationValidation.EnterValidationMode();
-
-            //    foreach (var point in pointsToCalibrate)
-            //    {
-            //        Console.WriteLine("Collecting for point {0}, {1}", point.X, point.Y);
-
-            //        calibrationValidation.StartCollectingData(point);
-            //        while (calibrationValidation.State == ScreenBasedCalibrationValidation.ValidationState.CollectingData)
-            //        {
-            //            System.Threading.Thread.Sleep(25);
-            //        }
-            //    }
-
-            //    var result = calibrationValidation.Compute();
-            //    Console.WriteLine(calibrationValidation);
-            //    calibrationValidation.LeaveValidationMode();
-
-            //};
-
-            // Create a calibration object.
             var calibration = new ScreenBasedCalibration(eyeTracker);
             // Enter calibration mode.
             calibration.EnterCalibrationMode();
@@ -221,7 +183,7 @@ namespace TobiiRemoteEyeTrackingServer
         private IEyeTracker SelectedTracker = null;
         private ConcurrentQueue<GazeDataEventArgs> GazeEventQueue = new ConcurrentQueue<GazeDataEventArgs>();
         private int BatchSize = 1;
-        private int[] BatchSizeOptions = { 1, 3, 20, 30, 60, 120 };
+        private double Threshold = 30d;
         private double[] CurrentPupilDiameters = { 0, 0 };
         async private void StreamBtn_Click(object sender, EventArgs e)
         {
@@ -233,16 +195,8 @@ namespace TobiiRemoteEyeTrackingServer
                 long startTime = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeMilliseconds(); //current start time when we button is clicked
 
                 var topic = mqttTopic;
-                //+ guid.ToString();
-
                 var factory = new MqttFactory();
                 var mqttClient = factory.CreateMqttClient();
-                // Create TCP based options using the builder.
-                /*var options = new MqttClientOptionsBuilder()
-                    .WithTcpServer("broker.hivemq.com")
-                    .WithCredentials("bud", "%spencer%")
-                    .WithCleanSession()
-                    .Build();*/
 
                 string mqttText = MQTTIPTextBox.Text;
 
@@ -253,6 +207,8 @@ namespace TobiiRemoteEyeTrackingServer
                     .WithTls() //For wss
                     .Build();
                 await mqttClient.ConnectAsync(options, CancellationToken.None); // Since 3.0.5 with CancellationToken
+
+                
 
                 //TODO figure out how to setup the disconnect handler to reconnect as needed. 
                 //The wiki seems to not be updated on this point
@@ -273,46 +229,85 @@ namespace TobiiRemoteEyeTrackingServer
 
                 SelectedTracker.GazeDataReceived += HandleGazeData;
                 IsStreamingMQTT = true;
+
+
+
+                Form FixationForm = new Form();
+                FixationForm.ControlBox = false;
+                
+                FixationForm.WindowState = FormWindowState.Normal;
+                FixationForm.FormBorderStyle = FormBorderStyle.None;
+                FixationForm.WindowState = FormWindowState.Maximized;
+
+                FixationForm.Show();
+
+                Panel AnimatedPointPanel = new Panel();
+                AnimatedPointPanel.Width = FixationForm.Width;
+                AnimatedPointPanel.Height = FixationForm.Height;
+                Graphics AnimatedPointGraphics = AnimatedPointPanel.CreateGraphics();
+                FixationForm.Controls.Add(AnimatedPointPanel);
+                int w = FixationForm.Width;
+                int h = FixationForm.Height;
+                
+
                 MQTTThread = new Thread(async () => {
                     int sampleCount = 0;
-                    int resetBatchSizeCount = BatchSize;
                     var dataList = new List<object>(); //for later adding object in
+                    GazeDataEventArgs prevGazeDataEvent = null;
                     while (IsStreamingMQTT)
                     {
                         try
                         {                            
                             while (GazeEventQueue.Any())
                             {
-                                GazeDataEventArgs gazeEvent;
-                                GazeEventQueue.TryDequeue(out gazeEvent);
+                                GazeDataEventArgs currentgazeEvent;
+                                GazeEventQueue.TryDequeue(out currentgazeEvent);
+                                double velocity = VelocityCalculation.CalculateVelocity(prevGazeDataEvent, currentgazeEvent, "Average");
+                                Console.WriteLine(velocity);
+
                                 float gazeX = 0;
                                 float gazeY = 0;
-                                if (gazeEvent.LeftEye.GazePoint.Validity == Validity.Valid &&
-                                    gazeEvent.RightEye.GazePoint.Validity == Validity.Valid)
+                                if (currentgazeEvent.LeftEye.GazePoint.Validity == Validity.Valid &&
+                                    currentgazeEvent.RightEye.GazePoint.Validity == Validity.Valid)
                                 {
-                                    gazeX = (gazeEvent.LeftEye.GazePoint.PositionOnDisplayArea.X + gazeEvent.RightEye.GazePoint.PositionOnDisplayArea.X) / 2;
-                                    gazeY = (gazeEvent.LeftEye.GazePoint.PositionOnDisplayArea.Y + gazeEvent.RightEye.GazePoint.PositionOnDisplayArea.Y) / 2;
+                                    gazeX = (currentgazeEvent.LeftEye.GazePoint.PositionOnDisplayArea.X + currentgazeEvent.RightEye.GazePoint.PositionOnDisplayArea.X) / 2;
+                                    gazeY = (currentgazeEvent.LeftEye.GazePoint.PositionOnDisplayArea.Y + currentgazeEvent.RightEye.GazePoint.PositionOnDisplayArea.Y) / 2;
                                 }
-                                else if (gazeEvent.LeftEye.GazePoint.Validity == Validity.Valid)
+                                else if (currentgazeEvent.LeftEye.GazePoint.Validity == Validity.Valid)
                                 {
-                                    gazeX = gazeEvent.LeftEye.GazePoint.PositionOnDisplayArea.X;
-                                    gazeY = gazeEvent.LeftEye.GazePoint.PositionOnDisplayArea.Y;
+                                    gazeX = currentgazeEvent.LeftEye.GazePoint.PositionOnDisplayArea.X;
+                                    gazeY = currentgazeEvent.LeftEye.GazePoint.PositionOnDisplayArea.Y;
                                 }
-                                else if (gazeEvent.RightEye.GazePoint.Validity == Validity.Valid)
+                                else if (currentgazeEvent.RightEye.GazePoint.Validity == Validity.Valid)
                                 {
-                                    gazeX = gazeEvent.RightEye.GazePoint.PositionOnDisplayArea.X;
-                                    gazeY = gazeEvent.RightEye.GazePoint.PositionOnDisplayArea.Y;
+                                    gazeX = currentgazeEvent.RightEye.GazePoint.PositionOnDisplayArea.X;
+                                    gazeY = currentgazeEvent.RightEye.GazePoint.PositionOnDisplayArea.Y;
                                 }
 
-                                if (gazeEvent.LeftEye.Pupil.PupilDiameter != -1 || gazeEvent.RightEye.Pupil.PupilDiameter != -1)
+                                if (velocity >= Threshold)
                                 {
-                                    CurrentPupilDiameters[0] = Double.IsNaN(gazeEvent.LeftEye.Pupil.PupilDiameter) ? -1 : gazeEvent.LeftEye.Pupil.PupilDiameter;
-                                    CurrentPupilDiameters[1] = Double.IsNaN(gazeEvent.RightEye.Pupil.PupilDiameter) ? -1 : gazeEvent.RightEye.Pupil.PupilDiameter;
+                                    int radius = 10;
+                                    Console.Write("--> Fixation ");
+                                    Console.WriteLine(gazeX.ToString() + "\t" + gazeY.ToString());
+                                    Console.WriteLine(gazeX * w);
+                                    Console.WriteLine(gazeY * h);
+
+                                    AnimatedPointGraphics.DrawEllipse(CalBrush, gazeX * w - radius, gazeY * h - radius, radius + radius, radius + radius);
+                                    
+
+                                }
+
+
+
+                                if (currentgazeEvent.LeftEye.Pupil.PupilDiameter != -1 || currentgazeEvent.RightEye.Pupil.PupilDiameter != -1)
+                                {
+                                    CurrentPupilDiameters[0] = Double.IsNaN(currentgazeEvent.LeftEye.Pupil.PupilDiameter) ? -1 : currentgazeEvent.LeftEye.Pupil.PupilDiameter;
+                                    CurrentPupilDiameters[1] = Double.IsNaN(currentgazeEvent.RightEye.Pupil.PupilDiameter) ? -1 : currentgazeEvent.RightEye.Pupil.PupilDiameter;
                                 }
 
                                 var dataObject = new Dictionary<string, object>();
 
-                                dataObject.Add("timestamp", gazeEvent.DeviceTimeStamp);
+                                dataObject.Add("timestamp", currentgazeEvent.DeviceTimeStamp);
                                 dataObject.Add("sampleCount", sampleCount);
                                 dataObject.Add("gaze", new Dictionary<string, float>
                                     {
@@ -328,19 +323,21 @@ namespace TobiiRemoteEyeTrackingServer
                                     }
                                 );
 
+
+
                                 //GazePoint in data
                                 var GazePointObject = new Dictionary<string, object>();
                                 GazePointObject.Add("LeftEye", new Dictionary<string, float>
                                     {
-                                        { "x", float.IsNaN(gazeEvent.LeftEye.GazePoint.PositionOnDisplayArea.X) ? float.NaN : gazeEvent.LeftEye.GazePoint.PositionOnDisplayArea.X},
-                                        { "y", float.IsNaN(gazeEvent.LeftEye.GazePoint.PositionOnDisplayArea.Y) ? float.NaN : gazeEvent.LeftEye.GazePoint.PositionOnDisplayArea.Y }
+                                        { "x", float.IsNaN(currentgazeEvent.LeftEye.GazePoint.PositionOnDisplayArea.X) ? float.NaN : currentgazeEvent.LeftEye.GazePoint.PositionOnDisplayArea.X},
+                                        { "y", float.IsNaN(currentgazeEvent.LeftEye.GazePoint.PositionOnDisplayArea.Y) ? float.NaN : currentgazeEvent.LeftEye.GazePoint.PositionOnDisplayArea.Y }
                                     }
                                 );
 
                                 GazePointObject.Add("RightEye", new Dictionary<string, float>
                                     {
-                                        { "x", float.IsNaN(gazeEvent.RightEye.GazePoint.PositionOnDisplayArea.X) ? float.NaN : gazeEvent.RightEye.GazePoint.PositionOnDisplayArea.X},
-                                        { "y", float.IsNaN(gazeEvent.RightEye.GazePoint.PositionOnDisplayArea.Y) ? float.NaN : gazeEvent.RightEye.GazePoint.PositionOnDisplayArea.Y }
+                                        { "x", float.IsNaN(currentgazeEvent.RightEye.GazePoint.PositionOnDisplayArea.X) ? float.NaN : currentgazeEvent.RightEye.GazePoint.PositionOnDisplayArea.X},
+                                        { "y", float.IsNaN(currentgazeEvent.RightEye.GazePoint.PositionOnDisplayArea.Y) ? float.NaN : currentgazeEvent.RightEye.GazePoint.PositionOnDisplayArea.Y }
                                     }
                                 );
                                 dataObject.Add("GazePoint_PositionOnDisplayArea", GazePointObject);
@@ -349,17 +346,17 @@ namespace TobiiRemoteEyeTrackingServer
                                 var GazeOriginObject = new Dictionary<string, object>();
                                 GazeOriginObject.Add("LeftEye", new Dictionary<string, float>
                                     {
-                                        { "x", float.IsNaN(gazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.X) ? float.NaN :  gazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.X },
-                                        { "y", float.IsNaN(gazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.Y) ? float.NaN :  gazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.Y },
-                                        { "z", float.IsNaN(gazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.Z) ? float.NaN :  gazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.Z }
+                                        { "x", float.IsNaN(currentgazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.X) ? float.NaN :  currentgazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.X },
+                                        { "y", float.IsNaN(currentgazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.Y) ? float.NaN :  currentgazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.Y },
+                                        { "z", float.IsNaN(currentgazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.Z) ? float.NaN :  currentgazeEvent.LeftEye.GazeOrigin.PositionInUserCoordinates.Z }
                                     }
                                 );
 
                                 GazeOriginObject.Add("RightEye", new Dictionary<string, float>
                                     {
-                                        { "x", float.IsNaN(gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.X) ? float.NaN :  gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.X },
-                                        { "y", float.IsNaN(gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.Y) ? float.NaN :  gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.Y },
-                                        { "z", float.IsNaN(gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.Z) ? float.NaN :  gazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.Z }
+                                        { "x", float.IsNaN(currentgazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.X) ? float.NaN :  currentgazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.X },
+                                        { "y", float.IsNaN(currentgazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.Y) ? float.NaN :  currentgazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.Y },
+                                        { "z", float.IsNaN(currentgazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.Z) ? float.NaN :  currentgazeEvent.RightEye.GazeOrigin.PositionInUserCoordinates.Z }
                                     }
                                 );
                                 dataObject.Add("GazeOrigin_PositionInUserCoordinates", GazeOriginObject);
@@ -367,6 +364,9 @@ namespace TobiiRemoteEyeTrackingServer
 
                                 
                                 dataList.Add(dataObject); //append to the list
+
+                                prevGazeDataEvent = currentgazeEvent;
+
 
                                 if (dataList.Count == BatchSize)
                                 {
@@ -378,7 +378,6 @@ namespace TobiiRemoteEyeTrackingServer
                                                 }
                                     );
                                     msg.Add("eyeTrackerSerialNumber", SelectedTracker.SerialNumber);
-                                    // msg.Add("timestamp", ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeMilliseconds());
 
                                     msg.Add("startTime", startTime);
                                     msg.Add("recordingCount", recordingCount);
@@ -447,6 +446,8 @@ namespace TobiiRemoteEyeTrackingServer
                 if (gazeEvent.LeftEye.Pupil.Validity == Validity.Valid || gazeEvent.RightEye.Pupil.Validity == Validity.Valid)
                 {
                     GazeEventQueue.Enqueue(gazeEvent);
+                    
+
                 }
 
             }
@@ -468,6 +469,13 @@ namespace TobiiRemoteEyeTrackingServer
             DisplayComboBox.SelectedIndex = 0;
 
             BatchSizeComboBox.SelectedIndex = 0;
+
+            thresholdTxtBox.Text = Threshold.ToString();
+        }
+
+        private void Form1_KeyPress(object sender, EventArgs e)
+        {
+            
         }
 
         private void FillInAvailableTrackers()
@@ -500,7 +508,6 @@ namespace TobiiRemoteEyeTrackingServer
             try
             {
                 SelectedTracker = AvailableTrackers.ElementAt(TrackerListComboBox.SelectedIndex);
-                //SelectedTracker.
             }
             catch (Exception exp)
             {
@@ -549,7 +556,7 @@ namespace TobiiRemoteEyeTrackingServer
                 }
                 BatchSizeComboBox.Items.Clear();
                 int maxFrequency = (int) SelectedTracker.GetGazeOutputFrequency();
-                int[] divisions = { 2, 4, 6 };
+                int[] divisions = { 2, 4, 6, maxFrequency };
                 foreach (int division in divisions)
                 {
                     BatchSizeComboBox.Items.Add((int)maxFrequency / division);
@@ -565,13 +572,25 @@ namespace TobiiRemoteEyeTrackingServer
         {
             try
             {
-                BatchSize = (int) BatchSizeComboBox.SelectedItem;
-                Console.WriteLine(BatchSize);
+                BatchSize = int.Parse(BatchSizeComboBox.SelectedItem.ToString());
             }
             catch (Exception exp)
             {
                 Console.WriteLine(exp);
             }
+        }
+
+        private void ThresholdTxtBox_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                Threshold = double.Parse(thresholdTxtBox.Text);
+            }
+            catch (Exception exp)
+            {
+                Console.WriteLine(exp);
+            }
+            
         }
 
         private void ModeComboBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -599,6 +618,16 @@ namespace TobiiRemoteEyeTrackingServer
         }
 
         private void label8_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void WAMPPanel_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void MQTTIPTextBox_TextChanged(object sender, EventArgs e)
         {
 
         }
