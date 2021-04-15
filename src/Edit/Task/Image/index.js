@@ -5,12 +5,13 @@ import Button from '@material-ui/core/Button'
 import Checkbox from '@material-ui/core/Checkbox'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import AOIEditorComponent from './AOIEditor/AOIEditorComponent'
-import BrowseImagesDialog from './BrowseImagesDialog'
+import BrowseFileDialog from './BrowseImagesDialog'
 import './Image.css'
 
 const ImageTaskType = props => {
   const [selectedImage, setSelectedImage] = useState(props.task ? props.task.image : "")
   const [recordClicks, setRecordClicks] = useState(props.task ? props.task.recordClicks : false)
+  const [isVideo, setIsVideo] = useState(props.isVideo ? props.isVideo : false)
   const [fullScreenImage, setFullScreenImage] = useState(props.task ? props.task.fullScreenImage : false)
   const [showAOIs, setShowAOIs] = useState(props.task ? props.task.showAOIs : false)
   const [openBrowseImage, setOpenBrowseImage] = useState(false)
@@ -49,7 +50,8 @@ const ImageTaskType = props => {
     props.task.aois = []
     preview = true
     props.selectImageCallback(false, image)
-    setSelectedImage(props.task.image)
+    // setSelectedImage(props.task.image)
+    setSelectedImage(img)
     setOpenBrowseImage(false)
   }
 
@@ -58,7 +60,7 @@ const ImageTaskType = props => {
   </div>
 
   if (selectedImage !== "") {
-    previewImage = <AOIEditorComponent preview={preview} task={props.task} image={image} />
+    previewImage = <AOIEditorComponent isVideo={isVideo} preview={preview} task={props.task} image={image} />
   }
 
   return (
@@ -92,11 +94,12 @@ const ImageTaskType = props => {
           onChange={onShowAOIsChanged}
           labelPlacement="end"
         />
-        <Button variant="outlined" onClick={() => setOpenBrowseImage(true)}>Browse Images</Button>
+        <Button variant="outlined" onClick={() => setOpenBrowseImage(true)}>{isVideo?"Browse Videos":"Browse Images"}</Button>
         <FileSelector handleSelectionCallback={onImageFileSelected} />
       </div>
       <div className="editTaskImagePreview">{previewImage}</div>
-      <BrowseImagesDialog openDialog={openBrowseImage}
+      <BrowseFileDialog openDialog={openBrowseImage}
+        isVideo={isVideo}
         closeDialog={() => setOpenBrowseImage(false)}
         onPickImage={onPickImageBrowseImages} />
     </div>

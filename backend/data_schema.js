@@ -31,6 +31,8 @@ const TaskSchema = new Schema({                 //objType: task
     showAOIs: Boolean,
     aois: [{ //A list of AOIs relevant to the task
       name: String,
+      numberSufficentFixation: Number,
+      startTime: Number,
       boundingbox: [[Number]],
       _id: false
     }],

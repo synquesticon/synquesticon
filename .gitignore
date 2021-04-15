@@ -4,6 +4,7 @@ mqttAEDES/node_modules/*
 node_modules/*
 build/*
 public/Images/*
+public/Videos/*
 docs/*
 VisualStimuli/*
 certificate/*

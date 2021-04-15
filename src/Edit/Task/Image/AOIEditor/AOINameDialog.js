@@ -7,11 +7,13 @@ import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 
 const AOINameDialog = props => {
-  let name = "";
+  let name = ""
+  let startTimeValue = null
+  let numberSufficentFixation=null
 
   const onClose = () => {
     if (name !== "") {
-      props.closeDialog(name)
+      props.closeDialog(name, startTimeValue, numberSufficentFixation)
     }
   }
 
@@ -22,6 +24,36 @@ const AOINameDialog = props => {
   } else {
     label = "Create"
   }
+
+  const videoOption = props.isVideo ? (
+  <DialogContent>
+    <TextField
+      required
+      padding="dense"
+      id="taskComment"
+      defaultValue={name}
+      label="Time Start"
+      onChange = {(e) => startTimeValue = e.target.value}
+      fullWidth
+      multiline
+      rows="5"
+    />
+    <TextField
+      required
+      padding="dense"
+      id="taskComment"
+      defaultValue={name}
+      label="Sufficient Fixations"
+      onChange = {(e) => numberSufficentFixation = e.target.value}
+      fullWidth
+      multiline
+      rows="5"
+    />
+  </DialogContent>
+
+  
+  
+  ) : null
 
   return (
     <Dialog
@@ -45,6 +77,7 @@ const AOINameDialog = props => {
           onChange={(e) => { name = e.target.value }}
         />
       </DialogContent>
+      {videoOption}
       <DialogActions>
         <Button onClick={e => props.closeDialog("")} variant="outlined">
           Cancel
