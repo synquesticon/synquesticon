@@ -1,19 +1,20 @@
-import React from 'react'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogActions from '@material-ui/core/DialogActions'
-import Dialog from '@material-ui/core/Dialog'
-import Button from '@material-ui/core/Button'
-import TextField from '@material-ui/core/TextField'
+import React from "react"
+import DialogTitle from "@material-ui/core/DialogTitle"
+import DialogContent from "@material-ui/core/DialogContent"
+import DialogActions from "@material-ui/core/DialogActions"
+import Dialog from "@material-ui/core/Dialog"
+import Button from "@material-ui/core/Button"
+import TextField from "@material-ui/core/TextField"
 
-const AOINameDialog = props => {
+const AOINameDialog = (props) => {
   let name = ""
   let startTimeValue = null
-  let numberSufficentFixation=null
+  let endTimeValue = null
+  let numberSufficentFixation = null
 
   const onClose = () => {
     if (name !== "") {
-      props.closeDialog(name, startTimeValue, numberSufficentFixation)
+      props.closeDialog(name, startTimeValue, endTimeValue, numberSufficentFixation)
     }
   }
 
@@ -26,33 +27,41 @@ const AOINameDialog = props => {
   }
 
   const videoOption = props.isVideo ? (
-  <DialogContent>
-    <TextField
-      required
-      padding="dense"
-      id="taskComment"
-      defaultValue={name}
-      label="Time Start"
-      onChange = {(e) => startTimeValue = e.target.value}
-      fullWidth
-      multiline
-      rows="5"
-    />
-    <TextField
-      required
-      padding="dense"
-      id="taskComment"
-      defaultValue={name}
-      label="Sufficient Fixations"
-      onChange = {(e) => numberSufficentFixation = e.target.value}
-      fullWidth
-      multiline
-      rows="5"
-    />
-  </DialogContent>
-
-  
-  
+    <DialogContent>
+      <TextField
+        required
+        padding="dense"
+        id="taskComment"
+        defaultValue={name}
+        label="Watch Time Start (ms)"
+        onChange={(e) => (startTimeValue = e.target.value)}
+        fullWidth
+        multiline
+        rows="5"
+      />
+      <TextField
+        required
+        padding="dense"
+        id="taskComment"
+        defaultValue={name}
+        label="Watch Time End (ms)"
+        onChange={(e) => (endTimeValue = e.target.value)}
+        fullWidth
+        multiline
+        rows="5"
+      />
+      <TextField
+        required
+        padding="dense"
+        id="taskComment"
+        defaultValue={name}
+        label="Sufficient Fixations"
+        onChange={(e) => (numberSufficentFixation = e.target.value)}
+        fullWidth
+        multiline
+        rows="5"
+      />
+    </DialogContent>
   ) : null
 
   return (
@@ -61,9 +70,11 @@ const AOINameDialog = props => {
       onClose={props.closeDialog}
       aria-labelledby="form-dialog-title"
       fullWidth={true}
-      maxWidth='md'
+      maxWidth="md"
     >
-      <DialogTitle id="form-dialog-title" variant="h5">Enter AOI Name</DialogTitle>
+      <DialogTitle id="form-dialog-title" variant="h5">
+        Enter AOI Name
+      </DialogTitle>
       <DialogContent>
         <TextField
           required
@@ -74,14 +85,16 @@ const AOINameDialog = props => {
           fullWidth
           multiline
           rows="5"
-          onChange={(e) => { name = e.target.value }}
+          onChange={(e) => {
+            name = e.target.value
+          }}
         />
       </DialogContent>
       {videoOption}
       <DialogActions>
-        <Button onClick={e => props.closeDialog("")} variant="outlined">
+        <Button onClick={(e) => props.closeDialog("")} variant="outlined">
           Cancel
-          </Button>
+        </Button>
         <Button onClick={onClose} variant="outlined">
           {label}
         </Button>
