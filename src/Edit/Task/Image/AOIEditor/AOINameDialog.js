@@ -21,7 +21,7 @@ const AOINameDialog = (props) => {
   name = props.name
   var label = ""
   if (name !== "") {
-    label = "Rename"
+    label = "Change"
   } else {
     label = "Create"
   }
@@ -32,7 +32,7 @@ const AOINameDialog = (props) => {
         required
         padding="dense"
         id="taskComment"
-        defaultValue={name}
+        defaultValue={startTimeValue}
         label="Watch Time Start (ms)"
         onChange={(e) => (startTimeValue = e.target.value)}
         fullWidth
@@ -43,7 +43,7 @@ const AOINameDialog = (props) => {
         required
         padding="dense"
         id="taskComment"
-        defaultValue={name}
+        defaultValue={endTimeValue}
         label="Watch Time End (ms)"
         onChange={(e) => (endTimeValue = e.target.value)}
         fullWidth
@@ -54,7 +54,7 @@ const AOINameDialog = (props) => {
         required
         padding="dense"
         id="taskComment"
-        defaultValue={name}
+        defaultValue={numberSufficentFixation}
         label="Sufficient Fixations"
         onChange={(e) => (numberSufficentFixation = e.target.value)}
         fullWidth
@@ -73,7 +73,7 @@ const AOINameDialog = (props) => {
       maxWidth="md"
     >
       <DialogTitle id="form-dialog-title" variant="h5">
-        Enter AOI Name
+        AOI Specification
       </DialogTitle>
       <DialogContent>
         <TextField
@@ -81,7 +81,7 @@ const AOINameDialog = (props) => {
           padding="dense"
           id="taskComment"
           defaultValue={name}
-          label="Comment"
+          label="AOI Name"
           fullWidth
           multiline
           rows="5"
