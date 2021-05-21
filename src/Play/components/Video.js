@@ -1,27 +1,30 @@
-import React, { useState, useEffect, useRef } from 'react'
-import mqtt from '../../core/mqtt'
-import store from '../../core/store'
-import * as playerUtils from '../../core/player_utility_functions'
-import AOIComponent from '../../Edit/Task/Image/AOIEditor/AOIComponent'
-import makeLogObject from '../../core/makeLogObject'
-import uuid from 'react-uuid'
-import './css/Image.css'
+import React, { useState, useEffect, useRef } from "react"
+import mqtt from "../../core/mqtt"
+import audioFileSrc from './Sounds/cesium.wav'
+import eventStore from '../../core/eventStore'
+import store from "../../core/store"
+import * as playerUtils from "../../core/player_utility_functions"
+import AOIComponent from "../../Edit/Task/Image/AOIEditor/AOIComponent"
+import makeLogObject from "../../core/makeLogObject"
+import "./css/Image.css"
 
 let CLICK_RADIUS = "1"
 let OPACITY = "0.5"
 let COLOR = "red"
 
-const VideoComponent = props => {
+const VideoComponent = (props) => {
   const videoRef = useRef()
   const clicksRef = useRef()
-  const shouldTurnOffAlarmRef = useRef()
   let timer = null
-  
-  const [shouldTurnOffAlarm, setShouldTurnOffAlarm] = useState(false)
+
+  const [shouldPlayAlarmSound, setShouldPlayAlarmSound] = useState(false)
   const [videoWidth, setVideoWidth] = useState(100)
   const [videoHeight, setVideoHeight] = useState(100)
   const [videoElement, setVideoElement] = useState(null)
+  const [AOICount, setAOICCount] = useState({})
   const [clicks, setClicks] = useState([])
+  const audioSound = new Audio(audioFileSrc)
+  const [aois, setAOIs] = useState(props.task.aois)
   let video = null
 
   useEffect(() => {
@@ -30,18 +33,27 @@ const VideoComponent = props => {
     video.src = "/Videos/" + props.task.video
     video.ref = videoRef
 
-    shouldTurnOffAlarmRef.current = shouldTurnOffAlarm
-
     if (props.task.aois.length > 0) {
       let aois = props.task.aois.slice()
-      aois.forEach(aio => { aio.videoRef = videoRef })
+      aois.forEach((aoi) => {
+        aoi.videoRef = videoRef
+        aoi.isSelected = false
+        aoi.isFilledYellow = false
+        AOICount[aoi.name] = 0
+      })
+      setAOIs(aois)
+
+
+      console.log(AOICount)
 
       store.dispatch({
-        type: 'ADD_AOIS',
-        aois: aois
+        type: "ADD_AOIS",
+        aois: aois,
       })
 
-      timer = setInterval(soundAlarm, 1000)
+      timer = setInterval(soundAlarm, 100)
+
+      eventStore.setGazeListener("on", onGazeEvent)
 
       window.addEventListener("resize", handleVideoLoaded)
     }
@@ -89,6 +101,7 @@ const VideoComponent = props => {
       // }
       clearInterval(timer)
       window.removeEventListener("resize", handleVideoLoaded)
+      eventStore.setGazeListener("off", onGazeEvent)
     }
   }, [])
 
@@ -96,34 +109,103 @@ const VideoComponent = props => {
     clicksRef.current = clicks.slice()
   }, [clicks])
 
-  const getMousePosition = e => {
-    let videoRect = e.target.getBoundingClientRect();
+  const getMousePosition = (e) => {
+    let videoRect = e.target.getBoundingClientRect()
+    let x = (e.clientX - videoRect.left) / videoRect.width
+    let y = (e.clientY - videoRect.top) / videoRect.height
     return {
-      x: (e.clientX - videoRect.left) / videoRect.width,
-      y: (e.clientY - videoRect.top) / videoRect.height
+      x: x,
+      y: y
     }
+  }
+
+  const getFixationPosition = (gazeX, gazeY, videoRef) => {
+    let videoRect = videoRef.current.getBoundingClientRect()
+    let x = gazeX * window.innerWidth
+    let y = gazeY * window.innerHeight
+
+    let newX = (x - videoRect.left) / videoRect.width
+    let newY = (y - videoRect.top) / videoRect.height
+
+    return {
+      x: newX,
+      y: newY
+    }
+
   }
 
   const soundAlarm = () => {
-    console.log("Value", shouldTurnOffAlarmRef.current)
-    if(shouldTurnOffAlarmRef.current === false && videoRef.current.currentTime > 10){
-      alert('Alarm sound!!!')
-      clearInterval(timer)
-    }
+    // console.log("Check at " + videoRef.current.currentTime)
+    aois.map((aoi, index) => {
+      if (AOICount[aoi.name] < aoi.numberSufficentFixation &&
+        videoRef.current.currentTime * 1000 >= aoi.startTime &&
+        videoRef.current.currentTime * 1000 <= aoi.endTime) {
+        setShouldPlayAlarmSound(true)
+        
+        let newAOI = aoi
+        newAOI.isFilledYellow = true
+        let tempAOIs = [...aois]
+        tempAOIs.splice(index, 1, newAOI)
+        setAOIs(tempAOIs)
+
+
+        audioSound.play().finally(
+          () => {
+            if (shouldPlayAlarmSound === true && audioSound.pause) {
+              audioSound.play()
+            }
+          }
+        )
+      } else {
+        setShouldPlayAlarmSound(false)
+      }
+    })
   }
 
-  const normalizeBoundingBoxes = (boundingBox, videoDivRectangle, polygonList) => {
-    let x = boundingBox[0] * videoDivRectangle.width / 100 + videoDivRectangle.x
-    let y = boundingBox[1] * videoDivRectangle.height / 100 + videoDivRectangle.y
+  const onGazeEvent = () => {
+    const gazeData = JSON.parse(eventStore.getGazeData())
+    const fixationArray = gazeData.data.filter(datum => datum.isFixation === true)
+    fixationArray.map(fixationGaze => {
+      let gazePos = getFixationPosition(fixationGaze.gaze.x, fixationGaze.gaze.y, videoRef)
+      let hitAOIs = checkGazeHitAOI(gazePos.x * window.innerWidth, gazePos.y * window.innerHeight, videoRef)
+
+      let fixation = {
+        hitAOIs: hitAOIs,
+        x: gazePos.x,
+        y: gazePos.y
+      }
+
+      hitAOIs.map(hitAOI =>
+        AOICount[hitAOI] = AOICount[hitAOI] + 1
+      )
+
+      setClicks([...clicks, fixation])
+
+
+
+      console.log("Count: ", AOICount)
+    })
+
+  }
+
+  const normalizeBoundingBoxes = (
+    boundingBox,
+    videoDivRectangle,
+    polygonList
+  ) => {
+    let x =
+      (boundingBox[0] * videoDivRectangle.width) / 100 + videoDivRectangle.x
+    let y =
+      (boundingBox[1] * videoDivRectangle.height) / 100 + videoDivRectangle.y
     return [x, y]
   }
 
-  const checkHitAOI = click => {
+  const checkHitAOI = (click) => {
     // let aois = store.getState().aois
     let aois = props.task.aois
     let pointInsideAOIs = []
 
-    aois.map(a => {
+    aois.map((a) => {
       if (a.videoRef.current === null) return ["Background"]
 
       let videoDivRect = videoRef.current.getBoundingClientRect()
@@ -135,11 +217,42 @@ const VideoComponent = props => {
       } else {
         polygon.push([videoDivRect.x, videoDivRect.y])
         polygon.push([videoDivRect.x + videoDivRect.width, videoDivRect.y])
-        polygon.push([videoDivRect.x + videoDivRect.width, videoDivRect.y + videoDivRect.height])
+        polygon.push([
+          videoDivRect.x + videoDivRect.width,
+          videoDivRect.y + videoDivRect.height,
+        ])
         polygon.push([videoDivRect.x, videoDivRect.y + videoDivRect.height])
       }
 
       if (playerUtils.pointIsInPoly([click.clientX, click.clientY], polygon))
+        pointInsideAOIs.push(a.name)
+    })
+
+    if (pointInsideAOIs.length > 0) return pointInsideAOIs
+    else return ["Background"]
+  }
+
+  const checkGazeHitAOI = (gazeX, gazeY, videoRef) => {
+    let aois = store.getState().aois
+    let pointInsideAOIs = []
+
+    aois.map(a => {
+      if (a.videoRef.current === null) return ["Background"]
+
+      let imageDivRect = videoRef.current.getBoundingClientRect()
+      let polygon = []
+      if (a.boundingbox.length > 0) {
+        for (let boundingbox of a.boundingbox) {
+          polygon.push(normalizeBoundingBoxes(boundingbox, imageDivRect))
+        }
+      } else {
+        polygon.push([imageDivRect.x, imageDivRect.y])
+        polygon.push([imageDivRect.x + imageDivRect.width, imageDivRect.y])
+        polygon.push([imageDivRect.x + imageDivRect.width, imageDivRect.y + imageDivRect.height])
+        polygon.push([imageDivRect.x, imageDivRect.y + imageDivRect.height])
+      }
+
+      if (playerUtils.pointIsInPoly([gazeX, gazeY], polygon))
         pointInsideAOIs.push(a.name)
     })
 
@@ -149,57 +262,94 @@ const VideoComponent = props => {
       return ["Background"]
   }
 
-  const onVideoClicked = e => {
+  const onVideoClicked = (e) => {
     let mouseClick = getMousePosition(e)
+    const hitAOIs = checkHitAOI(e)
     let click = {
-      hitAOIs: checkHitAOI(e),
+      hitAOIs: hitAOIs,
       x: mouseClick.x,
       y: mouseClick.y,
     }
+    // console.log(click)
+    // console.log(e.clientX, e.clientY)
     setClicks([...clicks, click])
 
-    const AOICount = {}
-    props.task.aois.forEach(aoi => { AOICount[aoi.name] = 0 })
-    clicks.map(click => click.hitAOIs.map(aoi => AOICount[aoi]++))
-    
-    console.log("Count: ", AOICount)
-    // hardcode
-    if(AOICount[props.task.aois[0].name] >= 3 && videoRef.current.currentTime <= 10){
-      console.log('Now off')
-      shouldTurnOffAlarmRef.current = setShouldTurnOffAlarm(true)
-    }
+    hitAOIs.map((hitAOI) => {
+      AOICount[hitAOI] = AOICount[hitAOI] + 1
+      let newAOIs = aois.slice()
+      newAOIs.map(aoi => {
+        if (aoi.name === hitAOI) {
+          aoi.isSelected = !aoi.isSelected
+        }
+      }      
+      )
+      setAOIs(newAOIs)
+    })
 
+
+
+    // console.log("Count: ", AOICount)
   }
 
   const getClickableComponent = () => {
     if (props.task.recordClicks) {
-      const left = (videoElement) 
-        ? parseInt(videoElement.offsetLeft) 
-        : 0
+      const left = videoElement ? parseInt(videoElement.offsetLeft) : 0
 
       return (
-        <svg onClick={onVideoClicked} style={{ left: left }} className="clickableCanvas"
-          width={videoWidth} opacity={OPACITY} height={videoHeight} viewBox="0 0 100 100"
-          preserveAspectRatio="none">
-          <g stroke="none" fill="black">
+        <svg
+          onClick={onVideoClicked}
+          style={{ left: left }}
+          className="clickableCanvas"
+          width={videoWidth}
+          opacity={OPACITY}
+          height={videoHeight}
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+        >
+          {/* <g stroke="none" fill="black">
             {clicks.map((item, index) => {
-              return <ellipse key={index} cx={item.x * 100} cy={item.y * 100} rx={CLICK_RADIUS}
-                ry={CLICK_RADIUS * 1.8} fill={COLOR} style={{ pointerEvents: 'none' }} />
+              return (
+                <ellipse
+                  key={index}
+                  cx={item.x * 100}
+                  cy={item.y * 100}
+                  rx={CLICK_RADIUS}
+                  ry={CLICK_RADIUS * 1.8}
+                  fill={COLOR}
+                  style={{ pointerEvents: "none" }}
+                />
+              )
             })}
-          </g>
-        </svg>)
+          </g> */}
+        </svg>
+      )
     } else return null
+  }
+
+  const resetAOI = (index) => {
+    const newAOIs = [...aois]
+    let aoi = aois[index]
+    aoi.isSelected = false
+    newAOIs.splice(index, 1, aoi)
+    setAOIs(newAOIs)    
   }
 
   const showAOIs = () => {
     if (props.task.showAOIs) {
-      const left = (videoElement) ? parseInt(videoElement.offsetLeft) : 0
+      const left = videoElement ? parseInt(videoElement.offsetLeft) : 0
 
       return (
-        <svg id={"AOICanvas"} style={{ left: left, pointerEvents: 'none' }} className="AOICanvas"
-          width={videoWidth} height={videoHeight} viewBox="0 0 100 100" preserveAspectRatio="none">
-          {props.task.aois.map((aoi, index) => {
-            return <AOIComponent aoi={aoi} key={index} />
+        <svg
+          id={"AOICanvas"}
+          style={{ left: left, pointerEvents: "none" }}
+          className="AOICanvas"
+          width={videoWidth}
+          height={videoHeight}
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+        >
+          {aois.map((aoi, index) => {
+            return <AOIComponent aoi={aoi} key={index} index={index} resetAOI={(index) => resetAOI(index)}/>
           })}
         </svg>
       )
@@ -217,13 +367,20 @@ const VideoComponent = props => {
 
   return (
     <div className="imagePreviewContainer">
-        <video controls autoPlay ref={videoRef} className={props.task.fullScreenImage ? "fullScreenImage" : "videoCanvas"} onLoadedData={handleVideoLoaded}>
-            <source src={"/Videos/" + props.task.image} type="video/mp4"
-            ></source>
-        </video>
-        {getClickableComponent()}
-        {showAOIs()}
+      <video
+        controls
+        autoPlay
+        ref={videoRef}
+        className={
+          props.task.fullScreenImage ? "fullScreenImage" : "videoCanvas"
+        }
+        onLoadedData={handleVideoLoaded}
+      >
+        <source src={"/Videos/" + props.task.image} type="video/mp4"></source>
+      </video>
 
+      {getClickableComponent()}
+      {showAOIs()}
     </div>
   )
 }
