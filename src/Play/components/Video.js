@@ -24,6 +24,7 @@ const VideoComponent = (props) => {
   const [AOICount, setAOICCount] = useState({})
   const [clicks, setClicks] = useState([])
   const audioSound = new Audio(audioFileSrc)
+  const [aois, setAOIs] = useState(props.task.aois)
   let video = null
 
   useEffect(() => {
@@ -36,9 +37,13 @@ const VideoComponent = (props) => {
       let aois = props.task.aois.slice()
       aois.forEach((aoi) => {
         aoi.videoRef = videoRef
+        aoi.isSelected = false
+        aoi.isFilledYellow = false
         AOICount[aoi.name] = 0
       })
-      
+      setAOIs(aois)
+
+
       console.log(AOICount)
 
       store.dispatch({
@@ -104,48 +109,52 @@ const VideoComponent = (props) => {
     clicksRef.current = clicks.slice()
   }, [clicks])
 
-  useEffect(() => {
-    shouldPlayAlarmSound ? audioSound.play() : audioSound.pause()
-  }, [shouldPlayAlarmSound])
-
   const getMousePosition = (e) => {
     let videoRect = e.target.getBoundingClientRect()
-    let x =  (e.clientX - videoRect.left) / videoRect.width
+    let x = (e.clientX - videoRect.left) / videoRect.width
     let y = (e.clientY - videoRect.top) / videoRect.height
     return {
       x: x,
-      y:y
+      y: y
     }
   }
 
   const getFixationPosition = (gazeX, gazeY, videoRef) => {
     let videoRect = videoRef.current.getBoundingClientRect()
-    let x = gazeX*window.innerWidth
-    let y = gazeY*window.innerHeight
+    let x = gazeX * window.innerWidth
+    let y = gazeY * window.innerHeight
 
-    let newX =  (x - videoRect.left) / videoRect.width
+    let newX = (x - videoRect.left) / videoRect.width
     let newY = (y - videoRect.top) / videoRect.height
 
     return {
       x: newX,
-      y:newY
+      y: newY
     }
 
   }
 
   const soundAlarm = () => {
     // console.log("Check at " + videoRef.current.currentTime)
-    props.task.aois.map(aoi => {
-      if(AOICount[aoi.name] < aoi.numberSufficentFixation &&
-        videoRef.current.currentTime*1000 >= aoi.startTime &&
-        videoRef.current.currentTime*1000 <= aoi.endTime) {
+    aois.map((aoi, index) => {
+      if (AOICount[aoi.name] < aoi.numberSufficentFixation &&
+        videoRef.current.currentTime * 1000 >= aoi.startTime &&
+        videoRef.current.currentTime * 1000 <= aoi.endTime) {
         setShouldPlayAlarmSound(true)
+        
+        let newAOI = aoi
+        newAOI.isFilledYellow = true
+        let tempAOIs = [...aois]
+        tempAOIs.splice(index, 1, newAOI)
+        setAOIs(tempAOIs)
+
+
         audioSound.play().finally(
-          () => {            
-            if(shouldPlayAlarmSound === true && audioSound.pause){
+          () => {
+            if (shouldPlayAlarmSound === true && audioSound.pause) {
               audioSound.play()
             }
-        }
+          }
         )
       } else {
         setShouldPlayAlarmSound(false)
@@ -158,8 +167,8 @@ const VideoComponent = (props) => {
     const fixationArray = gazeData.data.filter(datum => datum.isFixation === true)
     fixationArray.map(fixationGaze => {
       let gazePos = getFixationPosition(fixationGaze.gaze.x, fixationGaze.gaze.y, videoRef)
-      let hitAOIs = checkGazeHitAOI(gazePos.x*window.innerWidth, gazePos.y*window.innerHeight, videoRef)
-      
+      let hitAOIs = checkGazeHitAOI(gazePos.x * window.innerWidth, gazePos.y * window.innerHeight, videoRef)
+
       let fixation = {
         hitAOIs: hitAOIs,
         x: gazePos.x,
@@ -171,11 +180,11 @@ const VideoComponent = (props) => {
       )
 
       setClicks([...clicks, fixation])
-  
 
-  
+
+
       console.log("Count: ", AOICount)
-    })  
+    })
 
   }
 
@@ -265,9 +274,19 @@ const VideoComponent = (props) => {
     // console.log(e.clientX, e.clientY)
     setClicks([...clicks, click])
 
-    hitAOIs.map(hitAOI => 
+    hitAOIs.map((hitAOI) => {
       AOICount[hitAOI] = AOICount[hitAOI] + 1
-    )
+      let newAOIs = aois.slice()
+      newAOIs.map(aoi => {
+        if (aoi.name === hitAOI) {
+          aoi.isSelected = !aoi.isSelected
+        }
+      }      
+      )
+      setAOIs(newAOIs)
+    })
+
+
 
     // console.log("Count: ", AOICount)
   }
@@ -287,7 +306,7 @@ const VideoComponent = (props) => {
           viewBox="0 0 100 100"
           preserveAspectRatio="none"
         >
-          <g stroke="none" fill="black">
+          {/* <g stroke="none" fill="black">
             {clicks.map((item, index) => {
               return (
                 <ellipse
@@ -301,10 +320,18 @@ const VideoComponent = (props) => {
                 />
               )
             })}
-          </g>
+          </g> */}
         </svg>
       )
     } else return null
+  }
+
+  const resetAOI = (index) => {
+    const newAOIs = [...aois]
+    let aoi = aois[index]
+    aoi.isSelected = false
+    newAOIs.splice(index, 1, aoi)
+    setAOIs(newAOIs)    
   }
 
   const showAOIs = () => {
@@ -321,8 +348,8 @@ const VideoComponent = (props) => {
           viewBox="0 0 100 100"
           preserveAspectRatio="none"
         >
-          {props.task.aois.map((aoi, index) => {
-            return <AOIComponent aoi={aoi} key={index} />
+          {aois.map((aoi, index) => {
+            return <AOIComponent aoi={aoi} key={index} index={index} resetAOI={(index) => resetAOI(index)}/>
           })}
         </svg>
       )
