@@ -335,7 +335,6 @@ const VideoComponent = (props) => {
   }
 
   const showAOIs = () => {
-    if (props.task.showAOIs) {
       const left = videoElement ? parseInt(videoElement.offsetLeft) : 0
 
       return (
@@ -349,11 +348,11 @@ const VideoComponent = (props) => {
           preserveAspectRatio="none"
         >
           {aois.map((aoi, index) => {
-            return <AOIComponent aoi={aoi} key={index} index={index} resetAOI={(index) => resetAOI(index)}/>
+            if (props.task.showAOIs || aoi.isFilledYellow || aoi.isSelected) {
+              return <AOIComponent aoi={aoi} key={index} index={index} resetAOI={(index) => resetAOI(index)}/>            }
           })}
         </svg>
       )
-    } else return null
   }
 
   const handleVideoLoaded = () => {
