@@ -1,13 +1,16 @@
-import React from "react"
+import React, { useState } from "react"
 import DialogTitle from "@material-ui/core/DialogTitle"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogActions from "@material-ui/core/DialogActions"
 import Dialog from "@material-ui/core/Dialog"
 import Button from "@material-ui/core/Button"
+import Checkbox from '@material-ui/core/Checkbox'
+import FormControlLabel from '@material-ui/core/FormControlLabel'
 import TextField from "@material-ui/core/TextField"
 
 const AOINameDialog = (props) => {
-  let name = ""
+  let [name, setName] = useState(props.name)
+  const [isAttentive, setIsAttentive] = useState(false)
   let startTimeValue = null
   let endTimeValue = null
   let numberSufficentFixation = null
@@ -17,8 +20,7 @@ const AOINameDialog = (props) => {
       props.closeDialog(name, startTimeValue, endTimeValue, numberSufficentFixation)
     }
   }
-
-  name = props.name
+  
   var label = ""
   if (name !== "") {
     label = "Change"
@@ -26,7 +28,7 @@ const AOINameDialog = (props) => {
     label = "Create"
   }
 
-  const videoOption = props.isVideo ? (
+  const videoOption = props.isVideo && isAttentive ? (
     <DialogContent>
       <TextField
         required
@@ -86,16 +88,25 @@ const AOINameDialog = (props) => {
           multiline
           rows="5"
           onChange={(e) => {
-            name = e.target.value
+            setName(e.target.value)
           }}
         />
       </DialogContent>
+      <FormControlLabel label="Should be attentive?"
+          value="end"
+          padding="dense"
+          style={{ marginLeft: 5 }}
+          checked={isAttentive}
+          control={<Checkbox color="secondary" />}
+          onChange={(e, checked) => setIsAttentive(checked)}
+          labelPlacement="end"
+      />
       {videoOption}
       <DialogActions>
         <Button onClick={(e) => props.closeDialog("")} variant="outlined">
           Cancel
         </Button>
-        <Button onClick={onClose} variant="outlined">
+        <Button onClick={() => onClose()} variant="outlined">
           {label}
         </Button>
       </DialogActions>
