@@ -11,6 +11,8 @@ const AOIComponent = props => {
     if (props.aoi.isSelected === true && props.resetAOI !== undefined) {
       timer = setTimeout(() => props.resetAOI(props.index), 3000)
     }
+
+    return () => clearTimeout(timer)
   },
     [props.aoi.isSelected])
 

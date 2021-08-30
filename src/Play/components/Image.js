@@ -73,6 +73,7 @@ const ImageComponent = props => {
         mqtt.sendMqttMessage(
           'taskEvent',
           makeLogObject(
+            props,
             taskObject,
             componentObject,
             { observerMessage: observerMessageString }

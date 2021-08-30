@@ -156,7 +156,20 @@ const VideoComponent = (props) => {
             }
           }
         )
-      } else {
+      } else if(aoi.numberSufficentFixation && AOICount[aoi.name] >= aoi.numberSufficentFixation){
+        let newAOI = aoi
+        newAOI.isAcknowledged = true
+        let tempAOIs = [...aois]
+        tempAOIs.splice(index, 1, newAOI)
+        setAOIs(tempAOIs)
+        setShouldPlayAlarmSound(false)
+      } 
+      else {
+        let newAOI = aoi
+        newAOI.isFilledYellow = false
+        let tempAOIs = [...aois]
+        tempAOIs.splice(index, 1, newAOI)
+        setAOIs(tempAOIs)
         setShouldPlayAlarmSound(false)
       }
     })
@@ -239,17 +252,17 @@ const VideoComponent = (props) => {
     aois.map(a => {
       if (a.videoRef.current === null) return ["Background"]
 
-      let imageDivRect = videoRef.current.getBoundingClientRect()
+      let videoDivRect = videoRef.current.getBoundingClientRect()
       let polygon = []
       if (a.boundingbox.length > 0) {
         for (let boundingbox of a.boundingbox) {
-          polygon.push(normalizeBoundingBoxes(boundingbox, imageDivRect))
+          polygon.push(normalizeBoundingBoxes(boundingbox, videoDivRect))
         }
       } else {
-        polygon.push([imageDivRect.x, imageDivRect.y])
-        polygon.push([imageDivRect.x + imageDivRect.width, imageDivRect.y])
-        polygon.push([imageDivRect.x + imageDivRect.width, imageDivRect.y + imageDivRect.height])
-        polygon.push([imageDivRect.x, imageDivRect.y + imageDivRect.height])
+        polygon.push([videoDivRect.x, videoDivRect.y])
+        polygon.push([videoDivRect.x + videoDivRect.width, videoDivRect.y])
+        polygon.push([videoDivRect.x + videoDivRect.width, videoDivRect.y + videoDivRect.height])
+        polygon.push([videoDivRect.x, videoDivRect.y + videoDivRect.height])
       }
 
       if (playerUtils.pointIsInPoly([gazeX, gazeY], polygon))
@@ -357,21 +370,25 @@ const VideoComponent = (props) => {
 
   const handleVideoLoaded = () => {
     if (videoRef && videoRef.current) {
-      let video = videoRef.current
-      setVideoHeight(video.clientHeight)
-      setVideoWidth(video.clientWidth)
       setVideoElement(video)
+      console.log('Height ', videoRef.current.clientHeight)
+      console.log('Width ', videoRef.current.clientWidth)
+      console.log('Offset height', videoRef.current.offsetHeight)
+      console.log('Offset width ', videoRef.current.offsetWidth)
+
+      setVideoHeight(videoRef.current.clientHeight)
+      setVideoWidth(videoRef.current.clientWidth)      
     }
   }
 
   return (
-    <div className="imagePreviewContainer">
+    <div className="videoContainer">
       <video
         controls
         autoPlay
         ref={videoRef}
         className={
-          props.task.fullScreenImage ? "fullScreenImage" : "videoCanvas"
+          props.task.fullScreenImage ? "fullScreenVideo" : "videoCanvas"
         }
         onLoadedData={handleVideoLoaded}
       >
