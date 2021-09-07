@@ -192,16 +192,15 @@ class Export extends Component {
 
     let file_name = ""                        // If there are lines of data avalaible we set the name to be the time of the first recorded data
     if (p.linesOfData && p.linesOfData.length > 0) {
-      file_name = this.formatDateTime(p.linesOfData[0].startTimestamp) + '_'
-      file_name += p.linesOfData[0].tasksFamilyTree[0]
+      file_name = this.formatDateTime(p.linesOfData[0].startTimestamp) + '_' + p.setName
     }
-    if (p.globalVariables.length > 0) {       //If there are saved global variables we append them to the experiment name
-      p.globalVariables.sort((a, b) => a.label.localeCompare(b.label))
-      p.globalVariables.forEach(globalVar => {
-        if (!globalVar.label.toLowerCase().includes("record data"))
-          file_name += '_' + globalVar.label + '-' + globalVar.value
-      })
-    }
+    // if (p.globalVariables.length > 0) {       //If there are saved global variables we append them to the experiment name
+    //   p.globalVariables.sort((a, b) => a.label.localeCompare(b.label))
+    //   p.globalVariables.forEach(globalVar => {
+    //     if (!globalVar.label.toLowerCase().includes("record data"))
+    //       file_name += '_' + globalVar.label + '-' + globalVar.value
+    //   })
+    // }
     return file_name
   }
 

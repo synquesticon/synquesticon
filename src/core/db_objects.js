@@ -79,10 +79,11 @@ export class SetObject {
 
 //The default object used for Participants. New participants should use this as the base.
 export class ParticipantObject {
-  constructor(mainTaskSetId) {
+  constructor(set) {
     var dt = new Date()
     this.readableId = dt.getTime()
-    this.mainTaskSetId = mainTaskSetId
+    this.setId = set._id
+    this.setName = set.name
     this.eyeData = ""
     this.linesOfData = []
     this.globalVariables = []
@@ -120,6 +121,17 @@ export class LineOfData {
     */
     this.timeToCompletion = -1
     this.aoiCheckedList = []
+  }
+}
+
+export class AnsweredComponent {
+  constructor(startTimestamp, taskId, componentText, correctResponses, responseOptions, componentType) {
+    this.taskId = taskId
+    this.startTimestamp = startTimestamp
+    this.text = componentText
+    this.componentType = componentType
+    this.responseOptions = responseOptions
+    this.correctResponses = correctResponses
   }
 }
 

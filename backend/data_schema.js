@@ -59,61 +59,58 @@ const SetSchema = new Schema({
   collection: 'Sets'
 })
 
+const LineOfDataSchema = new Schema({
+  _id: false,
+  tasksFamilyTree: [String],
+  taskId: String,
+  taskContent: String,
+  objType: String,
+  responses: [String],
+  correctResponses: [String],
+  /* correctlyAnswered:
+  1. If the participant answers correctly, we log it as “correct”.
+  2. If the participant answers incorrectly, we log it as “incorrect”.
+  3. If no correct answer was provided (i.e. the field “correct answer” in the editor is empty), we log it as “notApplicable”.
+  4. If the participant clicked “skip”, we log it as “skipped”, regardless of (3).
+  */
+  correctlyAnswered: String,
+
+  startTimestamp: Number, //The start timestamp
+  /*
+  raw timestamp for every response
+  */
+  firstResponseTimestamp: Number, //The end timestamp
+  /* timeToFirstAnswer
+  time from when the question was presented to first input
+  - for buttons: to when first button is pressed
+  - for text entry: to when first letter is entered ("oninput")
+  */
+  timeToFirstAnswer: Number,
+  /* timeToCompletion
+  time from when the question was presented to clicking "next"
+  In case of "skipped", we leave (1) empty and log (2) as time to pressing "skip".
+  */
+  timeToCompletion: Number,
+  clickedPoints: [{
+    aoi: [String], //names of the hit AOIs
+    x: Number,
+    y: Number,
+    timeClicked: Number,
+    _id: false
+  }],
+  aoiCheckedList: [{
+    label: String,
+    checked: Boolean,
+    _id: false
+  }]
+})
+
 const ParticipantSchema = new Schema(
 {
-    readableId: String,
-    mainTaskSetId: String,
+    setName: String,
+    setId: String,
     eyeData: String,
-    linesOfData: [{
-      _id: false,
-      tasksFamilyTree: [String],
-      taskId: String,
-      taskContent: String,
-      objType: String,
-      responses: [String],
-      correctResponses: [String],
-      /* correctlyAnswered:
-      1. If the participant answers correctly, we log it as “correct”.
-      2. If the participant answers incorrectly, we log it as “incorrect”.
-      3. If no correct answer was provided (i.e. the field “correct answer” in the editor is empty), we log it as “notApplicable”.
-      4. If the participant clicked “skip”, we log it as “skipped”, regardless of (3).
-      */
-      correctlyAnswered: String,
-
-      startTimestamp: Number, //The start timestamp
-      /*
-      raw timestamp for every response
-      */
-      firstResponseTimestamp: Number, //The end timestamp
-      /* timeToFirstAnswer
-      time from when the question was presented to first input
-      - for buttons: to when first button is pressed
-      - for text entry: to when first letter is entered ("oninput")
-      */
-      timeToFirstAnswer: Number,
-      /* timeToCompletion
-      time from when the question was presented to clicking "next"
-      In case of "skipped", we leave (1) empty and log (2) as time to pressing "skip".
-      */
-      timeToCompletion: Number,
-      clickedPoints: [{
-        aoi: [String], //names of the hit AOIs
-        x: Number,
-        y: Number,
-        timeClicked: Number,
-        _id: false
-      }],
-      aoiCheckedList: [{
-        label: String,
-        checked: Boolean,
-        _id: false
-      }]
-    }],
-    globalVariables: [{
-      label: String,
-      value: [String],
-      _id: false
-    }]
+    linesOfData: []
   }, 
   { collection: 'Participants' }
 )

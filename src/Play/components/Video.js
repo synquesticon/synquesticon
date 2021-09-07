@@ -59,6 +59,11 @@ const VideoComponent = (props) => {
     }
 
     return () => {
+      props.logCallback(
+        makeLogObject(props, 
+          getVideoData(), 
+          "Video")
+      )
       // if (props.task.recordClicks) {
       //   const taskObject = {
       //     uid: props.taskID,
@@ -76,7 +81,7 @@ const VideoComponent = (props) => {
 
       //   const componentObject = {
       //     uid: uuid(),
-      //     type: "IMAGE",
+      //     type: "VIDEO",
       //     text: props.task.displayText,
       //     responsesArray: clicksRef.current,
       //     AOICount: Object.keys(AOICount).map(aoiKey => [aoiKey, AOICount[aoiKey]])
@@ -108,6 +113,10 @@ const VideoComponent = (props) => {
   useEffect(() => {
     clicksRef.current = clicks.slice()
   }, [clicks])
+
+  const getVideoData = (() => {
+    return AOICount
+  })
 
   const getMousePosition = (e) => {
     let videoRect = e.target.getBoundingClientRect()
