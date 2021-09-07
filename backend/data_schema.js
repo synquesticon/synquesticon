@@ -33,6 +33,7 @@ const TaskSchema = new Schema({                 //objType: task
       name: String,
       numberSufficentFixation: Number,
       startTime: Number,
+      endTime: Number,
       boundingbox: [[Number]],
       _id: false
     }],
