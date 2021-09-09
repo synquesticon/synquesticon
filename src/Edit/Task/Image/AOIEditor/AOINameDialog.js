@@ -11,13 +11,11 @@ import TextField from "@material-ui/core/TextField"
 const AOINameDialog = (props) => {
   let [name, setName] = useState(props.name)
   const [isAttentive, setIsAttentive] = useState(false)
-  let startTimeValue = null
-  let endTimeValue = null
-  let numberSufficentFixation = null
+  let [numberSufficentFixation, setNumberSufficentFixation] = useState(props.numberSufficentFixation)
 
   const onClose = () => {
     if (name !== "") {
-      props.closeDialog(name, startTimeValue, endTimeValue, numberSufficentFixation)
+      props.closeDialog(name, numberSufficentFixation)
     }
   }
   
@@ -34,31 +32,9 @@ const AOINameDialog = (props) => {
         required
         padding="dense"
         id="taskComment"
-        defaultValue={startTimeValue}
-        label="Watch Time Start (ms)"
-        onChange={(e) => (startTimeValue = e.target.value)}
-        fullWidth
-        multiline
-        rows="5"
-      />
-      <TextField
-        required
-        padding="dense"
-        id="taskComment"
-        defaultValue={endTimeValue}
-        label="Watch Time End (ms)"
-        onChange={(e) => (endTimeValue = e.target.value)}
-        fullWidth
-        multiline
-        rows="5"
-      />
-      <TextField
-        required
-        padding="dense"
-        id="taskComment"
         defaultValue={numberSufficentFixation}
         label="Sufficient Fixations"
-        onChange={(e) => (numberSufficentFixation = e.target.value)}
+        onChange={(e) => setNumberSufficentFixation(e.target.value)}
         fullWidth
         multiline
         rows="5"
