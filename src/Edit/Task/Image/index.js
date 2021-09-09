@@ -1,19 +1,33 @@
-import React, { useState } from 'react'
-import FileSelector from '../../../core/fileSelector'
-import { Typography } from '@material-ui/core'
-import Button from '@material-ui/core/Button'
-import Checkbox from '@material-ui/core/Checkbox'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import AOIEditorComponent from './AOIEditor/AOIEditorComponent'
-import BrowseFileDialog from './BrowseImagesDialog'
-import './Image.css'
+import React, { useState } from "react"
+import FileSelector from "../../../core/fileSelector"
+import { Typography, TextField } from "@material-ui/core"
+import Button from "@material-ui/core/Button"
+import Checkbox from "@material-ui/core/Checkbox"
+import FormControlLabel from "@material-ui/core/FormControlLabel"
+import AOIEditorComponent from "./AOIEditor/AOIEditorComponent"
+import BrowseFileDialog from "./BrowseImagesDialog"
+import "./Image.css"
 
-const ImageTaskType = props => {
-  const [selectedImage, setSelectedImage] = useState(props.task ? props.task.image : "")
-  const [recordClicks, setRecordClicks] = useState(props.task ? props.task.recordClicks : false)
+const ImageTaskType = (props) => {
+  const [selectedImage, setSelectedImage] = useState(
+    props.task ? props.task.image : ""
+  )
+  const [recordClicks, setRecordClicks] = useState(
+    props.task ? props.task.recordClicks : false
+  )
+  const [alarmWatchTimeStart, setAlarmWatchTimeStart] = useState(
+    props.task ? props.task.alarmWatchTimeStart : ""
+  )
+  const [alarmWatchTimeEnd, setAlarmWatchTimeEnd] = useState(
+    props.task ? props.task.alarmWatchTimeEnd : ""
+  )
   const [isVideo, setIsVideo] = useState(props.isVideo ? props.isVideo : false)
-  const [fullScreenImage, setFullScreenImage] = useState(props.task ? props.task.fullScreenImage : false)
-  const [showAOIs, setShowAOIs] = useState(props.task ? props.task.showAOIs : false)
+  const [fullScreenImage, setFullScreenImage] = useState(
+    props.task ? props.task.fullScreenImage : false
+  )
+  const [showAOIs, setShowAOIs] = useState(
+    props.task ? props.task.showAOIs : false
+  )
   const [openBrowseImage, setOpenBrowseImage] = useState(false)
 
   let preview = false
@@ -34,7 +48,7 @@ const ImageTaskType = props => {
     setShowAOIs(checked)
   }
 
-  const onImageFileSelected = selectedFile => {
+  const onImageFileSelected = (selectedFile) => {
     console.log(selectedFile)
     props.task.image = selectedFile.name
     image = selectedFile
@@ -44,7 +58,7 @@ const ImageTaskType = props => {
     setSelectedImage(props.task.image)
   }
 
-  const onPickImageBrowseImages = img => {
+  const onPickImageBrowseImages = (img) => {
     props.task.image = img
     image = null
     props.task.aois = []
@@ -55,18 +69,45 @@ const ImageTaskType = props => {
     setOpenBrowseImage(false)
   }
 
-  let previewImage = <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-    <Typography color="textPrimary"> "No Image selected" </Typography>
-  </div>
+  const onAlarmWatchTimeStartChanged = (e) => {
+    props.task.alarmWatchTimeStart = e.target.value
+    setAlarmWatchTimeStart(e.target.value)
+  }
+
+  const onAlarmWatchTimeEndChanged = (e) => {
+    props.task.alarmWatchTimeEnd = e.target.value
+    setAlarmWatchTimeEnd(e.target.value)
+  }
+
+  let previewImage = (
+    <div
+      style={{
+        width: "100%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Typography color="textPrimary"> "No Image selected" </Typography>
+    </div>
+  )
 
   if (selectedImage !== "") {
-    previewImage = <AOIEditorComponent isVideo={isVideo} preview={preview} task={props.task} image={image} />
+    previewImage = (
+      <AOIEditorComponent
+        isVideo={isVideo}
+        preview={preview}
+        task={props.task}
+        image={image}
+      />
+    )
   }
 
   return (
     <div className="imageTypeContainer">
       <div className="imagePickingContainer">
-        <FormControlLabel label="Record Clicks"
+        <FormControlLabel
+          label="Record Clicks"
           value="end"
           id={props.uniqueID + "rclick"}
           padding="dense"
@@ -76,7 +117,8 @@ const ImageTaskType = props => {
           onChange={onRecordClickChanged}
           labelPlacement="end"
         />
-        <FormControlLabel label="Show Fullscreen"
+        <FormControlLabel
+          label="Show Fullscreen"
           value="end"
           id={props.uniqueID + "fscreen"}
           padding="dense"
@@ -85,7 +127,8 @@ const ImageTaskType = props => {
           onChange={onShowFullScreenChanged}
           labelPlacement="end"
         />
-        <FormControlLabel label="Show AOIs"
+        <FormControlLabel
+          label="Show AOIs"
           value="end"
           id={props.uniqueID + "saois"}
           padding="dense"
@@ -94,14 +137,36 @@ const ImageTaskType = props => {
           onChange={onShowAOIsChanged}
           labelPlacement="end"
         />
-        <Button variant="outlined" onClick={() => setOpenBrowseImage(true)}>{isVideo?"Browse Videos":"Browse Images"}</Button>
+        <Button variant="outlined" onClick={() => setOpenBrowseImage(true)}>
+          {isVideo ? "Browse Videos" : "Browse Images"}
+        </Button>
         <FileSelector handleSelectionCallback={onImageFileSelected} />
       </div>
+      <TextField
+        required
+        padding="dense"
+        id="taskComment"
+        defaultValue={alarmWatchTimeStart}
+        label="Watch Time Start (ms)"
+        onChange={onAlarmWatchTimeStartChanged}
+        rows="5"
+      />
+      <TextField
+        required
+        padding="dense"
+        id="taskComment"
+        defaultValue={alarmWatchTimeEnd}
+        label="Watch Time End (ms)"
+        onChange={onAlarmWatchTimeEndChanged}
+        rows="5"
+      />
       <div className="editTaskImagePreview">{previewImage}</div>
-      <BrowseFileDialog openDialog={openBrowseImage}
+      <BrowseFileDialog
+        openDialog={openBrowseImage}
         isVideo={isVideo}
         closeDialog={() => setOpenBrowseImage(false)}
-        onPickImage={onPickImageBrowseImages} />
+        onPickImage={onPickImageBrowseImages}
+      />
     </div>
   )
 }

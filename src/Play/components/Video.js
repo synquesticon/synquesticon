@@ -17,9 +17,11 @@ let COLOR = "red"
 
 const VideoComponent = (props) => {
   const videoRef = useRef()
+  const audioRef = useRef()
   const clicksRef = useRef()
+
   let timer = null
-  let checkTimer = null
+  let checkShouldEndWatchTimer = null
 
   const [shouldPlayAlarmSound, setShouldPlayAlarmSound] = useState(false)
   const [videoWidth, setVideoWidth] = useState(100)
@@ -27,7 +29,6 @@ const VideoComponent = (props) => {
   const [videoElement, setVideoElement] = useState(null)
   const [AOICount, setAOICCount] = useState({})
   const [clicks, setClicks] = useState([])
-  const audioSound = new Audio(audioFileSrc)
   const [aois, setAOIs] = useState(props.task.aois)
   let video = null
 
@@ -52,7 +53,7 @@ const VideoComponent = (props) => {
         aois: aois,
       })
 
-      checkTimer = setInterval(shouldEndWatchTime, 100)
+      checkShouldEndWatchTimer = setInterval(endWatchTime, 100)
 
       eventStore.setGazeListener("on", onGazeEvent)
 
@@ -100,7 +101,7 @@ const VideoComponent = (props) => {
       //     )
       //   )
       // }
-      clearInterval(checkTimer)
+      clearInterval(checkShouldEndWatchTimer)
       window.removeEventListener("resize", handleVideoLoaded)
       eventStore.setGazeListener("off", onGazeEvent)
     }
@@ -114,6 +115,12 @@ const VideoComponent = (props) => {
   const getVideoData = (() => {
     return AOICount
   })
+
+  const replayAudioSound = () => {
+    if(shouldPlayAlarmSound === true){
+      audioRef.current.play()
+    }
+  }
 
   const getMousePosition = (e) => {
     let videoRect = e.target.getBoundingClientRect()
@@ -140,52 +147,52 @@ const VideoComponent = (props) => {
 
   }
 
-  const soundAlarm = async () => {
-    // console.log("Check at " + videoRef.current.currentTime)
-    aois.map((aoi, index) => {
-      if (AOICount[aoi.name] < aoi.numberSufficentFixation &&
-        videoRef.current.currentTime * 1000 >= aoi.startTime &&
-        videoRef.current.currentTime * 1000 <= aoi.endTime) {             
-        let newAOI = aoi
-        newAOI.isFilledYellow = true
-        let tempAOIs = [...aois]
-        tempAOIs = tempAOIs.splice(index, 1, newAOI)
-        setAOIs(tempAOIs)
-        if(shouldPlayAlarmSound === false){
-          setShouldPlayAlarmSound(true)
-        }          
+  // const soundAlarm = async () => {
+  //   // console.log("Check at " + videoRef.current.currentTime)
+  //   aois.map((aoi, index) => {
+  //     if (AOICount[aoi.name] < aoi.numberSufficentFixation &&
+  //       videoRef.current.currentTime * 1000 >= aoi.startTime &&
+  //       videoRef.current.currentTime * 1000 <= aoi.endTime) {             
+  //       let newAOI = aoi
+  //       newAOI.isFilledYellow = true
+  //       let tempAOIs = [...aois]
+  //       tempAOIs = tempAOIs.splice(index, 1, newAOI)
+  //       setAOIs(tempAOIs)
+  //       if(shouldPlayAlarmSound === false){
+  //         setShouldPlayAlarmSound(true)
+  //       }          
 
-        audioSound.play().finally(
-          () => {
-            if (shouldPlayAlarmSound === true && audioSound.pause) {
-              audioSound.play()
-            }
-          }
-        )
-      } else if(aoi.numberSufficentFixation && AOICount[aoi.name] >= aoi.numberSufficentFixation){
-        let newAOI = aoi
-        newAOI.isAcknowledged = true
-        let tempAOIs = [...aois]
-        tempAOIs.splice(index, 1, newAOI)
-        setAOIs(tempAOIs)
-        if(shouldPlayAlarmSound === true){
-          setShouldPlayAlarmSound(false)
-        } 
-      } else {
+  //       audioSound.play().finally(
+  //         () => {
+  //           if (shouldPlayAlarmSound === true && audioSound.pause) {
+  //             audioSound.play()
+  //           }
+  //         }
+  //       )
+  //     } else if(aoi.numberSufficentFixation && AOICount[aoi.name] >= aoi.numberSufficentFixation){
+  //       let newAOI = aoi
+  //       newAOI.isAcknowledged = true
+  //       let tempAOIs = [...aois]
+  //       tempAOIs.splice(index, 1, newAOI)
+  //       setAOIs(tempAOIs)
+  //       if(shouldPlayAlarmSound === true){
+  //         setShouldPlayAlarmSound(false)
+  //       } 
+  //     } else {
         
-        if(shouldPlayAlarmSound === true){
-          if(aoi.name === 'attention1'){
-            console.log(aoi.name, ' Alarm time')
-          }
-          setShouldPlayAlarmSound(false)
-        } 
-      }
-    })
-  }
+  //       if(shouldPlayAlarmSound === true){
+  //         if(aoi.name === 'attention1'){
+  //           console.log(aoi.name, ' Alarm time')
+  //         }
+  //         setShouldPlayAlarmSound(false)
+  //       } 
+  //     }
+  //   })
+  // }
 
-  const shouldEndWatchTime = () => {
-    if(videoRef.current.currentTime * 1000 >= 7100){
-      clearInterval(checkTimer)
+  const endWatchTime = () => {
+    if(videoRef.current.currentTime * 1000 >= props.task.alarmWatchTimeEnd){
+      clearInterval(checkShouldEndWatchTimer)
       clearTimeout(timer) 
       let tempAOIs = [...aois]
 
@@ -193,32 +200,38 @@ const VideoComponent = (props) => {
         aoi.isFilledYellow = false
       })
       setAOIs(tempAOIs)
-
-      setShouldPlayAlarmSound(false) 
+      setShouldPlayAlarmSound(false)
     }
   }
 
 
   const checkAlarm = () => {
     aois.map((aoi, index) => {
-      if (AOICount[aoi.name] < aoi.numberSufficentFixation) {             
-        let newAOI = aoi
-        newAOI.isFilledYellow = true
-        let tempAOIs = [...aois]
-        tempAOIs = tempAOIs.splice(index, 1, newAOI)
-        setAOIs(tempAOIs)
-        if(shouldPlayAlarmSound === false){
-          setShouldPlayAlarmSound(true)
-        }       
-
-        audioSound.play().finally(
-          () => {
-            if (shouldPlayAlarmSound === true && audioSound.pause) {
-              audioSound.play()
-            }
+      if(aoi.numberSufficentFixation !== null){
+        if (AOICount[aoi.name] < aoi.numberSufficentFixation) {             
+          let newAOI = aoi
+          newAOI.isFilledYellow = true
+          let tempAOIs = [...aois]
+          tempAOIs = tempAOIs.splice(index, 1, newAOI)
+          setAOIs(tempAOIs)
+          if(shouldPlayAlarmSound === false){
+            setShouldPlayAlarmSound(true)
+            audioRef.current.play()
           }
-        )
-      } 
+        } 
+        else{
+          let newAOI = aoi
+          newAOI.isAcknowledged = true
+          newAOI.isFilledYellow = false
+          let tempAOIs = [...aois]
+          tempAOIs = tempAOIs.splice(index, 1, newAOI)
+          setAOIs(tempAOIs)
+          if(shouldPlayAlarmSound === true){
+            setShouldPlayAlarmSound(false)
+          }
+        }
+      }
+
     })
 
   }
@@ -410,7 +423,7 @@ const VideoComponent = (props) => {
           preserveAspectRatio="none"
         >
           {aois.map((aoi, index) => {
-            if (props.task.showAOIs || aoi.isFilledYellow || aoi.isSelected) {
+            if (props.task.showAOIs || aoi.isFilledYellow || aoi.isSelected || aoi.isAcknowledged) {
               return <AOIComponent aoi={aoi} key={index} index={index} resetAOI={(index) => resetAOI(index)}/>            }
           })}
         </svg>
@@ -426,14 +439,25 @@ const VideoComponent = (props) => {
       setVideoElement(video)
       setVideoHeight(videoRef.current.clientHeight)
       setVideoWidth(videoRef.current.clientWidth)
-      timer = setTimeout(() => checkAlarm(), 3100)      
+
+      //set timer
+      timer = setTimeout(() => checkAlarm(), props.task.alarmWatchTimeStart)      
     }
   }
 
   if(aois){
     return (
       <div className="videoContainer">
+        <audio 
+          src={audioFileSrc}
+          ref={audioRef}
+          style= { {display:'none'} }
+          onEnded={replayAudioSound}
+        >
+        </audio>
+
         <video
+        
           controls
           autoPlay
           ref={videoRef}

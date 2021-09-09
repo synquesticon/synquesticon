@@ -32,11 +32,13 @@ const TaskSchema = new Schema({                 //objType: task
     aois: [{ //A list of AOIs relevant to the task
       name: String,
       numberSufficentFixation: Number,
-      startTime: Number,
-      endTime: Number,
       boundingbox: [[Number]],
       _id: false
     }],
+
+    // Video specific
+    alarmWatchTimeStart: Number,
+    alarmWatchTimeEnd: Number,
   }],
 
 }, {
