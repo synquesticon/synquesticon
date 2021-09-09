@@ -27,8 +27,9 @@ const VideoComponent = (props) => {
   const [videoWidth, setVideoWidth] = useState(100)
   const [videoHeight, setVideoHeight] = useState(100)
   const [videoElement, setVideoElement] = useState(null)
-  const [AOICount, setAOICCount] = useState({})
+  const [aoiHitCounts, setAOIHitCounts] = useState({})
   const [clicks, setClicks] = useState([])
+  const [fixations, setFixations] = useState([])
   const [aois, setAOIs] = useState(props.task.aois)
   let video = null
 
@@ -44,7 +45,10 @@ const VideoComponent = (props) => {
         aoi.videoRef = videoRef
         aoi.isSelected = false
         aoi.isFilledYellow = false
-        AOICount[aoi.name] = 0
+        aoiHitCounts[aoi.name] = {
+          hitClickCount: 0,
+          hitFixationCount: 0
+        }
       })
       setAOIs(aois)
 
@@ -61,11 +65,7 @@ const VideoComponent = (props) => {
     }
 
     return () => {
-      props.logCallback(
-        makeLogObject(props, 
-          getVideoData(), 
-          "Video")
-      )
+
       // if (props.task.recordClicks) {
       //   const taskObject = {
       //     uid: props.taskID,
@@ -116,9 +116,14 @@ const VideoComponent = (props) => {
     clicksRef.current = clicks.slice()
   }, [clicks])
 
-  const getVideoData = (() => {
-    return AOICount
-  })
+  const getVideoData = (eventType) => {
+    let data = {}
+    data.clicksPoints = clicks
+    data.fixations = fixations
+    data.aoiHitCounts = aoiHitCounts
+    data.eventType = eventType
+    return data
+  }
 
   const replayAudioSound = () => {
     if(shouldPlayAlarmSound === true){
@@ -197,6 +202,12 @@ const VideoComponent = (props) => {
   const endWatchTime = () => {
     if(videoRef.current.currentTime * 1000 >= props.task.alarmWatchTimeEnd){
       clearInterval(checkShouldEndWatchTimer)
+
+      props.logCallback(
+        makeLogObject(props, 
+          getVideoData('COMPONENT'), "Video")
+      )
+
       clearTimeout(timer) 
       let tempAOIs = [...aois]
 
@@ -213,7 +224,7 @@ const VideoComponent = (props) => {
   const checkAlarm = () => {
     aois.map((aoi, index) => {
       if(aoi.numberSufficentFixation !== null){
-        if (AOICount[aoi.name] < aoi.numberSufficentFixation) {             
+        if ((aoiHitCounts[aoi.name].hitClickCount + aoiHitCounts[aoi.name].hitFixationCount) < aoi.numberSufficentFixation) {             
           let newAOI = aoi
           newAOI.isFilledYellow = true
           let tempAOIs = [...aois]
@@ -251,18 +262,19 @@ const VideoComponent = (props) => {
       let fixation = {
         hitAOIs: hitAOIs,
         x: gazePos.x,
-        y: gazePos.y
+        y: gazePos.y,
+        ts: gazePos.timestamp
       }
 
       hitAOIs.map(hitAOI =>
-        AOICount[hitAOI] = AOICount[hitAOI] + 1
+        aoiHitCounts[hitAOI].fixationCount = aoiHitCounts[hitAOI].fixationCount + 1
       )
 
-      setClicks([...clicks, fixation])
+      setFixations([...fixations], fixation)
 
 
 
-      console.log("Count: ", AOICount)
+      console.log("Count: ", aoiHitCounts)
     })
 
   }
@@ -348,13 +360,14 @@ const VideoComponent = (props) => {
       hitAOIs: hitAOIs,
       x: mouseClick.x,
       y: mouseClick.y,
+      ts: Date.now()
     }
     // console.log(click)
     // console.log(e.clientX, e.clientY)
     setClicks([...clicks, click])
 
     hitAOIs.map((hitAOI) => {
-      AOICount[hitAOI] = AOICount[hitAOI] + 1
+      aoiHitCounts[hitAOI].hitClickCount = aoiHitCounts[hitAOI].hitClickCount + 1
       let newAOIs = aois.slice()
       newAOIs.map(aoi => {
         if (aoi.name === hitAOI) {
