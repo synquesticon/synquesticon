@@ -198,6 +198,7 @@ const VideoComponent = (props) => {
 
       tempAOIs.map((aoi, index) => {
         aoi.isFilledYellow = false
+        aoi.isAcknowledged = false
       })
       setAOIs(tempAOIs)
       setShouldPlayAlarmSound(false)
