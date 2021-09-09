@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react"
 import mqtt from "../../core/mqtt"
+import { Typography } from '@material-ui/core'
 import audioFileSrc from './Sounds/cesium.wav'
 import eventStore from '../../core/eventStore'
 import store from "../../core/store"
@@ -7,6 +8,8 @@ import * as playerUtils from "../../core/player_utility_functions"
 import AOIComponent from "../../Edit/Task/Image/AOIEditor/AOIComponent"
 import makeLogObject from "../../core/makeLogObject"
 import "./css/Image.css"
+import { ContactsOutlined } from "@material-ui/icons"
+import { SetObject } from "../../core/db_objects"
 
 let CLICK_RADIUS = "1"
 let OPACITY = "0.5"
@@ -16,6 +19,7 @@ const VideoComponent = (props) => {
   const videoRef = useRef()
   const clicksRef = useRef()
   let timer = null
+  let checkTimer = null
 
   const [shouldPlayAlarmSound, setShouldPlayAlarmSound] = useState(false)
   const [videoWidth, setVideoWidth] = useState(100)
@@ -34,7 +38,7 @@ const VideoComponent = (props) => {
     video.ref = videoRef
 
     if (props.task.aois.length > 0) {
-      let aois = props.task.aois.slice()
+      let aois = [...props.task.aois]
       aois.forEach((aoi) => {
         aoi.videoRef = videoRef
         aoi.isSelected = false
@@ -43,15 +47,12 @@ const VideoComponent = (props) => {
       })
       setAOIs(aois)
 
-
-      console.log(AOICount)
-
       store.dispatch({
         type: "ADD_AOIS",
         aois: aois,
       })
 
-      timer = setInterval(soundAlarm, 100)
+      checkTimer = setInterval(shouldEndWatchTime, 100)
 
       eventStore.setGazeListener("on", onGazeEvent)
 
@@ -99,7 +100,7 @@ const VideoComponent = (props) => {
       //     )
       //   )
       // }
-      clearInterval(timer)
+      clearInterval(checkTimer)
       window.removeEventListener("resize", handleVideoLoaded)
       eventStore.setGazeListener("off", onGazeEvent)
     }
@@ -108,6 +109,11 @@ const VideoComponent = (props) => {
   useEffect(() => {
     clicksRef.current = clicks.slice()
   }, [clicks])
+
+
+  const getVideoData = (() => {
+    return AOICount
+  })
 
   const getMousePosition = (e) => {
     let videoRect = e.target.getBoundingClientRect()
@@ -134,20 +140,20 @@ const VideoComponent = (props) => {
 
   }
 
-  const soundAlarm = () => {
+  const soundAlarm = async () => {
     // console.log("Check at " + videoRef.current.currentTime)
     aois.map((aoi, index) => {
       if (AOICount[aoi.name] < aoi.numberSufficentFixation &&
         videoRef.current.currentTime * 1000 >= aoi.startTime &&
-        videoRef.current.currentTime * 1000 <= aoi.endTime) {
-        setShouldPlayAlarmSound(true)
-        
+        videoRef.current.currentTime * 1000 <= aoi.endTime) {             
         let newAOI = aoi
         newAOI.isFilledYellow = true
         let tempAOIs = [...aois]
-        tempAOIs.splice(index, 1, newAOI)
+        tempAOIs = tempAOIs.splice(index, 1, newAOI)
         setAOIs(tempAOIs)
-
+        if(shouldPlayAlarmSound === false){
+          setShouldPlayAlarmSound(true)
+        }          
 
         audioSound.play().finally(
           () => {
@@ -162,17 +168,59 @@ const VideoComponent = (props) => {
         let tempAOIs = [...aois]
         tempAOIs.splice(index, 1, newAOI)
         setAOIs(tempAOIs)
-        setShouldPlayAlarmSound(false)
-      } 
-      else {
-        let newAOI = aoi
-        newAOI.isFilledYellow = false
-        let tempAOIs = [...aois]
-        tempAOIs.splice(index, 1, newAOI)
-        setAOIs(tempAOIs)
-        setShouldPlayAlarmSound(false)
+        if(shouldPlayAlarmSound === true){
+          setShouldPlayAlarmSound(false)
+        } 
+      } else {
+        
+        if(shouldPlayAlarmSound === true){
+          if(aoi.name === 'attention1'){
+            console.log(aoi.name, ' Alarm time')
+          }
+          setShouldPlayAlarmSound(false)
+        } 
       }
     })
+  }
+
+  const shouldEndWatchTime = () => {
+    if(videoRef.current.currentTime * 1000 >= 7100){
+      clearInterval(checkTimer)
+      clearTimeout(timer) 
+      let tempAOIs = [...aois]
+
+      tempAOIs.map((aoi, index) => {
+        aoi.isFilledYellow = false
+      })
+      setAOIs(tempAOIs)
+
+      setShouldPlayAlarmSound(false) 
+    }
+  }
+
+
+  const checkAlarm = () => {
+    aois.map((aoi, index) => {
+      if (AOICount[aoi.name] < aoi.numberSufficentFixation) {             
+        let newAOI = aoi
+        newAOI.isFilledYellow = true
+        let tempAOIs = [...aois]
+        tempAOIs = tempAOIs.splice(index, 1, newAOI)
+        setAOIs(tempAOIs)
+        if(shouldPlayAlarmSound === false){
+          setShouldPlayAlarmSound(true)
+        }       
+
+        audioSound.play().finally(
+          () => {
+            if (shouldPlayAlarmSound === true && audioSound.pause) {
+              audioSound.play()
+            }
+          }
+        )
+      } 
+    })
+
   }
 
   const onGazeEvent = () => {
@@ -350,7 +398,8 @@ const VideoComponent = (props) => {
   const showAOIs = () => {
       const left = videoElement ? parseInt(videoElement.offsetLeft) : 0
 
-      return (
+      if(aois !== undefined) {
+        return (
         <svg
           id={"AOICanvas"}
           style={{ left: left, pointerEvents: "none" }}
@@ -366,39 +415,44 @@ const VideoComponent = (props) => {
           })}
         </svg>
       )
+        }
+        else{
+          return null
+        }
   }
 
   const handleVideoLoaded = () => {
     if (videoRef && videoRef.current) {
       setVideoElement(video)
-      console.log('Height ', videoRef.current.clientHeight)
-      console.log('Width ', videoRef.current.clientWidth)
-      console.log('Offset height', videoRef.current.offsetHeight)
-      console.log('Offset width ', videoRef.current.offsetWidth)
-
       setVideoHeight(videoRef.current.clientHeight)
-      setVideoWidth(videoRef.current.clientWidth)      
+      setVideoWidth(videoRef.current.clientWidth)
+      timer = setTimeout(() => checkAlarm(), 3100)      
     }
   }
 
-  return (
-    <div className="videoContainer">
-      <video
-        controls
-        autoPlay
-        ref={videoRef}
-        className={
-          props.task.fullScreenImage ? "fullScreenVideo" : "videoCanvas"
-        }
-        onLoadedData={handleVideoLoaded}
-      >
-        <source src={"/Videos/" + props.task.image} type="video/mp4"></source>
-      </video>
-
-      {getClickableComponent()}
-      {showAOIs()}
-    </div>
-  )
+  if(aois){
+    return (
+      <div className="videoContainer">
+        <video
+          controls
+          autoPlay
+          ref={videoRef}
+          className={
+            props.task.fullScreenImage ? "fullScreenVideo" : "videoCanvas"
+          }
+          onLoadedData={handleVideoLoaded}
+        >
+          <source src={"/Videos/" + props.task.image} type="video/mp4"></source>
+        </video>
+  
+        {getClickableComponent()}
+        {showAOIs()}
+      </div>
+    )
+  } else {
+    return <Typography variant="h2" color="textPrimary" style={{ position: 'absolute', left: '50%', top: '50%' }}>Loading...</Typography>
+  }
+  
 }
 
 export default VideoComponent
