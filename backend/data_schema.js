@@ -59,50 +59,58 @@ const SetSchema = new Schema({
   collection: 'Sets'
 })
 
-const LineOfDataSchema = new Schema({
+const isCorrectEnum = ['correct', 'incorrect', 'notApplicable', 'skip']
+const AnsweredComponentSchema = new Schema({
   _id: false,
-  tasksFamilyTree: [String],
-  taskId: String,
-  taskContent: String,
-  objType: String,
-  responses: [String],
-  correctResponses: [String],
+  taskId: Schema.Types.ObjectId,
+  startTimestamp: Number, //The start timestamp
+  text: String,
+  componentType: String,
+  componentVarient: String,
+
+  responseOptions: [String],
+  correctOptions: [String],
+
+  responses: [],
   /* correctlyAnswered:
   1. If the participant answers correctly, we log it as “correct”.
   2. If the participant answers incorrectly, we log it as “incorrect”.
   3. If no correct answer was provided (i.e. the field “correct answer” in the editor is empty), we log it as “notApplicable”.
   4. If the participant clicked “skip”, we log it as “skipped”, regardless of (3).
   */
-  correctlyAnswered: String,
-
-  startTimestamp: Number, //The start timestamp
-  /*
-  raw timestamp for every response
-  */
-  firstResponseTimestamp: Number, //The end timestamp
-  /* timeToFirstAnswer
-  time from when the question was presented to first input
-  - for buttons: to when first button is pressed
-  - for text entry: to when first letter is entered ("oninput")
-  */
-  timeToFirstAnswer: Number,
-  /* timeToCompletion
-  time from when the question was presented to clicking "next"
-  In case of "skipped", we leave (1) empty and log (2) as time to pressing "skip".
-  */
+  isCorrect: {
+    type: String,
+    enum: isCorrectEnum
+  },
+  
   timeToCompletion: Number,
+
+  // Image/Video designated
   clickedPoints: [{
-    aoi: [String], //names of the hit AOIs
     x: Number,
     y: Number,
-    timeClicked: Number,
+    aoi: [String], //names of the hit AOIs
+    ts: Number,
     _id: false
   }],
-  aoiCheckedList: [{
-    label: String,
-    checked: Boolean,
+
+  fixations: [{
+    x: Number,
+    y: Number,
+    aoi: [String], //names of the hit AOIs
+    ts: Number,
+    length: Number,
     _id: false
-  }]
+  }],
+
+  aoiHitCounts: [{
+    aoi: String,
+    hitClickCount: Number,
+    hitFixationCount: Number,
+    _id: false
+  }],
+
+  isAlarmSuppressed: Boolean
 })
 
 const ParticipantSchema = new Schema(
@@ -110,7 +118,7 @@ const ParticipantSchema = new Schema(
     setName: String,
     setId: String,
     eyeData: String,
-    linesOfData: []
+    linesOfData: [AnsweredComponentSchema]
   }, 
   { collection: 'Participants' }
 )

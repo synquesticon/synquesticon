@@ -125,13 +125,13 @@ export class LineOfData {
 }
 
 export class AnsweredComponent {
-  constructor(startTimestamp, taskId, componentText, correctResponses, responseOptions, componentType) {
+  constructor(startTimestamp, taskId, componentText, correctOptions, responseOptions, componentType) {
     this.taskId = taskId
     this.startTimestamp = startTimestamp
     this.text = componentText
     this.componentType = componentType
     this.responseOptions = responseOptions
-    this.correctResponses = correctResponses
+    this.correctOptions = correctOptions
   }
 }
 
