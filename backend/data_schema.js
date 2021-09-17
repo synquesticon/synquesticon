@@ -37,8 +37,11 @@ const TaskSchema = new Schema({                 //objType: task
     }],
 
     // Video specific
-    alarmWatchTimeStart: Number,
-    alarmWatchTimeEnd: Number,
+    alarmWindowStart: Number,
+    alarmWindowDuration: Number,
+
+    registrationWindowStart: Number,
+    registrationWindowDuration: Number,
   }],
 
 }, {
