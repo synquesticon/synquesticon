@@ -15,11 +15,18 @@ const ImageTaskType = (props) => {
   const [recordClicks, setRecordClicks] = useState(
     props.task ? props.task.recordClicks : false
   )
-  const [alarmWatchTimeStart, setAlarmWatchTimeStart] = useState(
-    props.task ? props.task.alarmWatchTimeStart : ""
+  const [alarmWindowStart, setAlarmWindowStart] = useState(
+    props.task ? props.task.alarmWindowStart : ""
   )
-  const [alarmWatchTimeEnd, setAlarmWatchTimeEnd] = useState(
-    props.task ? props.task.alarmWatchTimeEnd : ""
+  const [alarmWindowDuration, setAlarmWindowDuration] = useState(
+    props.task ? props.task.alarmWindowDuration : ""
+  )
+
+  const [registrationWindowStart, setRegistrationWindowStart] = useState(
+    props.task ? props.task.registrationWindowStart : ""
+  )
+  const [registrationWindowDuration, setRegistrationWindowDuration] = useState(
+    props.task ? props.task.registrationWindowDuration : ""
   )
   const [isVideo, setIsVideo] = useState(props.isVideo ? props.isVideo : false)
   const [fullScreenImage, setFullScreenImage] = useState(
@@ -69,14 +76,25 @@ const ImageTaskType = (props) => {
     setOpenBrowseImage(false)
   }
 
-  const onAlarmWatchTimeStartChanged = (e) => {
-    props.task.alarmWatchTimeStart = e.target.value
-    setAlarmWatchTimeStart(e.target.value)
+  const onAlarmWindowStartChanged = (e) => {
+    props.task.alarmWindowStart = e.target.value
+    setAlarmWindowStart(e.target.value)
   }
 
-  const onAlarmWatchTimeEndChanged = (e) => {
-    props.task.alarmWatchTimeEnd = e.target.value
-    setAlarmWatchTimeEnd(e.target.value)
+  const onAlarmDurationChanged = (e) => {
+    props.task.alarmWindowDuration = e.target.value
+    setAlarmWindowDuration(e.target.value)
+  }
+
+  const onRegistrationWindowStartChanged = (e) => {
+    props.task.registrationWindowStart = e.target.value
+    setRegistrationWindowStart(e.target.value)
+  }
+
+  const onRegistrationWindowDurationChanged = (e) => {
+    props.task.registrationWindowDuration = e.target.value
+    setRegistrationWindowDuration(e.target.value)
+
   }
 
   let previewImage = (
@@ -146,18 +164,37 @@ const ImageTaskType = (props) => {
         required
         padding="dense"
         id="taskComment"
-        defaultValue={alarmWatchTimeStart}
-        label="Watch Time Start (ms)"
-        onChange={onAlarmWatchTimeStartChanged}
+        defaultValue={alarmWindowStart}
+        label="Alarm time start (ms)"
+        onChange={onAlarmWindowStartChanged}
         rows="5"
       />
       <TextField
         required
         padding="dense"
         id="taskComment"
-        defaultValue={alarmWatchTimeEnd}
-        label="Watch Time End (ms)"
-        onChange={onAlarmWatchTimeEndChanged}
+        defaultValue={alarmWindowDuration}
+        label="Alarm window duration (ms)"
+        onChange={onAlarmDurationChanged}
+        rows="5"
+      />
+
+      <TextField
+        required
+        padding="dense"
+        id="taskComment"
+        defaultValue={registrationWindowStart}
+        label="Registration window start (ms)"
+        onChange={onRegistrationWindowStartChanged}
+        rows="5"
+      />
+      <TextField
+        required
+        padding="dense"
+        id="taskComment"
+        defaultValue={registrationWindowDuration}
+        label="Registration window duration (ms)"
+        onChange={onRegistrationWindowDurationChanged}
         rows="5"
       />
       <div className="editTaskImagePreview">{previewImage}</div>

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react"
 import mqtt from "../../core/mqtt"
-import { Typography } from '@material-ui/core'
-import audioFileSrc from './Sounds/cesium.wav'
-import eventStore from '../../core/eventStore'
+import { Typography } from "@material-ui/core"
+import audioFileSrc from "./Sounds/cesium.wav"
+import eventStore from "../../core/eventStore"
 import store from "../../core/store"
 import * as playerUtils from "../../core/player_utility_functions"
 import AOIComponent from "../../Edit/Task/Image/AOIEditor/AOIComponent"
@@ -20,14 +20,20 @@ const VideoComponent = (props) => {
   const audioRef = useRef()
   const clicksRef = useRef()
 
-  let timer = null
-  let checkShouldEndWatchTimer = null
+  let alarmTimer,
+    endAlarmTimer,
+    registrationTimer,
+    endRegistrationTimer = null
 
   const [shouldPlayAlarmSound, setShouldPlayAlarmSound] = useState(false)
   const [videoWidth, setVideoWidth] = useState(100)
   const [videoHeight, setVideoHeight] = useState(100)
   const [videoElement, setVideoElement] = useState(null)
+<<<<<<< HEAD
   const [aoiHitCounts, setAOIHitCounts] = useState({})
+=======
+  const [aoiHitCounts, setAOIHitCount] = useState({})
+>>>>>>> video_fixation
   const [clicks, setClicks] = useState([])
   const [fixations, setFixations] = useState([])
   const [aois, setAOIs] = useState(props.task.aois)
@@ -47,19 +53,24 @@ const VideoComponent = (props) => {
         aoi.isFilledYellow = false
         aoiHitCounts[aoi.name] = {
           hitClickCount: 0,
+<<<<<<< HEAD
           hitFixationCount: 0
+=======
+          hitFixationCount: 0,
+>>>>>>> video_fixation
         }
       })
+
+      aoiHitCounts["Background"] = {
+        hitClickCount: 0,
+        hitFixationCount: 0,
+      }
       setAOIs(aois)
 
       store.dispatch({
         type: "ADD_AOIS",
         aois: aois,
       })
-
-      checkShouldEndWatchTimer = setInterval(endWatchTime, 100)
-
-      eventStore.setGazeListener("on", onGazeEvent)
 
       window.addEventListener("resize", handleVideoLoaded)
     }
@@ -106,9 +117,11 @@ const VideoComponent = (props) => {
       //     )
       //   )
       // }
-      clearInterval(checkShouldEndWatchTimer)
+      clearTimeout(alarmTimer)
+      clearTimeout(endAlarmTimer)
+      clearTimeout(registrationTimer)
+      clearTimeout(endRegistrationTimer)
       window.removeEventListener("resize", handleVideoLoaded)
-      eventStore.setGazeListener("off", onGazeEvent)
     }
   }, [])
 
@@ -116,9 +129,22 @@ const VideoComponent = (props) => {
     clicksRef.current = clicks.slice()
   }, [clicks])
 
+<<<<<<< HEAD
   const getVideoData = (eventType) => {
     let data = {}
     data.clicksPoints = clicks
+=======
+  const getVideoComponent = () => {
+    return {
+      text: props.task.video,
+      responseOptions: props.task.aois,
+    }
+  }
+
+  const getVideoData = (eventType) => {
+    let data = {}
+    data.clickedPoints = clicksRef.current
+>>>>>>> video_fixation
     data.fixations = fixations
     data.aoiHitCounts = aoiHitCounts
     data.eventType = eventType
@@ -126,7 +152,7 @@ const VideoComponent = (props) => {
   }
 
   const replayAudioSound = () => {
-    if(shouldPlayAlarmSound === true){
+    if (shouldPlayAlarmSound === true) {
       audioRef.current.play()
     }
   }
@@ -137,7 +163,7 @@ const VideoComponent = (props) => {
     let y = (e.clientY - videoRect.top) / videoRect.height
     return {
       x: x,
-      y: y
+      y: y,
     }
   }
 
@@ -151,9 +177,8 @@ const VideoComponent = (props) => {
 
     return {
       x: newX,
-      y: newY
+      y: newY,
     }
-
   }
 
   // const soundAlarm = async () => {
@@ -161,7 +186,7 @@ const VideoComponent = (props) => {
   //   aois.map((aoi, index) => {
   //     if (AOICount[aoi.name] < aoi.numberSufficentFixation &&
   //       videoRef.current.currentTime * 1000 >= aoi.startTime &&
-  //       videoRef.current.currentTime * 1000 <= aoi.endTime) {             
+  //       videoRef.current.currentTime * 1000 <= aoi.endTime) {
   //       let newAOI = aoi
   //       newAOI.isFilledYellow = true
   //       let tempAOIs = [...aois]
@@ -169,7 +194,7 @@ const VideoComponent = (props) => {
   //       setAOIs(tempAOIs)
   //       if(shouldPlayAlarmSound === false){
   //         setShouldPlayAlarmSound(true)
-  //       }          
+  //       }
 
   //       audioSound.play().finally(
   //         () => {
@@ -186,19 +211,20 @@ const VideoComponent = (props) => {
   //       setAOIs(tempAOIs)
   //       if(shouldPlayAlarmSound === true){
   //         setShouldPlayAlarmSound(false)
-  //       } 
+  //       }
   //     } else {
-        
+
   //       if(shouldPlayAlarmSound === true){
   //         if(aoi.name === 'attention1'){
   //           console.log(aoi.name, ' Alarm time')
   //         }
   //         setShouldPlayAlarmSound(false)
-  //       } 
+  //       }
   //     }
   //   })
   // }
 
+<<<<<<< HEAD
   const endWatchTime = () => {
     if(videoRef.current.currentTime * 1000 >= props.task.alarmWatchTimeEnd){
       clearInterval(checkShouldEndWatchTimer)
@@ -218,51 +244,86 @@ const VideoComponent = (props) => {
       setAOIs(tempAOIs)
       setShouldPlayAlarmSound(false)
     }
+=======
+  const endAlarm = () => {
+    let tempAOIs = [...aois]
+    tempAOIs.map((aoi, index) => {
+      aoi.isFilledYellow = false
+      aoi.isAcknowledged = false
+    })
+    setAOIs(tempAOIs)
+    setShouldPlayAlarmSound(false)
+>>>>>>> video_fixation
   }
-
 
   const checkAlarm = () => {
     aois.map((aoi, index) => {
+<<<<<<< HEAD
       if(aoi.numberSufficentFixation !== null){
         if ((aoiHitCounts[aoi.name].hitClickCount + aoiHitCounts[aoi.name].hitFixationCount) < aoi.numberSufficentFixation) {             
+=======
+      if (aoi.numberSufficentFixation !== undefined) {
+        if (          
+          aoiHitCounts[aoi.name].hitFixationCount <
+          aoi.numberSufficentFixation
+        ) {
+>>>>>>> video_fixation
           let newAOI = aoi
           newAOI.isFilledYellow = true
           let tempAOIs = [...aois]
           tempAOIs = tempAOIs.splice(index, 1, newAOI)
           setAOIs(tempAOIs)
-          if(shouldPlayAlarmSound === false){
+          if (shouldPlayAlarmSound === false) {
             setShouldPlayAlarmSound(true)
             audioRef.current.play()
           }
-        } 
-        else{
+        } else {
           let newAOI = aoi
           newAOI.isAcknowledged = true
           newAOI.isFilledYellow = false
           let tempAOIs = [...aois]
           tempAOIs = tempAOIs.splice(index, 1, newAOI)
           setAOIs(tempAOIs)
-          if(shouldPlayAlarmSound === true){
+          if (shouldPlayAlarmSound === true) {
             setShouldPlayAlarmSound(false)
           }
         }
+
+        // props.logCallback(
+        //   makeLogObject(
+        //     props,
+        //     getVideoComponent(),
+        //     getVideoData("COMPONENT"),
+        //     "Video"
+        //   )
+        // )
       }
-
     })
-
   }
 
   const onGazeEvent = () => {
     const gazeData = JSON.parse(eventStore.getGazeData())
-    const fixationArray = gazeData.data.filter(datum => datum.isFixation === true)
-    fixationArray.map(fixationGaze => {
-      let gazePos = getFixationPosition(fixationGaze.gaze.x, fixationGaze.gaze.y, videoRef)
-      let hitAOIs = checkGazeHitAOI(gazePos.x * window.innerWidth, gazePos.y * window.innerHeight, videoRef)
+
+    const fixationArray = gazeData.data.filter(
+      (datum) => datum.isFixation === true
+    )
+    fixationArray.map((fixationGaze) => {
+      let gazePos = getFixationPosition(
+        fixationGaze.gaze.x,
+        fixationGaze.gaze.y,
+        videoRef
+      )
+      let hitAOIs = checkGazeHitAOI(
+        gazePos.x * window.innerWidth,
+        gazePos.y * window.innerHeight,
+        videoRef
+      )
 
       let fixation = {
         hitAOIs: hitAOIs,
         x: gazePos.x,
         y: gazePos.y,
+<<<<<<< HEAD
         ts: gazePos.timestamp
       }
 
@@ -271,12 +332,23 @@ const VideoComponent = (props) => {
       )
 
       setFixations([...fixations], fixation)
+=======
+        fixationLength: fixationGaze.fixationLength,
+      }
 
+      console.log("Here is one fixation ", fixation)
+>>>>>>> video_fixation
 
+      hitAOIs.map(
+        (hitAOI) =>
+          (aoiHitCounts[hitAOI].hitFixationCount =
+            aoiHitCounts[hitAOI].hitFixationCount + 1)
+      )
+
+      setFixations([...fixations, fixation])
 
       console.log("Count: ", aoiHitCounts)
     })
-
   }
 
   const normalizeBoundingBoxes = (
@@ -327,7 +399,7 @@ const VideoComponent = (props) => {
     let aois = store.getState().aois
     let pointInsideAOIs = []
 
-    aois.map(a => {
+    aois.map((a) => {
       if (a.videoRef.current === null) return ["Background"]
 
       let videoDivRect = videoRef.current.getBoundingClientRect()
@@ -339,7 +411,10 @@ const VideoComponent = (props) => {
       } else {
         polygon.push([videoDivRect.x, videoDivRect.y])
         polygon.push([videoDivRect.x + videoDivRect.width, videoDivRect.y])
-        polygon.push([videoDivRect.x + videoDivRect.width, videoDivRect.y + videoDivRect.height])
+        polygon.push([
+          videoDivRect.x + videoDivRect.width,
+          videoDivRect.y + videoDivRect.height,
+        ])
         polygon.push([videoDivRect.x, videoDivRect.y + videoDivRect.height])
       }
 
@@ -347,10 +422,8 @@ const VideoComponent = (props) => {
         pointInsideAOIs.push(a.name)
     })
 
-    if (pointInsideAOIs.length > 0)
-      return pointInsideAOIs
-    else
-      return ["Background"]
+    if (pointInsideAOIs.length > 0) return pointInsideAOIs
+    else return ["Background"]
   }
 
   const onVideoClicked = (e) => {
@@ -360,25 +433,31 @@ const VideoComponent = (props) => {
       hitAOIs: hitAOIs,
       x: mouseClick.x,
       y: mouseClick.y,
+<<<<<<< HEAD
       ts: Date.now()
+=======
+      ts: Date.now(),
+>>>>>>> video_fixation
     }
     // console.log(click)
     // console.log(e.clientX, e.clientY)
     setClicks([...clicks, click])
 
     hitAOIs.map((hitAOI) => {
+<<<<<<< HEAD
       aoiHitCounts[hitAOI].hitClickCount = aoiHitCounts[hitAOI].hitClickCount + 1
+=======
+      aoiHitCounts[hitAOI].hitClickCount =
+        aoiHitCounts[hitAOI].hitClickCount + 1
+>>>>>>> video_fixation
       let newAOIs = aois.slice()
-      newAOIs.map(aoi => {
+      newAOIs.map((aoi) => {
         if (aoi.name === hitAOI) {
           aoi.isSelected = !aoi.isSelected
         }
-      }      
-      )
+      })
       setAOIs(newAOIs)
     })
-
-
 
     // console.log("Count: ", AOICount)
   }
@@ -398,8 +477,8 @@ const VideoComponent = (props) => {
           viewBox="0 0 100 100"
           preserveAspectRatio="none"
         >
-          {/* <g stroke="none" fill="black">
-            {clicks.map((item, index) => {
+          <g stroke="none" fill="black">
+            {/* {clicks.map((item, index) => {
               return (
                 <ellipse
                   key={index}
@@ -411,11 +490,43 @@ const VideoComponent = (props) => {
                   style={{ pointerEvents: "none" }}
                 />
               )
-            })}
-          </g> */}
+            })} */}
+          </g>
         </svg>
       )
     } else return null
+  }
+
+  const showFixationForTesting = () => {
+    const left = videoElement ? parseInt(videoElement.offsetLeft) : 0
+
+    return (
+      <svg
+        style={{ left: left }}
+        className="clickableCanvas"
+        width={videoWidth}
+        opacity={OPACITY}
+        height={videoHeight}
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+      >
+        <g stroke="none" fill="black">
+          {fixations.map((item, index) => {
+            return (
+              <ellipse
+                key={index}
+                cx={item.x * 100}
+                cy={item.y * 100}
+                rx={CLICK_RADIUS}
+                ry={CLICK_RADIUS * 1.8}
+                fill={COLOR}
+                style={{ pointerEvents: "none" }}
+              />
+            )
+          })}
+        </g>
+      </svg>
+    )
   }
 
   const resetAOI = (index) => {
@@ -423,14 +534,14 @@ const VideoComponent = (props) => {
     let aoi = aois[index]
     aoi.isSelected = false
     newAOIs.splice(index, 1, aoi)
-    setAOIs(newAOIs)    
+    setAOIs(newAOIs)
   }
 
   const showAOIs = () => {
-      const left = videoElement ? parseInt(videoElement.offsetLeft) : 0
+    const left = videoElement ? parseInt(videoElement.offsetLeft) : 0
 
-      if(aois !== undefined) {
-        return (
+    if (aois !== undefined) {
+      return (
         <svg
           id={"AOICanvas"}
           style={{ left: left, pointerEvents: "none" }}
@@ -441,15 +552,27 @@ const VideoComponent = (props) => {
           preserveAspectRatio="none"
         >
           {aois.map((aoi, index) => {
-            if (props.task.showAOIs || aoi.isFilledYellow || aoi.isSelected || aoi.isAcknowledged) {
-              return <AOIComponent aoi={aoi} key={index} index={index} resetAOI={(index) => resetAOI(index)}/>            }
+            if (
+              props.task.showAOIs ||
+              aoi.isFilledYellow ||
+              aoi.isSelected ||
+              aoi.isAcknowledged
+            ) {
+              return (
+                <AOIComponent
+                  aoi={aoi}
+                  key={index}
+                  index={index}
+                  resetAOI={(index) => resetAOI(index)}
+                />
+              )
+            }
           })}
         </svg>
       )
-        }
-        else{
-          return null
-        }
+    } else {
+      return null
+    }
   }
 
   const handleVideoLoaded = () => {
@@ -458,24 +581,36 @@ const VideoComponent = (props) => {
       setVideoHeight(videoRef.current.clientHeight)
       setVideoWidth(videoRef.current.clientWidth)
 
-      //set timer
-      timer = setTimeout(() => checkAlarm(), props.task.alarmWatchTimeStart)      
+      //set timer for registration time and alarm time
+      alarmTimer = setTimeout(() => checkAlarm(), props.task.alarmWindowStart)
+      endAlarmTimer = setTimeout(
+        () => endAlarm(),
+        props.task.alarmWindowStart + props.task.alarmWindowDuration
+      )
+
+      registrationTimer = setTimeout(
+        () => eventStore.setGazeListener("on", onGazeEvent),
+        props.task.registrationWindowStart
+      )
+      endRegistrationTimer = setTimeout(
+        () => eventStore.setGazeListener("off", onGazeEvent),
+        props.task.registrationWindowStart +
+          props.task.registrationWindowDuration
+      )
     }
   }
 
-  if(aois){
+  if (aois) {
     return (
       <div className="videoContainer">
-        <audio 
+        <audio
           src={audioFileSrc}
           ref={audioRef}
-          style= { {display:'none'} }
+          style={{ display: "none" }}
           onEnded={replayAudioSound}
-        >
-        </audio>
+        ></audio>
 
         <video
-        
           controls
           autoPlay
           ref={videoRef}
@@ -486,15 +621,23 @@ const VideoComponent = (props) => {
         >
           <source src={"/Videos/" + props.task.image} type="video/mp4"></source>
         </video>
-  
+
         {getClickableComponent()}
+        {showFixationForTesting()}
         {showAOIs()}
       </div>
     )
   } else {
-    return <Typography variant="h2" color="textPrimary" style={{ position: 'absolute', left: '50%', top: '50%' }}>Loading...</Typography>
+    return (
+      <Typography
+        variant="h2"
+        color="textPrimary"
+        style={{ position: "absolute", left: "50%", top: "50%" }}
+      >
+        Loading...
+      </Typography>
+    )
   }
-  
 }
 
 export default VideoComponent
