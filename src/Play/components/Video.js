@@ -222,9 +222,8 @@ const VideoComponent = (props) => {
   const checkAlarm = () => {
     aois.map((aoi, index) => {
       if (aoi.numberSufficentFixation !== undefined) {
-        if (
-          aoiHitCounts[aoi.name].hitClickCount +
-            aoiHitCounts[aoi.name].hitFixationCount <
+        if (          
+          aoiHitCounts[aoi.name].hitFixationCount <
           aoi.numberSufficentFixation
         ) {
           let newAOI = aoi
