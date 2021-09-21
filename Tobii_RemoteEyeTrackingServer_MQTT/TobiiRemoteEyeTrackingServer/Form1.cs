@@ -248,11 +248,15 @@ namespace TobiiRemoteEyeTrackingServer
                 FixationForm.Controls.Add(AnimatedPointPanel);
                 int w = FixationForm.Width;
                 int h = FixationForm.Height;
-                
+
 
                 MQTTThread = new Thread(async () => {
                     int sampleCount = 0;
                     var dataList = new List<object>(); //for later adding object in
+
+                    string PreviousFixationState = null;
+                    long TimeStampOfLastChange = -1;
+                    
                     GazeDataEventArgs prevGazeDataEvent = null;
                     while (IsStreamingMQTT)
                     {
@@ -267,6 +271,7 @@ namespace TobiiRemoteEyeTrackingServer
 
                                 float gazeX = 0;
                                 float gazeY = 0;
+                                var dataObject = new Dictionary<string, object>();
                                 if (currentgazeEvent.LeftEye.GazePoint.Validity == Validity.Valid &&
                                     currentgazeEvent.RightEye.GazePoint.Validity == Validity.Valid)
                                 {
@@ -284,17 +289,69 @@ namespace TobiiRemoteEyeTrackingServer
                                     gazeY = currentgazeEvent.RightEye.GazePoint.PositionOnDisplayArea.Y;
                                 }
 
-                                if (velocity >= Threshold)
-                                {
-                                    int radius = 10;
-                                    Console.Write("--> Fixation ");
-                                    Console.WriteLine(gazeX.ToString() + "\t" + gazeY.ToString());
-                                    Console.WriteLine(gazeX * w);
-                                    Console.WriteLine(gazeY * h);
 
-                                    AnimatedPointGraphics.DrawEllipse(CalBrush, gazeX * w - radius, gazeY * h - radius, radius + radius, radius + radius);
+                                if (velocity < Threshold)
+                                {
+                                    // Fixation
+                                    // Check previous state:
+                                    if(PreviousFixationState == null)
+                                    {
+                                        PreviousFixationState = "Fixation";
+                                        TimeStampOfLastChange = currentgazeEvent.DeviceTimeStamp;
+                                    }
+                                    else if (PreviousFixationState == "Saccade")
+                                    {
+                                        Console.WriteLine("Start Of New Fixation");
+                                        Console.WriteLine(gazeX.ToString() + "\t" + gazeY.ToString());
+                                        Console.WriteLine(gazeX * w);
+                                        Console.WriteLine(gazeY * h);
+                                        PreviousFixationState = "Fixation";
+                                        TimeStampOfLastChange = currentgazeEvent.DeviceTimeStamp;
+                                    }
+                                  
+                                    //int radius = 10;
+                                    //Console.Write("--> Fixation ");
+                                    //Console.WriteLine(gazeX.ToString() + "\t" + gazeY.ToString());
+                                    //Console.WriteLine(gazeX * w);
+                                    //Console.WriteLine(gazeY * h);
+
+                                    //AnimatedPointGraphics.DrawEllipse(CalBrush, gazeX * w - radius, gazeY * h - radius, radius + radius, radius + radius);
+
                                     
 
+                                } else // Saccade
+                                {
+                                    if (PreviousFixationState == null)
+                                    {
+                                        PreviousFixationState = "Saccade";
+                                        TimeStampOfLastChange = currentgazeEvent.DeviceTimeStamp;
+                                    }
+                                    else if (PreviousFixationState == "Fixation")
+                                    {
+                                        Console.WriteLine("End Of Fixation");
+                                        Console.WriteLine(gazeX.ToString() + "\t" + gazeY.ToString());
+                                        Console.WriteLine(gazeX * w);
+                                        Console.WriteLine(gazeY * h);
+                                        Console.WriteLine(currentgazeEvent.DeviceTimeStamp - TimeStampOfLastChange);
+
+                                        long fixationLength = currentgazeEvent.DeviceTimeStamp - TimeStampOfLastChange;
+
+                                        dataObject.Add("isFixation", true);
+                                        dataObject.Add("fixationLength", fixationLength);
+
+                                        PreviousFixationState = "Saccade";
+                                        TimeStampOfLastChange = currentgazeEvent.DeviceTimeStamp;
+
+
+                                        int radius = 10;
+                                        Console.Write("--> Fixation ");
+                                        Console.WriteLine(gazeX.ToString() + "\t" + gazeY.ToString());
+                                        Console.WriteLine(gazeX * w);
+                                        Console.WriteLine(gazeY * h);
+
+                                        AnimatedPointGraphics.DrawEllipse(CalBrush, gazeX * w - radius, gazeY * h - radius, radius + radius, radius + radius);
+
+                                    }
                                 }
 
 
@@ -304,8 +361,6 @@ namespace TobiiRemoteEyeTrackingServer
                                     CurrentPupilDiameters[0] = Double.IsNaN(currentgazeEvent.LeftEye.Pupil.PupilDiameter) ? -1 : currentgazeEvent.LeftEye.Pupil.PupilDiameter;
                                     CurrentPupilDiameters[1] = Double.IsNaN(currentgazeEvent.RightEye.Pupil.PupilDiameter) ? -1 : currentgazeEvent.RightEye.Pupil.PupilDiameter;
                                 }
-
-                                var dataObject = new Dictionary<string, object>();
 
                                 dataObject.Add("timestamp", currentgazeEvent.DeviceTimeStamp);
                                 dataObject.Add("sampleCount", sampleCount);
