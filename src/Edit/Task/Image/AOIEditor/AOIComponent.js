@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react'
-import { withTheme } from '@material-ui/styles'
-import './AOIEditorComponent.css'
+import React, { useEffect, useState } from "react"
+import { withTheme } from "@material-ui/styles"
+import "./AOIEditorComponent.css"
 
-const AOIComponent = props => {
+const AOIComponent = (props) => {
   let theme = props.theme
 
   let timer = null
@@ -13,8 +13,7 @@ const AOIComponent = props => {
     }
 
     return () => clearTimeout(timer)
-  },
-    [props.aoi.isSelected])
+  }, [props.aoi.isSelected])
 
   if (props.aoi.boundingbox.length <= 0) {
     return <div className="AOI" />
@@ -23,36 +22,50 @@ const AOIComponent = props => {
   let pathData = []
 
   props.aoi.boundingbox.map((point, index) => {
-    pathData.push(point[0] + ' ' + point[1])
+    pathData.push(point[0] + " " + point[1])
     return 1
   })
 
-  const color = props.aoi.isSelected === true ? "red" : theme.palette.secondary.main
+  let borderColor = "none"
+  let strokeDashArray = "none"
+  if (props.aoi.isSelected === true) {
+    borderColor = "blue"
+    strokeDashArray = "0.5,1"
+  } else if(props.aoi.isAcknowledged){
+    borderColor = "yellow"
+  } else {
+    borderColor = theme.palette.secondary.main
+  }
+
   let fillColor = null
 
-  if(props.aoi.isAcknowledged === true){
-    fillColor = "#95f985"
-  } else if(props.aoi.isFilledYellow){
+  if (props.aoi.isFilledYellow) {
     fillColor = "yellow"
-  } else{
+  } else {
     fillColor = "none"
   }
 
-  const textColor = theme.palette.text.primary //theme.palette.text.primary;
-  const textBGColor = theme.palette.primary.main
-
-  const path = pathData.join(' ')
-  const p1 = props.aoi.boundingbox[0]
+  const path = pathData.join(" ")
 
   const strokeWidth = "0.5"
 
-
   return (
-        <g onClick={props.onSelected} fontSize="3" fontFamily="sans-serif" fill="black" stroke="none">
-          <polygon points={path} stroke={color} strokeWidth={strokeWidth}
-            fill={fillColor} />
-        </g>
-      )
+    <g
+      onClick={props.onSelected}
+      fontSize="3"
+      fontFamily="sans-serif"
+      fill="black"
+      stroke="none"
+    >
+      <polygon
+        points={path}
+        stroke={borderColor}
+        strokeWidth={strokeWidth}
+        strokeDasharray={strokeDashArray}
+        fill={fillColor}
+      />
+    </g>
+  )
 
   // if (props.aoi.isSelected) {
   //   return (

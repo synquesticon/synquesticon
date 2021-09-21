@@ -20,7 +20,10 @@ const VideoComponent = (props) => {
   const audioRef = useRef()
   const clicksRef = useRef()
 
-  let timer = null
+  let alarmTimer,
+    endAlarmTimer,
+    registrationTimer,
+    endRegistrationTimer = null
 
   const [shouldPlayAlarmSound, setShouldPlayAlarmSound] = useState(false)
   const [videoWidth, setVideoWidth] = useState(100)
@@ -105,6 +108,10 @@ const VideoComponent = (props) => {
       //     )
       //   )
       // }
+      clearTimeout(alarmTimer)
+      clearTimeout(endAlarmTimer)
+      clearTimeout(registrationTimer)
+      clearTimeout(endRegistrationTimer)
       window.removeEventListener("resize", handleVideoLoaded)
     }
   }, [])
@@ -116,7 +123,7 @@ const VideoComponent = (props) => {
   const getVideoComponent = () => {
     return {
       text: props.task.video,
-      responseOptions: props.task.aois
+      responseOptions: props.task.aois,
     }
   }
 
@@ -203,14 +210,13 @@ const VideoComponent = (props) => {
   // }
 
   const endAlarm = () => {
-
-      let tempAOIs = [...aois]
-      tempAOIs.map((aoi, index) => {
-        aoi.isFilledYellow = false
-        aoi.isAcknowledged = false
-      })
-      setAOIs(tempAOIs)
-      setShouldPlayAlarmSound(false)
+    let tempAOIs = [...aois]
+    tempAOIs.map((aoi, index) => {
+      aoi.isFilledYellow = false
+      aoi.isAcknowledged = false
+    })
+    setAOIs(tempAOIs)
+    setShouldPlayAlarmSound(false)
   }
 
   const checkAlarm = () => {
@@ -251,12 +257,12 @@ const VideoComponent = (props) => {
         //   )
         // )
       }
-
     })
   }
 
   const onGazeEvent = () => {
     const gazeData = JSON.parse(eventStore.getGazeData())
+
     const fixationArray = gazeData.data.filter(
       (datum) => datum.isFixation === true
     )
@@ -276,16 +282,18 @@ const VideoComponent = (props) => {
         hitAOIs: hitAOIs,
         x: gazePos.x,
         y: gazePos.y,
-        ts: gazePos.timestamp,
+        fixationLength: fixationGaze.fixationLength,
       }
+
+      console.log("Here is one fixation ", fixation)
 
       hitAOIs.map(
         (hitAOI) =>
-          (aoiHitCounts[hitAOI].fixationCount =
-            aoiHitCounts[hitAOI].fixationCount + 1)
+          (aoiHitCounts[hitAOI].hitFixationCount =
+            aoiHitCounts[hitAOI].hitFixationCount + 1)
       )
 
-      setClicks([...clicks, fixation])
+      setFixations([...fixations, fixation])
 
       console.log("Count: ", aoiHitCounts)
     })
@@ -409,8 +417,8 @@ const VideoComponent = (props) => {
           viewBox="0 0 100 100"
           preserveAspectRatio="none"
         >
-          {/* <g stroke="none" fill="black">
-            {clicks.map((item, index) => {
+          <g stroke="none" fill="black">
+            {/* {clicks.map((item, index) => {
               return (
                 <ellipse
                   key={index}
@@ -422,11 +430,43 @@ const VideoComponent = (props) => {
                   style={{ pointerEvents: "none" }}
                 />
               )
-            })}
-          </g> */}
+            })} */}
+          </g>
         </svg>
       )
     } else return null
+  }
+
+  const showFixationForTesting = () => {
+    const left = videoElement ? parseInt(videoElement.offsetLeft) : 0
+
+    return (
+      <svg
+        style={{ left: left }}
+        className="clickableCanvas"
+        width={videoWidth}
+        opacity={OPACITY}
+        height={videoHeight}
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+      >
+        <g stroke="none" fill="black">
+          {fixations.map((item, index) => {
+            return (
+              <ellipse
+                key={index}
+                cx={item.x * 100}
+                cy={item.y * 100}
+                rx={CLICK_RADIUS}
+                ry={CLICK_RADIUS * 1.8}
+                fill={COLOR}
+                style={{ pointerEvents: "none" }}
+              />
+            )
+          })}
+        </g>
+      </svg>
+    )
   }
 
   const resetAOI = (index) => {
@@ -482,17 +522,21 @@ const VideoComponent = (props) => {
       setVideoWidth(videoRef.current.clientWidth)
 
       //set timer for registration time and alarm time
-      // alarmTimer = 
-      setTimeout(() => checkAlarm(), props.task.alarmWindowStart)
-      // endAlarmTimer = 
-      setTimeout(() => endAlarm(), (props.task.alarmWindowStart+props.task.alarmWindowDuration))
+      alarmTimer = setTimeout(() => checkAlarm(), props.task.alarmWindowStart)
+      endAlarmTimer = setTimeout(
+        () => endAlarm(),
+        props.task.alarmWindowStart + props.task.alarmWindowDuration
+      )
 
-      // registrationTimer = 
-      setTimeout(() => eventStore.setGazeListener("on", onGazeEvent), props.task.registrationWindowStart)
-      // endRegistrationTimer = 
-      setTimeout(() => eventStore.setGazeListener("off", onGazeEvent), (props.task.registrationWindowStart+props.task.registrationWindowDuration))
-
-      
+      registrationTimer = setTimeout(
+        () => eventStore.setGazeListener("on", onGazeEvent),
+        props.task.registrationWindowStart
+      )
+      endRegistrationTimer = setTimeout(
+        () => eventStore.setGazeListener("off", onGazeEvent),
+        props.task.registrationWindowStart +
+          props.task.registrationWindowDuration
+      )
     }
   }
 
@@ -519,6 +563,7 @@ const VideoComponent = (props) => {
         </video>
 
         {getClickableComponent()}
+        {showFixationForTesting()}
         {showAOIs()}
       </div>
     )
