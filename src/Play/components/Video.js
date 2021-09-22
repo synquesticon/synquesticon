@@ -19,6 +19,7 @@ const VideoComponent = (props) => {
   const videoRef = useRef()
   const audioRef = useRef()
   const clicksRef = useRef()
+  const fixationsRef = useRef()
 
   let alarmTimer,
     endAlarmTimer,
@@ -29,11 +30,7 @@ const VideoComponent = (props) => {
   const [videoWidth, setVideoWidth] = useState(100)
   const [videoHeight, setVideoHeight] = useState(100)
   const [videoElement, setVideoElement] = useState(null)
-<<<<<<< HEAD
-  const [aoiHitCounts, setAOIHitCounts] = useState({})
-=======
   const [aoiHitCounts, setAOIHitCount] = useState({})
->>>>>>> video_fixation
   const [clicks, setClicks] = useState([])
   const [fixations, setFixations] = useState([])
   const [aois, setAOIs] = useState(props.task.aois)
@@ -53,11 +50,7 @@ const VideoComponent = (props) => {
         aoi.isFilledYellow = false
         aoiHitCounts[aoi.name] = {
           hitClickCount: 0,
-<<<<<<< HEAD
-          hitFixationCount: 0
-=======
           hitFixationCount: 0,
->>>>>>> video_fixation
         }
       })
 
@@ -129,11 +122,10 @@ const VideoComponent = (props) => {
     clicksRef.current = clicks.slice()
   }, [clicks])
 
-<<<<<<< HEAD
-  const getVideoData = (eventType) => {
-    let data = {}
-    data.clicksPoints = clicks
-=======
+  useEffect(() => {
+    fixationsRef.current = fixations.slice()
+  }, [fixations])
+
   const getVideoComponent = () => {
     return {
       text: props.task.video,
@@ -144,8 +136,7 @@ const VideoComponent = (props) => {
   const getVideoData = (eventType) => {
     let data = {}
     data.clickedPoints = clicksRef.current
->>>>>>> video_fixation
-    data.fixations = fixations
+    data.fixations = fixationsRef.current
     data.aoiHitCounts = aoiHitCounts
     data.eventType = eventType
     return data
@@ -224,27 +215,6 @@ const VideoComponent = (props) => {
   //   })
   // }
 
-<<<<<<< HEAD
-  const endWatchTime = () => {
-    if(videoRef.current.currentTime * 1000 >= props.task.alarmWatchTimeEnd){
-      clearInterval(checkShouldEndWatchTimer)
-
-      props.logCallback(
-        makeLogObject(props, 
-          getVideoData('COMPONENT'), "Video")
-      )
-
-      clearTimeout(timer) 
-      let tempAOIs = [...aois]
-
-      tempAOIs.map((aoi, index) => {
-        aoi.isFilledYellow = false
-        aoi.isAcknowledged = false
-      })
-      setAOIs(tempAOIs)
-      setShouldPlayAlarmSound(false)
-    }
-=======
   const endAlarm = () => {
     let tempAOIs = [...aois]
     tempAOIs.map((aoi, index) => {
@@ -253,21 +223,15 @@ const VideoComponent = (props) => {
     })
     setAOIs(tempAOIs)
     setShouldPlayAlarmSound(false)
->>>>>>> video_fixation
   }
 
   const checkAlarm = () => {
     aois.map((aoi, index) => {
-<<<<<<< HEAD
-      if(aoi.numberSufficentFixation !== null){
-        if ((aoiHitCounts[aoi.name].hitClickCount + aoiHitCounts[aoi.name].hitFixationCount) < aoi.numberSufficentFixation) {             
-=======
       if (aoi.numberSufficentFixation !== undefined) {
         if (          
           aoiHitCounts[aoi.name].hitFixationCount <
           aoi.numberSufficentFixation
         ) {
->>>>>>> video_fixation
           let newAOI = aoi
           newAOI.isFilledYellow = true
           let tempAOIs = [...aois]
@@ -289,14 +253,14 @@ const VideoComponent = (props) => {
           }
         }
 
-        // props.logCallback(
-        //   makeLogObject(
-        //     props,
-        //     getVideoComponent(),
-        //     getVideoData("COMPONENT"),
-        //     "Video"
-        //   )
-        // )
+        props.logCallback(
+          makeLogObject(
+            props,
+            // getVideoComponent(),
+            getVideoData("COMPONENT"),
+            "Video"
+          )
+        )
       }
     })
   }
@@ -323,21 +287,10 @@ const VideoComponent = (props) => {
         hitAOIs: hitAOIs,
         x: gazePos.x,
         y: gazePos.y,
-<<<<<<< HEAD
-        ts: gazePos.timestamp
-      }
-
-      hitAOIs.map(hitAOI =>
-        aoiHitCounts[hitAOI].fixationCount = aoiHitCounts[hitAOI].fixationCount + 1
-      )
-
-      setFixations([...fixations], fixation)
-=======
         fixationLength: fixationGaze.fixationLength,
       }
 
       console.log("Here is one fixation ", fixation)
->>>>>>> video_fixation
 
       hitAOIs.map(
         (hitAOI) =>
@@ -433,23 +386,15 @@ const VideoComponent = (props) => {
       hitAOIs: hitAOIs,
       x: mouseClick.x,
       y: mouseClick.y,
-<<<<<<< HEAD
-      ts: Date.now()
-=======
       ts: Date.now(),
->>>>>>> video_fixation
     }
     // console.log(click)
     // console.log(e.clientX, e.clientY)
     setClicks([...clicks, click])
 
     hitAOIs.map((hitAOI) => {
-<<<<<<< HEAD
-      aoiHitCounts[hitAOI].hitClickCount = aoiHitCounts[hitAOI].hitClickCount + 1
-=======
       aoiHitCounts[hitAOI].hitClickCount =
         aoiHitCounts[hitAOI].hitClickCount + 1
->>>>>>> video_fixation
       let newAOIs = aois.slice()
       newAOIs.map((aoi) => {
         if (aoi.name === hitAOI) {
@@ -622,8 +567,8 @@ const VideoComponent = (props) => {
           <source src={"/Videos/" + props.task.image} type="video/mp4"></source>
         </video>
 
-        {getClickableComponent()}
         {showFixationForTesting()}
+        {getClickableComponent()}        
         {showAOIs()}
       </div>
     )
