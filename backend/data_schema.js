@@ -73,7 +73,7 @@ const AnsweredComponentSchema = new Schema({
   componentType: String,
   componentVarient: String,
 
-  responseOptions: [String],
+  responseOptions: [Object],
   correctOptions: [String],
 
   responses: [],
@@ -94,7 +94,7 @@ const AnsweredComponentSchema = new Schema({
   clickedPoints: [{
     x: Number,
     y: Number,
-    aoi: [String], //names of the hit AOIs
+    hitAOIs: [String], //names of the hit AOIs
     ts: Number,
     _id: false
   }],
@@ -102,18 +102,13 @@ const AnsweredComponentSchema = new Schema({
   fixations: [{
     x: Number,
     y: Number,
-    aoi: [String], //names of the hit AOIs
+    hitAOIs: [String], //names of the hit AOIs
     ts: Number,
     length: Number,
     _id: false
   }],
 
-  aoiHitCounts: [{
-    aoi: String,
-    hitClickCount: Number,
-    hitFixationCount: Number,
-    _id: false
-  }],
+  aoiHitCounts: Object,
 
   isAlarmSuppressed: Boolean
 })

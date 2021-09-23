@@ -170,14 +170,17 @@ const Play = props => {
   }
 
   const logCallback = logObj => {
-    mqtt.sendMqttMessage('taskEvent/', JSON.stringify(logObj))
+    // mqtt.sendMqttMessage('taskEvent/', JSON.stringify(logObj))
 
-    if(logObj.event && logObj.event.eventType === 'COMPONENT'){
-      let component = logObj.component
-      let answeredComponent = new dbObjects.AnsweredComponent(logObj.event.eventTime, logObj.task.uid, component.text, component.correctResponses, component.responseOptions, component.type)
-      db_helper.addNewLineToParticipantDB(logObj.session.uid, JSON.stringify(answeredComponent))
-      console.log('Logged component')
-    }
+    // if(logObj.event && logObj.event.eventType === 'COMPONENT'){
+    //   console.log(logObj)
+    //   let component = logObj.component
+    //   // let answeredComponent = new dbObjects.AnsweredComponent(logObj.event.eventTime, logObj.task.uid, component.text, component.correctResponses, component.responseOptions, component.type)
+    //   let answeredComponent = new dbObjects.AnsweredComponent(logObj)
+
+    //   db_helper.addNewLineToParticipantDB(logObj.session.uid, JSON.stringify(answeredComponent))
+    //   console.log('Logged component')
+    // }
   }
 
   const statusObj = {

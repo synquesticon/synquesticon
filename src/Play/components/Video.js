@@ -9,7 +9,8 @@ import AOIComponent from "../../Edit/Task/Image/AOIEditor/AOIComponent"
 import makeLogObject from "../../core/makeLogObject"
 import "./css/Image.css"
 import { ContactsOutlined } from "@material-ui/icons"
-import { SetObject } from "../../core/db_objects"
+import * as dbObjects from "../../core/db_objects"
+import db_helper from '../../core/db_helper'
 
 let CLICK_RADIUS = "1"
 let OPACITY = "0.5"
@@ -25,8 +26,8 @@ const VideoComponent = (props) => {
     endAlarmTimer,
     registrationTimer,
     endRegistrationTimer = null
+  let videoStartTime = null
 
-  const [shouldPlayAlarmSound, setShouldPlayAlarmSound] = useState(false)
   const [videoWidth, setVideoWidth] = useState(100)
   const [videoHeight, setVideoHeight] = useState(100)
   const [videoElement, setVideoElement] = useState(null)
@@ -35,14 +36,21 @@ const VideoComponent = (props) => {
   const [fixations, setFixations] = useState([])
   const [aois, setAOIs] = useState(props.task.aois)
   let video = null
+  let isAlarmSuppressedValue = null
 
   useEffect(() => {
     clicksRef.current = [...clicks]
+    fixationsRef.current = [...fixations]
+
     video = new Image()
     video.src = "/Videos/" + props.task.video
     video.ref = videoRef
 
     if (props.task.aois.length > 0) {
+      store.dispatch({
+        type: "ADD_AOIS",
+        aois: JSON.parse(JSON.stringify(props.task.aois)),
+      })
       let aois = [...props.task.aois]
       aois.forEach((aoi) => {
         aoi.videoRef = videoRef
@@ -59,11 +67,6 @@ const VideoComponent = (props) => {
         hitFixationCount: 0,
       }
       setAOIs(aois)
-
-      store.dispatch({
-        type: "ADD_AOIS",
-        aois: aois,
-      })
 
       window.addEventListener("resize", handleVideoLoaded)
     }
@@ -126,26 +129,21 @@ const VideoComponent = (props) => {
     fixationsRef.current = fixations.slice()
   }, [fixations])
 
-  const getVideoComponent = () => {
-    return {
-      text: props.task.video,
-      responseOptions: props.task.aois,
-    }
-  }
-
   const getVideoData = (eventType) => {
     let data = {}
+    data.startTimeStamp = videoStartTime
     data.clickedPoints = clicksRef.current
     data.fixations = fixationsRef.current
+    data.isCorrect = isAlarmSuppressedValue
     data.aoiHitCounts = aoiHitCounts
     data.eventType = eventType
+    data.text = videoRef.current.currentSrc
+    data.responseOptions = store.getState().aois
     return data
   }
 
   const replayAudioSound = () => {
-    if (shouldPlayAlarmSound === true) {
       audioRef.current.play()
-    }
   }
 
   const getMousePosition = (e) => {
@@ -216,13 +214,17 @@ const VideoComponent = (props) => {
   // }
 
   const endAlarm = () => {
+    if(audioRef.current !== null){
+      audioRef.current.pause()
+    }
+    
     let tempAOIs = [...aois]
     tempAOIs.map((aoi, index) => {
       aoi.isFilledYellow = false
       aoi.isAcknowledged = false
     })
     setAOIs(tempAOIs)
-    setShouldPlayAlarmSound(false)
+
   }
 
   const checkAlarm = () => {
@@ -232,37 +234,35 @@ const VideoComponent = (props) => {
           aoiHitCounts[aoi.name].hitFixationCount <
           aoi.numberSufficentFixation
         ) {
+          isAlarmSuppressedValue = false
           let newAOI = aoi
           newAOI.isFilledYellow = true
           let tempAOIs = [...aois]
           tempAOIs = tempAOIs.splice(index, 1, newAOI)
           setAOIs(tempAOIs)
-          if (shouldPlayAlarmSound === false) {
-            setShouldPlayAlarmSound(true)
-            audioRef.current.play()
-          }
+          audioRef.current.play()
         } else {
+          isAlarmSuppressedValue = true
           let newAOI = aoi
           newAOI.isAcknowledged = true
           newAOI.isFilledYellow = false
           let tempAOIs = [...aois]
           tempAOIs = tempAOIs.splice(index, 1, newAOI)
           setAOIs(tempAOIs)
-          if (shouldPlayAlarmSound === true) {
-            setShouldPlayAlarmSound(false)
-          }
         }
-
-        props.logCallback(
-          makeLogObject(
-            props,
-            // getVideoComponent(),
-            getVideoData("COMPONENT"),
-            "Video"
-          )
-        )
       }
     })
+
+    let videoData = getVideoData("Video")
+    let componentData = makeLogObject(props, videoData, "Video")
+
+    console.log('VideoData log', videoData)
+
+    
+    let answeredVideoComponent = new dbObjects.AnsweredVideoComponent(componentData, videoData)
+    console.log('Logged component', answeredVideoComponent)
+
+    db_helper.addNewLineToParticipantDB(componentData.session.uid, JSON.stringify(answeredVideoComponent))
   }
 
   const onGazeEvent = () => {
@@ -287,10 +287,8 @@ const VideoComponent = (props) => {
         hitAOIs: hitAOIs,
         x: gazePos.x,
         y: gazePos.y,
-        fixationLength: fixationGaze.fixationLength,
+        length: fixationGaze.fixationLength,
       }
-
-      console.log("Here is one fixation ", fixation)
 
       hitAOIs.map(
         (hitAOI) =>
@@ -298,9 +296,9 @@ const VideoComponent = (props) => {
             aoiHitCounts[hitAOI].hitFixationCount + 1)
       )
 
-      setFixations([...fixations, fixation])
-
-      console.log("Count: ", aoiHitCounts)
+      setFixations((oldFixations) => {
+        return [...oldFixations, fixation]
+      })
     })
   }
 
@@ -317,7 +315,6 @@ const VideoComponent = (props) => {
   }
 
   const checkHitAOI = (click) => {
-    // let aois = store.getState().aois
     let aois = props.task.aois
     let pointInsideAOIs = []
 
@@ -349,7 +346,7 @@ const VideoComponent = (props) => {
   }
 
   const checkGazeHitAOI = (gazeX, gazeY, videoRef) => {
-    let aois = store.getState().aois
+    let aois = props.task.aois
     let pointInsideAOIs = []
 
     aois.map((a) => {
@@ -522,14 +519,14 @@ const VideoComponent = (props) => {
 
   const handleVideoLoaded = () => {
     if (videoRef && videoRef.current) {
+      videoStartTime = Date.now()
       setVideoElement(video)
       setVideoHeight(videoRef.current.clientHeight)
       setVideoWidth(videoRef.current.clientWidth)
 
       //set timer for registration time and alarm time
-      alarmTimer = setTimeout(() => checkAlarm(), props.task.alarmWindowStart)
-      endAlarmTimer = setTimeout(
-        () => endAlarm(),
+      alarmTimer = setTimeout(checkAlarm, props.task.alarmWindowStart)
+      endAlarmTimer = setTimeout(endAlarm,
         props.task.alarmWindowStart + props.task.alarmWindowDuration
       )
 
