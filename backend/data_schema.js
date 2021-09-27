@@ -29,6 +29,7 @@ const TaskSchema = new Schema({                 //objType: task
     recordClicks: Boolean,
     fullScreenImage: Boolean,
     showAOIs: Boolean,
+    showFixations: Boolean,
     aois: [{ //A list of AOIs relevant to the task
       name: String,
       numberSufficentFixation: Number,
@@ -68,7 +69,7 @@ const isCorrectEnum = ['correct', 'incorrect', 'notApplicable', 'skip']
 const AnsweredComponentSchema = new Schema({
   _id: false,
   taskId: Schema.Types.ObjectId,
-  startTimestamp: Number, //The start timestamp
+  startTimestamp: String, //The start timestamp
   text: String,
   componentType: String,
   componentVarient: String,
@@ -117,7 +118,7 @@ const ParticipantSchema = new Schema(
 {
     setName: String,
     setId: String,
-    eyeData: String,
+    rawGazeData: [],
     linesOfData: [AnsweredComponentSchema]
   }, 
   { collection: 'Participants' }

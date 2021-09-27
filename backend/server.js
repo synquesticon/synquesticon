@@ -58,8 +58,8 @@ db.on("error", console.error.bind(console, "MongoDB connection error:"))
 
 // (optional) only made for logging and
 // bodyParser, parses the request body to be a readable json format
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: false, limit: '50mb' }))
+app.use(bodyParser.json({limit: '50mb'}))
 app.use(logger("dev"))
 app.use('/uploads', express.static(IMAGE_FOLDER))
 app.use(express.static(path.join(__dirname, '../public')))
@@ -590,6 +590,15 @@ router.post("/addNewGlobalVariableToParticipant", (req, res) => {
   var globalVariable = JSON.parse(globalVariableJSON);
 
   Participants.updateOne({ _id: participantId }, { $addToSet: { globalVariables: globalVariable } }, (err, participant) => {
+    if (err) return res.json({ success: false, error: err });
+    return res.json({ success: true });
+  });
+});
+
+router.post("/addRawGazeDataToParticipant", (req, res) => {
+  const { participantId, rawGazeData } = req.body;
+
+  Participants.updateOne({ _id: participantId }, { $addToSet: { rawGazeData: JSON.parse(rawGazeData) } }, (err, participant) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true });
   });
