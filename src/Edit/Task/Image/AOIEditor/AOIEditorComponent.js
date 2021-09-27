@@ -66,7 +66,7 @@ class AOIEditorComponent extends Component {
     this.setState({ mode: mode })
   }
 
-  onCloseAOINameDialog(name, startTime, numberSufficentFixation) {
+  onCloseAOINameDialog(name, numberSufficentFixation) {
     if (name !== "") {
       try {
         this.tempAOI.name = name
@@ -76,7 +76,6 @@ class AOIEditorComponent extends Component {
           boundingbox: this.tempAOI.boundingbox,
         }
         if(this.props.isVideo) {
-          newAOI.startTime = startTime
           newAOI.numberSufficentFixation = numberSufficentFixation
         }
         this.props.task.aois.push(newAOI)

@@ -29,11 +29,20 @@ const TaskSchema = new Schema({                 //objType: task
     recordClicks: Boolean,
     fullScreenImage: Boolean,
     showAOIs: Boolean,
+    showFixations: Boolean,
     aois: [{ //A list of AOIs relevant to the task
       name: String,
+      numberSufficentFixation: Number,
       boundingbox: [[Number]],
       _id: false
     }],
+
+    // Video specific
+    alarmWindowStart: Number,
+    alarmWindowDuration: Number,
+
+    registrationWindowStart: Number,
+    registrationWindowDuration: Number,
   }],
 
 }, {
@@ -56,61 +65,61 @@ const SetSchema = new Schema({
   collection: 'Sets'
 })
 
+const isCorrectEnum = ['correct', 'incorrect', 'notApplicable', 'skip']
+const AnsweredComponentSchema = new Schema({
+  _id: false,
+  taskId: Schema.Types.ObjectId,
+  startTimestamp: String, //The start timestamp
+  text: String,
+  componentType: String,
+  componentVarient: String,
+
+  responseOptions: [Object],
+  correctOptions: [String],
+
+  responses: [],
+  /* correctlyAnswered:
+  1. If the participant answers correctly, we log it as “correct”.
+  2. If the participant answers incorrectly, we log it as “incorrect”.
+  3. If no correct answer was provided (i.e. the field “correct answer” in the editor is empty), we log it as “notApplicable”.
+  4. If the participant clicked “skip”, we log it as “skipped”, regardless of (3).
+  */
+  isCorrect: {
+    type: String,
+    enum: isCorrectEnum
+  },
+  
+  timeToCompletion: Number,
+
+  // Image/Video designated
+  clickedPoints: [{
+    x: Number,
+    y: Number,
+    hitAOIs: [String], //names of the hit AOIs
+    ts: Number,
+    _id: false
+  }],
+
+  fixations: [{
+    x: Number,
+    y: Number,
+    hitAOIs: [String], //names of the hit AOIs
+    ts: Number,
+    length: Number,
+    _id: false
+  }],
+
+  aoiHitCounts: Object,
+
+  isAlarmSuppressed: Boolean
+})
+
 const ParticipantSchema = new Schema(
 {
-    readableId: String,
-    mainTaskSetId: String,
-    eyeData: String,
-    linesOfData: [{
-      _id: false,
-      tasksFamilyTree: [String],
-      taskId: String,
-      taskContent: String,
-      objType: String,
-      responses: [String],
-      correctResponses: [String],
-      /* correctlyAnswered:
-      1. If the participant answers correctly, we log it as “correct”.
-      2. If the participant answers incorrectly, we log it as “incorrect”.
-      3. If no correct answer was provided (i.e. the field “correct answer” in the editor is empty), we log it as “notApplicable”.
-      4. If the participant clicked “skip”, we log it as “skipped”, regardless of (3).
-      */
-      correctlyAnswered: String,
-
-      startTimestamp: Number, //The start timestamp
-      /*
-      raw timestamp for every response
-      */
-      firstResponseTimestamp: Number, //The end timestamp
-      /* timeToFirstAnswer
-      time from when the question was presented to first input
-      - for buttons: to when first button is pressed
-      - for text entry: to when first letter is entered ("oninput")
-      */
-      timeToFirstAnswer: Number,
-      /* timeToCompletion
-      time from when the question was presented to clicking "next"
-      In case of "skipped", we leave (1) empty and log (2) as time to pressing "skip".
-      */
-      timeToCompletion: Number,
-      clickedPoints: [{
-        aoi: [String], //names of the hit AOIs
-        x: Number,
-        y: Number,
-        timeClicked: Number,
-        _id: false
-      }],
-      aoiCheckedList: [{
-        label: String,
-        checked: Boolean,
-        _id: false
-      }]
-    }],
-    globalVariables: [{
-      label: String,
-      value: [String],
-      _id: false
-    }]
+    setName: String,
+    setId: String,
+    rawGazeData: [],
+    linesOfData: [AnsweredComponentSchema]
   }, 
   { collection: 'Participants' }
 )

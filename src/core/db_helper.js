@@ -453,6 +453,23 @@ class db_helper {
       .then( response => { })
   }
 
+    /**
+   * addRawGazeDataToParticipant - Adds a gaze data to the specified participant.
+   * Takes the MongoDB of the participant, and the raw data to add. Note that the
+   * data should be stringified before calling this function.
+   *
+   * @param  {string} participantId      The MongoDB id of the participant-
+   * @param  {type}   rawGazeDataJSON The global variable object.
+   */
+     addRawGazeDataToParticipantDB(participantId, rawGazeDataJSON) {
+      if (participantId === undefined) return
+      axios.post("/api/addRawGazeDataToParticipant", {
+        participantId: participantId,
+        rawGazeData: rawGazeDataJSON //please stringify before calling this function
+      })
+        .then( response => { })
+    }
+
   deleteAllParticipantsFromDb(callback) {
     axios.delete("/api/deleteAllParticipants")
       .then(() => callback())

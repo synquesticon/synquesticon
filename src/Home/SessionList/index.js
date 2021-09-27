@@ -36,7 +36,7 @@ const SessionList = props => {
   }
 
   const appendParticipantID = async (url) => {
-    let result = await db_helper.addParticipantToDbSync(new db_objects.ParticipantObject(selectedTaskSet._id)).then(
+    let result = await db_helper.addParticipantToDbSync(new db_objects.ParticipantObject(selectedTaskSet)).then(
       function (v) { return { v: v, status: "fulfilled" } },
       function (e) { return { e: e, status: "rejected" } }
     )
@@ -61,7 +61,7 @@ const SessionList = props => {
   const onPlayButtonClick = (taskSet, emitterTriggered) => {
     selectedTaskSet = taskSet
     if (emitterTriggered === undefined && store.getState().multipleScreens) {
-      db_helper.addParticipantToDb(new db_objects.ParticipantObject(taskSet._id), (dbID) => {
+      db_helper.addParticipantToDb(new db_objects.ParticipantObject(taskSet), (dbID) => {
         store.dispatch({
           type: 'SET_PARTICIPANT_ID',
           participantId: dbID

@@ -1,6 +1,8 @@
-﻿namespace TobiiRemoteEyeTrackingServer
+﻿using System;
+
+namespace TobiiRemoteEyeTrackingServer
 {
-    partial class Form1
+    public partial class Form1
     {
         /// <summary>
         /// Required designer variable.
@@ -15,6 +17,7 @@
         {
             if (disposing && (components != null))
             {
+
                 components.Dispose();
             }
             base.Dispose(disposing);
@@ -40,12 +43,16 @@
             this.label4 = new System.Windows.Forms.Label();
             this.WAMPPanel = new System.Windows.Forms.Panel();
             this.label5 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
             this.FindTrackersBtn = new System.Windows.Forms.Button();
             this.label6 = new System.Windows.Forms.Label();
             this.FrequencyComboBox = new System.Windows.Forms.ComboBox();
             this.label7 = new System.Windows.Forms.Label();
             this.ModeComboBox = new System.Windows.Forms.ComboBox();
-            this.label2 = new System.Windows.Forms.Label();
+            this.BatchSizeComboBox = new System.Windows.Forms.ComboBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
+            this.thresholdTxtBox = new System.Windows.Forms.TextBox();
             this.CalibrationPanel.SuspendLayout();
             this.WAMPPanel.SuspendLayout();
             this.SuspendLayout();
@@ -95,11 +102,12 @@
             this.MQTTIPTextBox.Size = new System.Drawing.Size(270, 20);
             this.MQTTIPTextBox.TabIndex = 6;
             this.MQTTIPTextBox.Text = "synquesticon.azurewebsites.net/mqtt";
+            this.MQTTIPTextBox.TextChanged += new System.EventHandler(this.MQTTIPTextBox_TextChanged);
             // 
             // RealmTextbox
             // 
             this.RealmTextbox.Location = new System.Drawing.Point(0, 0);
-            this.RealmTextbox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.RealmTextbox.Margin = new System.Windows.Forms.Padding(2);
             this.RealmTextbox.Name = "RealmTextbox";
             this.RealmTextbox.Size = new System.Drawing.Size(76, 20);
             this.RealmTextbox.TabIndex = 14;
@@ -157,6 +165,7 @@
             this.WAMPPanel.Name = "WAMPPanel";
             this.WAMPPanel.Size = new System.Drawing.Size(413, 91);
             this.WAMPPanel.TabIndex = 11;
+            this.WAMPPanel.Paint += new System.Windows.Forms.PaintEventHandler(this.WAMPPanel_Paint);
             // 
             // label5
             // 
@@ -167,6 +176,14 @@
             this.label5.Size = new System.Drawing.Size(47, 16);
             this.label5.TabIndex = 12;
             this.label5.Text = "MQTT";
+            // 
+            // label2
+            // 
+            this.label2.Location = new System.Drawing.Point(0, 0);
+            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(75, 19);
+            this.label2.TabIndex = 13;
             // 
             // FindTrackersBtn
             // 
@@ -181,7 +198,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(260, 159);
+            this.label6.Location = new System.Drawing.Point(268, 111);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(57, 13);
             this.label6.TabIndex = 12;
@@ -190,7 +207,7 @@
             // FrequencyComboBox
             // 
             this.FrequencyComboBox.FormattingEnabled = true;
-            this.FrequencyComboBox.Location = new System.Drawing.Point(318, 156);
+            this.FrequencyComboBox.Location = new System.Drawing.Point(331, 108);
             this.FrequencyComboBox.Name = "FrequencyComboBox";
             this.FrequencyComboBox.Size = new System.Drawing.Size(94, 21);
             this.FrequencyComboBox.TabIndex = 13;
@@ -199,34 +216,68 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(79, 159);
+            this.label7.Location = new System.Drawing.Point(264, 59);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(34, 13);
             this.label7.TabIndex = 14;
             this.label7.Text = "Mode";
+            this.label7.Click += new System.EventHandler(this.label7_Click);
             // 
             // ModeComboBox
             // 
             this.ModeComboBox.FormattingEnabled = true;
-            this.ModeComboBox.Location = new System.Drawing.Point(119, 156);
+            this.ModeComboBox.Location = new System.Drawing.Point(304, 56);
             this.ModeComboBox.Name = "ModeComboBox";
             this.ModeComboBox.Size = new System.Drawing.Size(121, 21);
             this.ModeComboBox.TabIndex = 15;
             this.ModeComboBox.SelectedIndexChanged += new System.EventHandler(this.ModeComboBox_SelectedIndexChanged);
             // 
-            // label2
+            // BatchSizeComboBox
             // 
-            this.label2.Location = new System.Drawing.Point(0, 0);
-            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(75, 19);
-            this.label2.TabIndex = 13;
+            this.BatchSizeComboBox.FormattingEnabled = true;
+            this.BatchSizeComboBox.Location = new System.Drawing.Point(331, 139);
+            this.BatchSizeComboBox.Name = "BatchSizeComboBox";
+            this.BatchSizeComboBox.Size = new System.Drawing.Size(94, 21);
+            this.BatchSizeComboBox.TabIndex = 16;
+            this.BatchSizeComboBox.SelectedIndexChanged += new System.EventHandler(this.BatchSizeComboBox_SelectedIndexChanged);
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(268, 142);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(56, 13);
+            this.label8.TabIndex = 17;
+            this.label8.Text = "Batch size";
+            this.label8.Click += new System.EventHandler(this.label8_Click);
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(184, 174);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(141, 13);
+            this.label9.TabIndex = 17;
+            this.label9.Text = "Threshold (degrees/second)";
+            this.label9.Click += new System.EventHandler(this.label8_Click);
+            // 
+            // thresholdTxtBox
+            // 
+            this.thresholdTxtBox.Location = new System.Drawing.Point(331, 171);
+            this.thresholdTxtBox.Name = "thresholdTxtBox";
+            this.thresholdTxtBox.Size = new System.Drawing.Size(94, 20);
+            this.thresholdTxtBox.TabIndex = 6;
+            this.thresholdTxtBox.TextChanged += new System.EventHandler(this.ThresholdTxtBox_TextChanged);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(437, 474);
+            this.Controls.Add(this.label9);
+            this.Controls.Add(this.thresholdTxtBox);
+            this.Controls.Add(this.label8);
+            this.Controls.Add(this.BatchSizeComboBox);
             this.Controls.Add(this.ModeComboBox);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.FrequencyComboBox);
@@ -247,6 +298,7 @@
 
         }
 
+
         #endregion
         private System.Windows.Forms.ComboBox TrackerListComboBox;
         private System.Windows.Forms.Button CalibrateBtn;
@@ -266,6 +318,10 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.ComboBox ModeComboBox;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.ComboBox BatchSizeComboBox;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.TextBox thresholdTxtBox;
     }
 }
 
