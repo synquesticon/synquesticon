@@ -21,6 +21,9 @@ const VideoComponent = (props) => {
   const audioRef = useRef()
   const clicksRef = useRef()
   const fixationsRef = useRef()
+  const rawGazeDataRef = useRef()
+
+  
 
   let alarmTimer,
     endAlarmTimer,
@@ -33,6 +36,7 @@ const VideoComponent = (props) => {
   const [videoElement, setVideoElement] = useState(null)
   const [aoiHitCounts, setAOIHitCount] = useState({})
   const [clicks, setClicks] = useState([])
+  const [rawGazeData, setRawGazeData] = useState([])
   const [fixations, setFixations] = useState([])
   const [aois, setAOIs] = useState(props.task.aois)
   let video = null
@@ -41,6 +45,7 @@ const VideoComponent = (props) => {
   useEffect(() => {
     clicksRef.current = [...clicks]
     fixationsRef.current = [...fixations]
+    rawGazeDataRef.current = [...rawGazeData]
 
     video = new Image()
     video.src = "/Videos/" + props.task.video
@@ -118,6 +123,10 @@ const VideoComponent = (props) => {
       clearTimeout(registrationTimer)
       clearTimeout(endRegistrationTimer)
       window.removeEventListener("resize", handleVideoLoaded)
+      eventStore.setGazeListener("off", onGazeEventFullVideo)
+
+      db_helper.addRawGazeDataToParticipantDB(store.getState().experimentInfo.participantId, JSON.stringify(rawGazeDataRef.current))
+      console.log('Raw gaze data', rawGazeDataRef.current)
     }
   }, [])
 
@@ -129,9 +138,24 @@ const VideoComponent = (props) => {
     fixationsRef.current = fixations.slice()
   }, [fixations])
 
+  useEffect(() => {
+    rawGazeDataRef.current = rawGazeData.slice()
+  }, [rawGazeData])
+
+  const formatDateTime = (t) => {
+    const d = new Date(t)
+    const fillZero = num => {
+      if (num < 10) return '0' + num
+      else return num
+    }
+    return(
+      d.getFullYear() + '-' + fillZero(d.getMonth() + 1) + '-' + fillZero(d.getDate()) + ' ' + fillZero(d.getHours()) + ':' + fillZero(d.getMinutes()) + ':' + fillZero(d.getSeconds())
+    )
+  }
+
   const getVideoData = (eventType) => {
     let data = {}
-    data.startTimeStamp = videoStartTime
+    data.startTimeStamp = formatDateTime(videoStartTime)
     data.clickedPoints = clicksRef.current
     data.fixations = fixationsRef.current
     data.isCorrect = isAlarmSuppressedValue
@@ -256,11 +280,8 @@ const VideoComponent = (props) => {
     let videoData = getVideoData("Video")
     let componentData = makeLogObject(props, videoData, "Video")
 
-    console.log('VideoData log', videoData)
-
     
     let answeredVideoComponent = new dbObjects.AnsweredVideoComponent(componentData, videoData)
-    console.log('Logged component', answeredVideoComponent)
 
     db_helper.addNewLineToParticipantDB(componentData.session.uid, JSON.stringify(answeredVideoComponent))
   }
@@ -299,6 +320,15 @@ const VideoComponent = (props) => {
       setFixations((oldFixations) => {
         return [...oldFixations, fixation]
       })
+    })
+  }
+
+  const onGazeEventFullVideo = () => {
+    let newGazeData = JSON.parse(eventStore.getGazeData()).data
+
+    setRawGazeData((oldRawGazeData) => {
+      let tempRawGazeData = [...oldRawGazeData, ...newGazeData]
+      return tempRawGazeData
     })
   }
 
@@ -440,35 +470,40 @@ const VideoComponent = (props) => {
   }
 
   const showFixationForTesting = () => {
-    const left = videoElement ? parseInt(videoElement.offsetLeft) : 0
+    if(props.task.showFixations){
+      const left = videoElement ? parseInt(videoElement.offsetLeft) : 0
 
-    return (
-      <svg
-        style={{ left: left }}
-        className="clickableCanvas"
-        width={videoWidth}
-        opacity={OPACITY}
-        height={videoHeight}
-        viewBox="0 0 100 100"
-        preserveAspectRatio="none"
-      >
-        <g stroke="none" fill="black">
-          {fixations.map((item, index) => {
-            return (
-              <ellipse
-                key={index}
-                cx={item.x * 100}
-                cy={item.y * 100}
-                rx={CLICK_RADIUS}
-                ry={CLICK_RADIUS * 1.8}
-                fill={COLOR}
-                style={{ pointerEvents: "none" }}
-              />
-            )
-          })}
-        </g>
-      </svg>
-    )
+      return (
+        <svg
+          style={{ left: left }}
+          className="clickableCanvas"
+          width={videoWidth}
+          opacity={OPACITY}
+          height={videoHeight}
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+        >
+          <g stroke="none" fill="black">
+            {fixations.map((item, index) => {
+              return (
+                <ellipse
+                  key={index}
+                  cx={item.x * 100}
+                  cy={item.y * 100}
+                  rx={CLICK_RADIUS}
+                  ry={CLICK_RADIUS * 1.8}
+                  fill={COLOR}
+                  style={{ pointerEvents: "none" }}
+                />
+              )
+            })}
+          </g>
+        </svg>
+      )
+    } else{
+      return null
+    }
+    
   }
 
   const resetAOI = (index) => {
@@ -520,6 +555,7 @@ const VideoComponent = (props) => {
   const handleVideoLoaded = () => {
     if (videoRef && videoRef.current) {
       videoStartTime = Date.now()
+      eventStore.setGazeListener("on", onGazeEventFullVideo)
       setVideoElement(video)
       setVideoHeight(videoRef.current.clientHeight)
       setVideoWidth(videoRef.current.clientWidth)

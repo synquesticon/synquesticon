@@ -35,6 +35,11 @@ const ImageTaskType = (props) => {
   const [showAOIs, setShowAOIs] = useState(
     props.task ? props.task.showAOIs : false
   )
+
+  const [showFixations, setShowFixations] = useState(
+    props.task ? props.task.showFixations : false
+  )
+
   const [openBrowseImage, setOpenBrowseImage] = useState(false)
 
   let preview = false
@@ -50,8 +55,13 @@ const ImageTaskType = (props) => {
     setFullScreenImage(checked)
   }
 
+  const onShowFixationsChanged = (e, checked) => {
+    props.task.showFixations = checked
+    setShowFixations(checked)
+  }
+
   const onShowAOIsChanged = (e, checked) => {
-    props.task.showAOIs = checked
+    props.task.showFixations = checked
     setShowAOIs(checked)
   }
 
@@ -97,33 +107,8 @@ const ImageTaskType = (props) => {
 
   }
 
-  let previewImage = (
-    <div
-      style={{
-        width: "100%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <Typography color="textPrimary"> "No Image selected" </Typography>
-    </div>
-  )
-
-  if (selectedImage !== "") {
-    previewImage = (
-      <AOIEditorComponent
-        isVideo={isVideo}
-        preview={preview}
-        task={props.task}
-        image={image}
-      />
-    )
-  }
-
-  return (
-    <div className="imageTypeContainer">
-      <div className="imagePickingContainer">
+  const getCheckBoxes = () => {
+      return (<div className="imagePickingContainer">
         <FormControlLabel
           label="Record Clicks"
           value="end"
@@ -155,11 +140,53 @@ const ImageTaskType = (props) => {
           onChange={onShowAOIsChanged}
           labelPlacement="end"
         />
+        
+        
+        {props.isVideo === true ? <FormControlLabel
+          label="Show Fixations"
+          value="end"
+          id={props.uniqueID + "saois"}
+          padding="dense"
+          checked={showFixations}
+          control={<Checkbox color="secondary" />}
+          onChange={onShowFixationsChanged}
+          labelPlacement="end"
+        /> : null
+        }
         <Button variant="outlined" onClick={() => setOpenBrowseImage(true)}>
           {isVideo ? "Browse Videos" : "Browse Images"}
         </Button>
         <FileSelector handleSelectionCallback={onImageFileSelected} />
-      </div>
+      </div>)
+  }
+
+  let previewImage = (
+    <div
+      style={{
+        width: "100%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Typography color="textPrimary"> "No Image selected" </Typography>
+    </div>
+  )
+
+  if (selectedImage !== "") {
+    previewImage = (
+      <AOIEditorComponent
+        isVideo={isVideo}
+        preview={preview}
+        task={props.task}
+        image={image}
+      />
+    )
+  }
+
+  return (
+    <div className="imageTypeContainer">
+      {getCheckBoxes()}
       <TextField
         required
         padding="dense"
