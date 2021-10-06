@@ -204,7 +204,7 @@ namespace TobiiRemoteEyeTrackingServer
                 var options = new MqttClientOptionsBuilder()
                     .WithClientId("Tobii RET")
                     .WithWebSocketServer(mqttText) //"broker.hivemq.com:8000/mqtt"
-                    .WithTls() //For wss
+                    //.WithTls() //For wss
                     .Build();
                 await mqttClient.ConnectAsync(options, CancellationToken.None); // Since 3.0.5 with CancellationToken
 
@@ -232,22 +232,22 @@ namespace TobiiRemoteEyeTrackingServer
 
 
 
-                Form FixationForm = new Form();
-                FixationForm.ControlBox = false;
+                //Form FixationForm = new Form();
+                //FixationForm.ControlBox = false;
                 
-                FixationForm.WindowState = FormWindowState.Normal;
-                FixationForm.FormBorderStyle = FormBorderStyle.None;
-                FixationForm.WindowState = FormWindowState.Maximized;
+                //FixationForm.WindowState = FormWindowState.Normal;
+                //FixationForm.FormBorderStyle = FormBorderStyle.None;
+                //FixationForm.WindowState = FormWindowState.Maximized;
 
-                FixationForm.Show();
+                //FixationForm.Show();
 
-                Panel AnimatedPointPanel = new Panel();
-                AnimatedPointPanel.Width = FixationForm.Width;
-                AnimatedPointPanel.Height = FixationForm.Height;
-                Graphics AnimatedPointGraphics = AnimatedPointPanel.CreateGraphics();
-                FixationForm.Controls.Add(AnimatedPointPanel);
-                int w = FixationForm.Width;
-                int h = FixationForm.Height;
+                //Panel AnimatedPointPanel = new Panel();
+                //AnimatedPointPanel.Width = FixationForm.Width;
+                //AnimatedPointPanel.Height = FixationForm.Height;
+                //Graphics AnimatedPointGraphics = AnimatedPointPanel.CreateGraphics();
+                //FixationForm.Controls.Add(AnimatedPointPanel);
+                //int w = FixationForm.Width;
+                //int h = FixationForm.Height;
 
 
                 MQTTThread = new Thread(async () => {
@@ -303,8 +303,8 @@ namespace TobiiRemoteEyeTrackingServer
                                     {
                                         Console.WriteLine("Start Of New Fixation");
                                         Console.WriteLine(gazeX.ToString() + "\t" + gazeY.ToString());
-                                        Console.WriteLine(gazeX * w);
-                                        Console.WriteLine(gazeY * h);
+                                        //Console.WriteLine(gazeX * w);
+                                        //Console.WriteLine(gazeY * h);
                                         PreviousFixationState = "Fixation";
                                         TimeStampOfLastChange = currentgazeEvent.DeviceTimeStamp;
                                     }
@@ -330,8 +330,8 @@ namespace TobiiRemoteEyeTrackingServer
                                     {
                                         Console.WriteLine("End Of Fixation");
                                         Console.WriteLine(gazeX.ToString() + "\t" + gazeY.ToString());
-                                        Console.WriteLine(gazeX * w);
-                                        Console.WriteLine(gazeY * h);
+                                        //Console.WriteLine(gazeX * w);
+                                        //Console.WriteLine(gazeY * h);
                                         Console.WriteLine(currentgazeEvent.DeviceTimeStamp - TimeStampOfLastChange);
 
                                         long fixationLength = currentgazeEvent.DeviceTimeStamp - TimeStampOfLastChange;
@@ -346,10 +346,10 @@ namespace TobiiRemoteEyeTrackingServer
                                         int radius = 10;
                                         Console.Write("--> Fixation ");
                                         Console.WriteLine(gazeX.ToString() + "\t" + gazeY.ToString());
-                                        Console.WriteLine(gazeX * w);
-                                        Console.WriteLine(gazeY * h);
+                                        //Console.WriteLine(gazeX * w);
+                                        //Console.WriteLine(gazeY * h);
 
-                                        AnimatedPointGraphics.DrawEllipse(CalBrush, gazeX * w - radius, gazeY * h - radius, radius + radius, radius + radius);
+                                        //AnimatedPointGraphics.DrawEllipse(CalBrush, gazeX * w - radius, gazeY * h - radius, radius + radius, radius + radius);
 
                                     }
                                 }

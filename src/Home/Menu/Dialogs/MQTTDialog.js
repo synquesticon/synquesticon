@@ -8,7 +8,7 @@ import TextField from '@material-ui/core/TextField'
 import * as mqtt from '../../../core/mqtt'
 
 const mqttDialog = (props) => {
-  const [mqttURL, setMqttURL] = useState('synquesticon.azurewebsites.net/mqtt')
+  const [mqttURL, setMqttURL] = useState('localhost/mqtt')
 
   const mqttObject = {
     mqttURL: mqttURL

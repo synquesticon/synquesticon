@@ -1,0 +1,55 @@
+version: '3'
+
+services:
+
+  # Proxies requests to internal services
+  reverse-proxy:
+    image: nginx:latest
+    container_name: reverse-proxy
+    depends_on:
+        - synquesticon
+        - aedes-broker
+        - synquesticon-backend
+    volumes:
+        - C:\Users\taitl\OneDrive - Institutt for Energiteknikk\Documents\Synquesticon_compose\nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 80:80
+      - 443:443
+
+  # generates greetings when it is connected, can be changed to Synquesticon later
+  # Establish a mqtt broker server
+  aedes-broker:
+    image: synquesticon.azurecr.io/aedes-broker
+    container_name: aedes-broker
+    ports:
+      - 9001:9001
+    restart: always
+
+  synquesticon:
+    image: synquesticon.azurecr.io/synquesticon-frontend:video_vt_local
+    container_name: synquesticon
+    volumes:
+      - C:\Users\taitl\OneDrive - Institutt for Energiteknikk\Documents\Synquesticon_compose\Images:/synquesticon/public/Images
+      - C:\Users\taitl\OneDrive - Institutt for Energiteknikk\Documents\Synquesticon_compose\Videos:/synquesticon/public/Videos
+    ports:
+      - 3000:3000
+    restart: always
+  
+  synquesticon-backend: 
+    image: synquesticon.azurecr.io/synquesticon-backend:video_vt_local
+    container_name: synquesticon-backend
+    depends_on:
+        - mongo
+    volumes:
+      - C:\Users\taitl\OneDrive - Institutt for Energiteknikk\Documents\Synquesticon_compose\Images:/public/Images
+      - C:\Users\taitl\OneDrive - Institutt for Energiteknikk\Documents\Synquesticon_compose\Videos:/public/Videos
+    ports:
+      - 3001:3001
+    restart: always
+  
+  mongo:
+    image: mongo
+    container_name: synquesticon_mongodb
+    ports:
+      - 27017:27017
+  

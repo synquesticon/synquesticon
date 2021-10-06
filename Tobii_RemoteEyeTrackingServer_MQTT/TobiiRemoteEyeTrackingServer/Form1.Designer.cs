@@ -101,7 +101,7 @@ namespace TobiiRemoteEyeTrackingServer
             this.MQTTIPTextBox.Name = "MQTTIPTextBox";
             this.MQTTIPTextBox.Size = new System.Drawing.Size(270, 20);
             this.MQTTIPTextBox.TabIndex = 6;
-            this.MQTTIPTextBox.Text = "synquesticon.azurewebsites.net/mqtt";
+            this.MQTTIPTextBox.Text = "localhost/mqtt";
             this.MQTTIPTextBox.TextChanged += new System.EventHandler(this.MQTTIPTextBox_TextChanged);
             // 
             // RealmTextbox

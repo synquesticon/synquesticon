@@ -27,12 +27,12 @@ const _startMQTT = (config, restart) => {
   } else if (last_config && (last_config.mqttURL))
     return
 
-  let wssURL = "wss://" + config.mqttURL
+  let wsURL = "ws://" + config.mqttURL
 
-  console.log("Attempting to connect to the mqtt broker ", wssURL)
+  console.log("Attempting to connect to the mqtt broker ", wsURL)
 
   //mqttClient = mqtt.connect(wsURL)
-  mqttClient = mqtt.connect(wssURL, {rejectUnauthorized: false})
+  mqttClient = mqtt.connect(wsURL, {rejectUnauthorized: false})
   last_config = config
 
 // SUBSCRIBE TO TOPICS
